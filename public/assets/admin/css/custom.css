@@ -1,0 +1,33 @@
+/* Delete modal animations */
+#delete-modal-content {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#delete-modal-content.opacity-100 {
+    opacity: 1 !important;
+}
+
+#delete-modal-content.translate-y-0 {
+    transform: translateY(0) !important;
+}
+
+#delete-modal-content.opacity-0 {
+    opacity: 0 !important;
+}
+
+#delete-modal-content.translate-y-4 {
+    transform: translateY(1rem) !important;
+}
+
+/* Fix for modal display */
+#delete-confirm-modal {
+    display: none;
+}
+
+#delete-confirm-modal.hidden {
+    display: none !important;
+}
+
+#delete-confirm-modal:not(.hidden) {
+    display: block !important;
+}
