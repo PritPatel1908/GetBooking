@@ -23,6 +23,10 @@
         <link rel="stylesheet" href="{{ asset('assets/welcome/css/style.css') }}">
 
         <script src="{{ asset('assets/welcome/js/before_call.js')}}"></script>
+
+        <!-- Add this in the head section -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     </head>
     <body class="font-sans antialiased text-gray-800 bg-gray-50">
         <!-- Navbar -->
@@ -46,11 +50,7 @@
                             @auth
                                 <a href="{{ url('/dashboard') }}" class="ml-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300">Dashboard</a>
                             @else
-                                <a href="{{ route('login') }}" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 transition duration-300">Log in</a>
-
-                                @if (Route::has('register'))
-                                    <a href="{{ route('register') }}" class="ml-4 px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition duration-300">Register</a>
-                                @endif
+                                <a href="{{ route('login') }}" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 transition duration-300">Log in / Register</a>
                             @endauth
                         @endif
                     </div>
@@ -136,232 +136,65 @@
 
                 <!-- Grounds Filter -->
                 <div class="flex flex-wrap justify-center gap-3 mb-10" data-aos="fade-up" data-aos-delay="100">
-                    <button class="ground-filter-btn active px-4 py-2 rounded-full bg-emerald-100 text-emerald-600 font-medium hover:bg-emerald-200 transition duration-300">
+                    <button class="ground-filter-btn active px-4 py-2 rounded-full bg-emerald-100 text-emerald-600 font-medium hover:bg-emerald-200 transition duration-300" data-category="all">
                         All Grounds
                     </button>
-                    <button class="ground-filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition duration-300">
+                    <button class="ground-filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition duration-300" data-category="football">
                         Football
                     </button>
-                    <button class="ground-filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition duration-300">
+                    <button class="ground-filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition duration-300" data-category="cricket">
                         Cricket
                     </button>
-                    <button class="ground-filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition duration-300">
+                    <button class="ground-filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition duration-300" data-category="basketball">
                         Basketball
                     </button>
-                    <button class="ground-filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition duration-300">
+                    <button class="ground-filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition duration-300" data-category="tennis">
                         Tennis
                     </button>
                 </div>
 
                 <!-- Grounds Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Ground Card 1 -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1" data-aos="fade-up" data-aos-delay="150">
+                    @foreach($grounds as $ground)
+                    <div class="ground-card bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1" data-aos="fade-up" data-aos-delay="{{ $loop->iteration * 50 }}" data-category="{{ strtolower($ground->ground_type) }}">
                         <div class="relative h-56 overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?q=80&w=2070" alt="Football Ground" class="object-cover w-full h-full">
+                            <img src="{{ $ground->getImageUrl() }}" alt="{{ $ground->name }}" class="object-cover w-full h-full">
                             <div class="absolute top-4 left-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                Football
+                                {{ ucfirst($ground->ground_type) }}
                             </div>
+                            @if($ground->is_featured)
                             <div class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                4.9 ★
+                                Featured
                             </div>
+                            @endif
                         </div>
                         <div class="p-6">
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Emerald Football Arena</h3>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ $ground->name }}</h3>
                             <div class="flex items-center text-gray-600 mb-3">
                                 <i class="fas fa-map-marker-alt mr-2 text-emerald-500"></i>
-                                <span>Central Park, South Delhi</span>
+                                <span>{{ $ground->location }}</span>
                             </div>
                             <div class="flex items-center justify-between mb-4">
                                 <div class="text-gray-600">
                                     <i class="fas fa-users mr-2 text-blue-500"></i>
-                                    <span>5v5, 7v7, 11v11</span>
+                                    <span>Capacity: {{ $ground->capacity }}</span>
                                 </div>
                                 <div class="text-gray-600">
-                                    <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>
-                                    <span>Flood Lights</span>
+                                    <i class="fas fa-clock mr-2 text-yellow-500"></i>
+                                    <span>{{ $ground->opening_time }} - {{ $ground->closing_time }}</span>
                                 </div>
                             </div>
                             <div class="flex items-center justify-between">
-                                <div class="text-lg font-bold text-emerald-600">₹1,200/hr</div>
-                                <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">Book Now</a>
+                                <div class="text-lg font-bold text-emerald-600">₹{{ number_format($ground->price_per_hour, 2) }}/hr</div>
+                                <a href="{{ route('ground.show', $ground->id) }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">View Details</a>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Ground Card 2 -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1" data-aos="fade-up" data-aos-delay="200">
-                        <div class="relative h-56 overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1589661329742-713c46926e34?q=80&w=2070" alt="Cricket Ground" class="object-cover w-full h-full">
-                            <div class="absolute top-4 left-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                Cricket
-                            </div>
-                            <div class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                4.7 ★
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Royal Cricket Stadium</h3>
-                            <div class="flex items-center text-gray-600 mb-3">
-                                <i class="fas fa-map-marker-alt mr-2 text-emerald-500"></i>
-                                <span>Sports Complex, Noida</span>
-                            </div>
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="text-gray-600">
-                                    <i class="fas fa-cricket-ball mr-2 text-red-500"></i>
-                                    <span>Turf Wicket</span>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="fas fa-shower mr-2 text-blue-500"></i>
-                                    <span>Changing Rooms</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="text-lg font-bold text-emerald-600">₹1,500/hr</div>
-                                <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">Book Now</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Ground Card 3 -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1" data-aos="fade-up" data-aos-delay="250">
-                        <div class="relative h-56 overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1518775053278-5a569f0be353?q=80&w=2070" alt="Basketball Court" class="object-cover w-full h-full">
-                            <div class="absolute top-4 left-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                Basketball
-                            </div>
-                            <div class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                4.8 ★
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Slam Dunk Court</h3>
-                            <div class="flex items-center text-gray-600 mb-3">
-                                <i class="fas fa-map-marker-alt mr-2 text-emerald-500"></i>
-                                <span>Urban Sports Park, Gurgaon</span>
-                            </div>
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="text-gray-600">
-                                    <i class="fas fa-basketball-ball mr-2 text-orange-500"></i>
-                                    <span>Indoor Court</span>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="fas fa-wifi mr-2 text-blue-500"></i>
-                                    <span>Free WiFi</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="text-lg font-bold text-emerald-600">₹900/hr</div>
-                                <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">Book Now</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Ground Card 4 -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1" data-aos="fade-up" data-aos-delay="300">
-                        <div class="relative h-56 overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1526232373132-0e4ee643fa17?q=80&w=2029" alt="Tennis Court" class="object-cover w-full h-full">
-                            <div class="absolute top-4 left-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                Tennis
-                            </div>
-                            <div class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                4.9 ★
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Grand Slam Tennis Club</h3>
-                            <div class="flex items-center text-gray-600 mb-3">
-                                <i class="fas fa-map-marker-alt mr-2 text-emerald-500"></i>
-                                <span>Luxury Sports Club, South Delhi</span>
-                            </div>
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="text-gray-600">
-                                    <i class="fas fa-tennis-ball mr-2 text-yellow-500"></i>
-                                    <span>Hard Court</span>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="fas fa-coffee mr-2 text-brown-500"></i>
-                                    <span>Café Available</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="text-lg font-bold text-emerald-600">₹1,000/hr</div>
-                                <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">Book Now</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Ground Card 5 -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1" data-aos="fade-up" data-aos-delay="350">
-                        <div class="relative h-56 overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1551958219-acbc608c6377?q=80&w=2070" alt="Football Ground" class="object-cover w-full h-full">
-                            <div class="absolute top-4 left-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                Football
-                            </div>
-                            <div class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                4.6 ★
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Victory Football Ground</h3>
-                            <div class="flex items-center text-gray-600 mb-3">
-                                <i class="fas fa-map-marker-alt mr-2 text-emerald-500"></i>
-                                <span>Victory Sports Complex, Ghaziabad</span>
-                            </div>
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="text-gray-600">
-                                    <i class="fas fa-users mr-2 text-blue-500"></i>
-                                    <span>5v5, 7v7</span>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="fas fa-parking mr-2 text-blue-500"></i>
-                                    <span>Free Parking</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="text-lg font-bold text-emerald-600">₹1,100/hr</div>
-                                <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">Book Now</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Ground Card 6 -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1" data-aos="fade-up" data-aos-delay="400">
-                        <div class="relative h-56 overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1562136230-8df39f6e33f8?q=80&w=2086" alt="Cricket Ground" class="object-cover w-full h-full">
-                            <div class="absolute top-4 left-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                Cricket
-                            </div>
-                            <div class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                4.8 ★
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Premier Cricket Academy</h3>
-                            <div class="flex items-center text-gray-600 mb-3">
-                                <i class="fas fa-map-marker-alt mr-2 text-emerald-500"></i>
-                                <span>Sports Village, Greater Noida</span>
-                            </div>
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="text-gray-600">
-                                    <i class="fas fa-cricket-ball mr-2 text-red-500"></i>
-                                    <span>Practice Nets</span>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="fas fa-user-tie mr-2 text-gray-500"></i>
-                                    <span>Coach Available</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="text-lg font-bold text-emerald-600">₹1,300/hr</div>
-                                <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">Book Now</a>
-                            </div>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
 
                 <div class="text-center mt-10" data-aos="fade-up" data-aos-delay="450">
-                    <a href="#" class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition duration-300 transform hover:scale-105">
+                    <a href="{{ route('grounds.index') }}" class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition duration-300 transform hover:scale-105">
                         <span>View All Grounds</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -749,5 +582,71 @@
 
         <script src="{{ asset('assets/welcome/js/main.js')}}"></script>
         <script src="{{ asset('assets/welcome/js/ajax.js')}}"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('.ground-filter-btn');
+            const groundCards = document.querySelectorAll('.ground-card');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => {
+                        btn.classList.remove('active', 'bg-emerald-100', 'text-emerald-600');
+                        btn.classList.add('bg-gray-200', 'text-gray-700');
+                    });
+
+                    // Add active class to clicked button
+                    this.classList.add('active', 'bg-emerald-100', 'text-emerald-600');
+                    this.classList.remove('bg-gray-200', 'text-gray-700');
+
+                    const category = this.dataset.category;
+
+                    // Filter grounds with smooth animation
+                    groundCards.forEach(card => {
+                        if (category === 'all' || card.dataset.category === category) {
+                            card.style.display = 'block';
+                            card.style.opacity = '0';
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                            }, 50);
+                        } else {
+                            card.style.opacity = '0';
+                            setTimeout(() => {
+                                card.style.display = 'none';
+                            }, 300);
+                        }
+                    });
+                });
+            });
+        });
+        </script>
+
+        <!-- Add this before closing body tag -->
+        <script>
+        // Check if user is logged in
+        const isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
+
+        // Configure toastr
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000"
+        };
+
+        // Handle booking form submission
+        document.querySelectorAll('.booking-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                if (!isLoggedIn) {
+                    toastr.error('Please login first to book a ground');
+                    return;
+                }
+
+                this.submit();
+            });
+        });
+        </script>
     </body>
 </html>

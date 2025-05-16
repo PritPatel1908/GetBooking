@@ -7,10 +7,15 @@ use Illuminate\Http\Request;
 use App\Models\Ground;
 use App\Models\User;
 use App\Models\Booking;
+use App\Models\BookingDetail;
 use App\Models\GroundSlot;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use App\Models\Payment;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\PDF;
 
 class UserController extends Controller
 {
@@ -42,7 +47,79 @@ class UserController extends Controller
 
     public function my_bookings()
     {
-        return view('user.my-bookings');
+        // Enable query logging
+        DB::enableQueryLog();
+
+        // Get authenticated user
+        $user = Auth::user();
+
+        // Log user info
+        Log::info('User ID: ' . $user->id);
+        Log::info('User Email: ' . $user->email);
+
+        // Fetch all bookings for the user with their details, ground and slot info
+        $bookings = Booking::with([
+            'details.ground.images',
+            'details.ground.features',
+            'details.slot',
+            'payment'
+        ])
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Log the query and results
+        Log::info('Bookings Query:', DB::getQueryLog());
+        Log::info('Total Bookings Found: ' . $bookings->count());
+
+        if ($bookings->count() > 0) {
+            Log::info('First Booking Details:', [
+                'id' => $bookings->first()->id,
+                'status' => $bookings->first()->booking_status,
+                'date' => $bookings->first()->booking_date,
+                'details_count' => $bookings->first()->details->count()
+            ]);
+        }
+
+        // Group bookings by status
+        $upcomingBookings = $bookings->filter(function ($booking) {
+            return $booking->booking_status != 'cancelled' &&
+                $booking->booking_status != 'completed' &&
+                Carbon::parse($booking->booking_date)->gte(Carbon::today());
+        });
+
+        $completedBookings = $bookings->filter(function ($booking) {
+            return $booking->booking_status == 'completed' ||
+                (Carbon::parse($booking->booking_date)->lt(Carbon::today()) &&
+                    $booking->booking_status != 'cancelled');
+        });
+
+        $cancelledBookings = $bookings->filter(function ($booking) {
+            return $booking->booking_status == 'cancelled';
+        });
+
+        // Count each category
+        $upcomingCount = $upcomingBookings->count();
+        $completedCount = $completedBookings->count();
+        $cancelledCount = $cancelledBookings->count();
+
+        // Log counts
+        Log::info('Booking Counts:', [
+            'total' => $bookings->count(),
+            'upcoming' => $upcomingCount,
+            'completed' => $completedCount,
+            'cancelled' => $cancelledCount
+        ]);
+
+        return view('user.my-bookings', compact(
+            'bookings',
+            'upcomingBookings',
+            'completedBookings',
+            'cancelledBookings',
+            'upcomingCount',
+            'completedCount',
+            'cancelledCount'
+        ));
     }
 
     /**
@@ -119,9 +196,11 @@ class UserController extends Controller
             $bookedSlotIds = [];
 
             try {
-                $bookedSlotIds = Booking::where('ground_id', $groundId)
-                    ->where('booking_date', $date)
-                    ->where('booking_status', '!=', 'cancelled')
+                $bookedSlotIds = BookingDetail::where('ground_id', $groundId)
+                    ->whereHas('booking', function ($query) use ($date) {
+                        $query->where('booking_date', $date)
+                            ->where('booking_status', '!=', 'cancelled');
+                    })
                     ->pluck('slot_id')
                     ->toArray();
 
@@ -290,18 +369,22 @@ class UserController extends Controller
                 ], 400);
             }
 
-            // Create bookings for each selected slot
-            $bookings = [];
-            $bookingSku = 'BK' . time() . rand(1000, 9999);
-            $totalAmount = floatval($validated['total_price']);
+            // Get existing bookings for this ground and date through booking details
+            $existingBookingDetails = BookingDetail::where('ground_id', $validated['ground_id'])
+                ->whereHas('booking', function ($query) use ($validated) {
+                    $query->where('booking_date', $validated['date'])
+                        ->where('booking_status', '!=', 'cancelled');
+                })
+                ->with('booking')
+                ->get();
 
-            Log::info('Creating booking with SKU: ' . $bookingSku);
-            Log::info('Total slots selected: ' . count($validated['time_slots']));
+            $existingBookings = [];
+            foreach ($existingBookingDetails as $detail) {
+                $existingBookings[] = $detail->booking;
+            }
 
+            // Check if any of the selected slots are already booked
             foreach ($validated['time_slots'] as $index => $timeSlot) {
-                $slotId = $validated['slot_ids'][$index] ?? null;
-
-                // Parse the time slot
                 $times = explode('-', $timeSlot);
                 $startTime = trim($times[0] ?? '08:00');
                 $endTime = trim($times[1] ?? null);
@@ -313,7 +396,7 @@ class UserController extends Controller
                     ], 400);
                 }
 
-                // Calculate duration and check for overlapping bookings
+                // Calculate duration
                 $startTimeObj = \Carbon\Carbon::parse($startTime);
                 $endTimeObj = \Carbon\Carbon::parse($endTime);
 
@@ -326,14 +409,7 @@ class UserController extends Controller
                 $duration = max(1, abs($duration)); // Ensure positive and at least 1 hour
 
                 // Check for overlapping bookings
-                $overlappingBookings = Booking::where('ground_id', $validated['ground_id'])
-                    ->where('booking_date', $validated['date'])
-                    ->where('booking_status', '!=', 'cancelled')
-                    ->get();
-
-                $hasOverlappingBooking = false;
-
-                foreach ($overlappingBookings as $existingBooking) {
+                foreach ($existingBookings as $existingBooking) {
                     $existingStart = \Carbon\Carbon::parse($existingBooking->booking_time);
                     $existingEnd = (clone $existingStart)->addHours($existingBooking->duration);
 
@@ -346,53 +422,102 @@ class UserController extends Controller
                         ($newEnd > $existingStart && $newEnd <= $existingEnd) ||
                         ($newStart <= $existingStart && $newEnd >= $existingEnd)
                     ) {
-                        $hasOverlappingBooking = true;
-                        Log::warning("Overlapping booking detected for slot: $startTime-$endTime on date: {$validated['date']}");
-                        break;
+                        return response()->json([
+                            'success' => false,
+                            'message' => "The time slot $startTime-$endTime is already booked. Please refresh and try again."
+                        ], 409); // 409 Conflict
                     }
                 }
+            }
 
-                if ($hasOverlappingBooking) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => "The time slot $startTime-$endTime is already booked. Please refresh and try again."
-                    ], 409); // 409 Conflict
+            // All slots are available, now create the booking
+            $bookingSku = 'BK' . time() . rand(1000, 9999);
+            $totalAmount = floatval($validated['total_price']);
+
+            Log::info('Creating booking with SKU: ' . $bookingSku);
+            Log::info('Total slots selected: ' . count($validated['time_slots']));
+
+            // Find start and end times for the entire booking
+            $earliestStartTime = null;
+            $latestEndTime = null;
+            $totalDuration = 0;
+
+            foreach ($validated['time_slots'] as $timeSlot) {
+                $times = explode('-', $timeSlot);
+                $startTime = trim($times[0]);
+                $endTime = trim($times[1]);
+
+                $startObj = \Carbon\Carbon::parse($startTime);
+                $endObj = \Carbon\Carbon::parse($endTime);
+
+                // Handle slots that cross midnight
+                if ($endObj < $startObj) {
+                    $endObj->addDay();
                 }
 
-                // Create booking
-                $slotAmount = $totalAmount / count($validated['time_slots']);
+                if (!$earliestStartTime || $startObj < $earliestStartTime) {
+                    $earliestStartTime = $startObj;
+                }
 
-                $booking = new Booking([
+                if (!$latestEndTime || $endObj > $latestEndTime) {
+                    $latestEndTime = $endObj;
+                }
+
+                $slotDuration = $endObj->diffInHours($startObj);
+                $totalDuration += max(1, abs($slotDuration));
+            }
+
+            // Create a single main booking record
+            $booking = new Booking([
+                'user_id' => $user->id,
+                'booking_sku' => $bookingSku,
+                'booking_date' => $validated['date'],
+                'booking_time' => $earliestStartTime->format('H:i'),
+                'duration' => $totalDuration,
+                'amount' => $totalAmount,
+                'booking_status' => 'pending'
+            ]);
+
+            $booking->save();
+            Log::info("Created booking ID: {$booking->id} with SKU: {$bookingSku}");
+
+            // Create booking details for each selected slot
+            foreach ($validated['time_slots'] as $index => $timeSlot) {
+                $slotId = $validated['slot_ids'][$index] ?? null;
+
+                // Create booking detail with ground and slot info
+                $bookingDetail = new BookingDetail([
+                    'booking_id' => $booking->id,
                     'ground_id' => $validated['ground_id'],
-                    'booking_date' => $validated['date'],
-                    'slot_id' => $slotId,
-                    'user_id' => $user->id,
-                    'booking_sku' => $bookingSku,
-                    'booking_time' => $startTime,
-                    'duration' => $duration,
-                    'amount' => round($slotAmount, 2),
-                    'booking_status' => 'pending'
+                    'slot_id' => $slotId
                 ]);
 
-                $booking->save();
-                Log::info("Created booking ID: {$booking->id} for slot: $startTime-$endTime");
-                $bookings[] = $booking;
+                $bookingDetail->save();
+                Log::info("Created booking detail ID: {$bookingDetail->id} for slot: {$timeSlot}");
             }
 
-            if (empty($bookings)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No valid slots were selected for booking.'
-                ], 400);
-            }
+            // Create a payment record
+            $payment = new Payment([
+                'date' => now(),
+                'amount' => $totalAmount,
+                'payment_status' => 'pending',
+                'payment_method' => 'online',
+                'payment_type' => 'booking',
+                'booking_id' => $booking->id,
+                'user_id' => $user->id
+            ]);
 
-            // Log success
-            Log::info("Successfully created " . count($bookings) . " bookings with SKU: $bookingSku");
+            $payment->save();
+            Log::info("Created payment ID: {$payment->id} for booking: {$booking->id}");
+
+            // Update booking with payment ID
+            $booking->payment_id = $payment->id;
+            $booking->save();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Your booking has been confirmed successfully!',
-                'bookings' => $bookings,
+                'booking' => $booking,
                 'booking_sku' => $bookingSku,
                 'redirect_url' => route('user.my_bookings')
             ]);
@@ -410,5 +535,102 @@ class UserController extends Controller
                 'message' => 'Error creating booking: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * View a specific booking
+     *
+     * @param string $bookingSku
+     * @return \Illuminate\Http\Response
+     */
+    public function view_booking($bookingSku)
+    {
+        // Check if user is authenticated
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        // Get the current user
+        $user = Auth::user();
+
+        // Find the booking by SKU and make sure it belongs to the current user
+        $booking = Booking::with(['details.ground', 'details.slot', 'payment', 'user'])
+            ->where('booking_sku', $bookingSku)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        return view('user.view-booking', compact('booking'));
+    }
+
+    /**
+     * Debug function to check booking data
+     */
+    public function debug_bookings()
+    {
+        // Enable query logging
+        DB::enableQueryLog();
+
+        // Get authenticated user
+        $user = Auth::user();
+
+        // Fetch all bookings for the user with their details, ground and slot info
+        $bookings = Booking::with(['details.ground', 'details.slot', 'payment'])
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Get the executed query
+        $query = DB::getQueryLog();
+
+        // Show all bookings in database regardless of user
+        $allBookings = Booking::all();
+
+        return response()->json([
+            'user_id' => $user->id,
+            'booking_count' => $bookings->count(),
+            'bookings' => $bookings,
+            'query' => $query,
+            'all_bookings_count' => $allBookings->count(),
+            'all_bookings' => $allBookings
+        ]);
+    }
+
+    /**
+     * Download invoice for a booking
+     *
+     * @param string $bookingSku
+     * @return \Illuminate\Http\Response
+     */
+    public function download_invoice($bookingSku)
+    {
+        // Check if user is authenticated
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        // Get the current user
+        $user = Auth::user();
+
+        // Find the booking by SKU and make sure it belongs to the current user
+        $booking = Booking::with(['details.ground', 'details.slot', 'payment', 'user'])
+            ->where('booking_sku', $bookingSku)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        // Generate PDF using a view
+        $pdf = PDF::loadView('user.invoice', compact('booking'));
+
+        // Set PDF options
+        $pdf->setPaper('a4');
+        $pdf->setOption('margin-top', 10);
+        $pdf->setOption('margin-right', 10);
+        $pdf->setOption('margin-bottom', 10);
+        $pdf->setOption('margin-left', 10);
+
+        // Generate filename
+        $filename = 'Invoice_' . $booking->booking_sku . '.pdf';
+
+        // Download the PDF
+        return $pdf->download($filename);
     }
 }

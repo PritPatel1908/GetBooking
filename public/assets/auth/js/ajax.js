@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
             success: function(response) {
                 // If successful, redirect to the intended page
                 if (response.success) {
-                // Store message in session storage instead of URL
-                sessionStorage.setItem('success_message', 'Login successful!');
+                    // Store message in session storage
+                    sessionStorage.setItem('success_message', response.message || 'Login successful!');
                     window.location.href = response.redirect;
                 } else {
                     // Show error message if there's an error in response

@@ -138,6 +138,9 @@
 
     <!-- Custom JS -->
     <script src="{{ asset('assets/user/js/main.js') }}"></script>
+
+    <!-- Page-specific scripts -->
+    @yield('scripts')
 </body>
 
 </html>

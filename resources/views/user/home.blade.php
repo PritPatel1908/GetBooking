@@ -2,9 +2,75 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('assets/user/css/home.css') }}">
+<style>
+    /* Toast notification styles */
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 350px;
+    }
+
+    .toast {
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        animation: slideInRight 0.3s ease-out forwards;
+    }
+
+    .toast-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+
+    .fade-out {
+        animation: fadeOut 0.5s ease-out forwards;
+    }
+</style>
 @endsection
 
 @section('content')
+<!-- Toast Notification -->
+@if(session('success'))
+<div class="toast-container">
+    <div class="toast" id="success-toast">
+        <span><i class="fas fa-check-circle"></i> {{ session('success') }}</span>
+        <button class="toast-close" onclick="closeToast()"><i class="fas fa-times"></i></button>
+    </div>
+</div>
+@endif
+
 <!-- Hero Section -->
 <section class="hero">
     <div class="hero-content">
@@ -263,4 +329,71 @@
         </div>
     </div>
 </section>
+@endsection
+
+@section('scripts')
+<script>
+    // Auto-hide toast after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check for Laravel session flash message
+        const toast = document.getElementById('success-toast');
+        if (toast) {
+            setTimeout(function() {
+                toast.classList.add('fade-out');
+                setTimeout(function() {
+                    toast.parentNode.removeChild(toast);
+                }, 500);
+            }, 5000);
+        }
+
+        // Check for sessionStorage success message (from AJAX login)
+        const storageMessage = sessionStorage.getItem('success_message');
+        if (storageMessage && !toast) {
+            // Create toast notification for sessionStorage message
+            const toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container';
+
+            const toastElement = document.createElement('div');
+            toastElement.className = 'toast';
+            toastElement.id = 'storage-success-toast';
+
+            toastElement.innerHTML = `
+                <span><i class="fas fa-check-circle"></i> ${storageMessage}</span>
+                <button class="toast-close" onclick="closeStorageToast()"><i class="fas fa-times"></i></button>
+            `;
+
+            toastContainer.appendChild(toastElement);
+            document.body.appendChild(toastContainer);
+
+            // Auto-hide after 5 seconds
+            setTimeout(function() {
+                toastElement.classList.add('fade-out');
+                setTimeout(function() {
+                    toastContainer.parentNode.removeChild(toastContainer);
+                }, 500);
+            }, 5000);
+
+            // Clear the message from sessionStorage
+            sessionStorage.removeItem('success_message');
+        }
+    });
+
+    // Close toast on button click
+    function closeToast() {
+        const toast = document.getElementById('success-toast');
+        toast.classList.add('fade-out');
+        setTimeout(function() {
+            toast.parentNode.removeChild(toast);
+        }, 500);
+    }
+
+    // Close storage toast on button click
+    function closeStorageToast() {
+        const toast = document.getElementById('storage-success-toast');
+        toast.classList.add('fade-out');
+        setTimeout(function() {
+            toast.parentNode.removeChild(toast);
+        }, 500);
+    }
+</script>
 @endsection

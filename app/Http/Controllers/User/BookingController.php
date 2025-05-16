@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ground;
 use App\Models\Booking;
+use App\Models\BookingDetail;
 use App\Models\GroundSlot;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -54,10 +55,12 @@ class BookingController extends Controller
             // Get all slots for this ground
             $groundSlots = $ground->slots;
 
-            // Get booked time slots for the selected date
-            $bookedSlotIds = Booking::where('ground_id', $ground->id)
-                ->where('booking_date', $selectedDate)
-                ->where('booking_status', '!=', 'cancelled')
+            // Get booked time slots for the selected date using BookingDetail
+            $bookedSlotIds = BookingDetail::where('ground_id', $ground->id)
+                ->whereHas('booking', function ($query) use ($selectedDate) {
+                    $query->where('booking_date', $selectedDate)
+                        ->where('booking_status', '!=', 'cancelled');
+                })
                 ->pluck('slot_id')
                 ->toArray();
 
@@ -132,6 +135,113 @@ class BookingController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error retrieving available slots: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Cancel a booking
+     *
+     * @param int $id Booking ID
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function cancelBooking($id)
+    {
+        try {
+            // Check authentication
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must be logged in to cancel a booking.'
+                ], 401);
+            }
+
+            // Get the current user
+            $user = Auth::user();
+
+            // Find the booking and ensure it belongs to this user
+            $booking = Booking::where('id', $id)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if (!$booking) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Booking not found or does not belong to you.'
+                ], 404);
+            }
+
+            // Check if the booking can be cancelled
+            if ($booking->booking_status == 'cancelled') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This booking is already cancelled.'
+                ], 400);
+            }
+
+            if ($booking->booking_status == 'completed') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Completed bookings cannot be cancelled.'
+                ], 400);
+            }
+
+            // Check if the booking date is in the past
+            if (Carbon::parse($booking->booking_date)->lt(Carbon::today())) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Past bookings cannot be cancelled.'
+                ], 400);
+            }
+
+            // Calculate cancellation fee based on time difference
+            $bookingDate = Carbon::parse($booking->booking_date)->format('Y-m-d');
+            $bookingTime = Carbon::parse($booking->booking_time)->format('H:i:s');
+            $bookingDateTime = Carbon::parse($bookingDate . ' ' . $bookingTime);
+            $now = Carbon::now();
+            $hoursDifference = $now->diffInHours($bookingDateTime, false);
+
+            $refundAmount = 0;
+            $refundPercentage = 0;
+
+            if ($hoursDifference >= 24) {
+                // More than 24 hours - full refund
+                $refundPercentage = 100;
+                $refundAmount = $booking->amount;
+            } elseif ($hoursDifference >= 12) {
+                // Between 12-24 hours - 50% refund
+                $refundPercentage = 50;
+                $refundAmount = $booking->amount * 0.5;
+            } else {
+                // Less than 12 hours - no refund
+                $refundPercentage = 0;
+                $refundAmount = 0;
+            }
+
+            // Update booking status to cancelled
+            $booking->booking_status = 'cancelled';
+            $booking->notes = "Cancelled by user. " . ($refundPercentage > 0 ? "Refund of {$refundPercentage}% applied." : "No refund applied.");
+            $booking->save();
+
+            // If there's a payment, update its status
+            if ($booking->payment) {
+                $booking->payment->payment_status = 'refunded';
+                $booking->payment->save();
+            }
+
+            // You might want to send an email notification here
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Booking cancelled successfully.',
+                'refundPercentage' => $refundPercentage,
+                'refundAmount' => $refundAmount
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in cancelBooking: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error cancelling booking: ' . $e->getMessage()
             ], 500);
         }
     }

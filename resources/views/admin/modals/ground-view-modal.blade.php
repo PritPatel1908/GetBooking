@@ -50,6 +50,10 @@
                             <p class="text-sm text-gray-500">Ground Type</p>
                             <p id="ground-view-type" class="font-medium"></p>
                         </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Ground Category</p>
+                            <p id="ground-view-category" class="font-medium"></p>
+                        </div>
                     </div>
                 </div>
 

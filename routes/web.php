@@ -1,10 +1,15 @@
 <?php
 
-use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\BookingController;
+use App\Http\Controllers\User\PaymentController;
+use App\Http\Controllers\User\GroundController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\WelcomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +45,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/book-ground', [UserController::class, 'bookGround'])->name('user.ground.book');
     Route::get('/ground-details/{id}', [UserController::class, 'getGroundDetails'])->name('user.ground.details');
 
+    // Payment related routes
+    Route::post('/process-payment', [PaymentController::class, 'processPayment'])->name('payment.process');
+    Route::get('/payment-callback', [PaymentController::class, 'paymentCallback'])->name('payment.callback');
+
     // Admin routes
     Route::get('/admin/dashboard', [AdminController::class, 'admin_home'])->name('admin.dashboard');
     Route::get('/admin/clients', [AdminController::class, 'admin_clients'])->name('admin.clients');
@@ -68,13 +77,28 @@ Route::middleware('auth')->group(function () {
 
     // Admin Client API endpoint for dropdown
     Route::get('/api/clients', [AdminController::class, 'get_clients'])->name('api.clients');
+
+    // Ground routes
+    Route::get('/grounds', [GroundController::class, 'allGrounds'])->name('user.all_grounds');
+    Route::get('/grounds/{id}', [GroundController::class, 'viewGround'])->name('user.view_ground');
+
+    // User booking routes
+    Route::get('/my-bookings/{bookingSku}', [UserController::class, 'view_booking'])->name('user.view_booking');
+    Route::post('/user/bookings/{id}/cancel', [BookingController::class, 'cancelBooking'])->name('user.cancel_booking');
+    Route::get('/user/bookings/{bookingSku}/invoice', [UserController::class, 'download_invoice'])->name('user.download_invoice');
 });
 
-// Home redirect
-Route::get('/', function () {
-    if (Auth::check()) {
-        return redirect()->route('user.home');
-    } else {
-        return view('welcome.welcome');
-    }
-})->name('welcome');
+// Welcome Page Routes
+Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
+Route::get('/grounds', [WelcomeController::class, 'index'])->name('grounds.index');
+Route::get('/ground/{id}', [WelcomeController::class, 'showGround'])->name('ground.show');
+Route::get('/ground/{id}/slots', [WelcomeController::class, 'getGroundSlots'])->name('ground.slots');
+Route::post('/booking-summary', [WelcomeController::class, 'getBookingSummary'])->name('booking.summary');
+
+// Protected Routes
+Route::middleware(['auth'])->group(function () {
+    Route::post('/book-ground', [BookingController::class, 'store'])->name('booking.store');
+});
+
+// Debug route - remove in production
+Route::get('/debug/bookings', [App\Http\Controllers\User\UserController::class, 'debug_bookings'])->name('debug.bookings');

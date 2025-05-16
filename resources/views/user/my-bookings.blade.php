@@ -271,6 +271,17 @@
         color: white;
     }
 
+    .download-btn {
+        background: rgba(79, 209, 197, 0.1);
+        color: #2B6CB0;
+        margin-left: 10px;
+    }
+
+    .download-btn:hover {
+        background: #2B6CB0;
+        color: white;
+    }
+
     /* Empty state */
     .empty-state {
         text-align: center;
@@ -451,6 +462,128 @@
             overflow-x: auto;
         }
     }
+
+    /* Cancellation Modal Styles */
+    .cancellation-modal-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        visibility: hidden;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .cancellation-modal-bg.active {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .cancellation-modal {
+        background: var(--card-bg);
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        padding: 2rem;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        transform: translateY(30px);
+        transition: all 0.3s ease;
+    }
+
+    .cancellation-modal-bg.active .cancellation-modal {
+        transform: translateY(0);
+    }
+
+    .cancellation-icon {
+        text-align: center;
+        font-size: 3rem;
+        color: #E53E3E;
+        margin-bottom: 1rem;
+    }
+
+    .cancellation-message {
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: var(--text-color);
+    }
+
+    .cancellation-policy {
+        background: var(--input-bg);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .cancellation-policy h5 {
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .cancellation-policy ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .cancellation-policy li {
+        color: var(--input-text);
+        margin-bottom: 0.5rem;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+
+    .cancellation-policy li:before {
+        content: '•';
+        position: absolute;
+        left: 0.5rem;
+        color: var(--primary-color);
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .cancel-confirm-btn {
+        background: #E53E3E;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .cancel-confirm-btn:hover {
+        background: #C53030;
+        transform: translateY(-2px);
+    }
+
+    .cancel-dismiss-btn {
+        background: var(--input-bg);
+        color: var(--text-color);
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .cancel-dismiss-btn:hover {
+        background: var(--border-color);
+        transform: translateY(-2px);
+    }
 </style>
 @endsection
 
@@ -464,292 +597,206 @@
     <!-- Booking Tabs -->
     <div class="booking-tabs" data-aos="fade-up" data-aos-delay="100">
         <div class="booking-tab active" data-tab="all">
-            All Bookings
+            All
+            <span class="count-badge">{{ $bookings->count() }}</span>
         </div>
         <div class="booking-tab" data-tab="upcoming">
             Upcoming
-            <span class="count-badge">2</span>
+            <span class="count-badge">{{ $upcomingCount }}</span>
         </div>
         <div class="booking-tab" data-tab="completed">
             Completed
+            <span class="count-badge">{{ $completedCount }}</span>
         </div>
         <div class="booking-tab" data-tab="cancelled">
             Cancelled
+            <span class="count-badge">{{ $cancelledCount }}</span>
         </div>
     </div>
 
     <!-- Booking List -->
     <div class="booking-list" data-aos="fade-up" data-aos-delay="200">
-        <!-- Upcoming Booking -->
-        <div class="booking-card fade-in-delay-1" data-category="upcoming">
-            <div class="booking-status confirmed">Confirmed</div>
-            <div class="booking-header">
-                <img src="https://images.unsplash.com/photo-1575361204480-aadea25e6e68?q=80&w=1200&auto=format&fit=crop"
-                    class="booking-image">
-                <div>
-                    <h3 class="booking-title">Football Ground A</h3>
-                    <div class="booking-meta">
-                        <div class="booking-meta-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Central Sports Complex, Ahmedabad</span>
-                        </div>
-                        <div class="booking-meta-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>May 10, 2025</span>
-                        </div>
-                        <div class="booking-meta-item">
-                            <i class="fas fa-clock"></i>
-                            <span>18:00 - 20:00</span>
-                        </div>
-                    </div>
-                    <div class="booking-meta-item">
-                        <i class="fas fa-id-card"></i>
-                        <span>Booking ID: #GB10052025</span>
-                    </div>
-                </div>
-            </div>
-            <div class="booking-details">
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Duration</div>
-                    <div class="booking-info-value">2 hours</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Number of Players</div>
-                    <div class="booking-info-value">10 players</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Additional Services</div>
-                    <div class="booking-info-value">Basic Equipment, Referee</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Payment Method</div>
-                    <div class="booking-info-value">Online Payment (UPI)</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Total Amount</div>
-                    <div class="booking-price">₹3,800</div>
-                </div>
-            </div>
-            <div class="booking-actions">
-                <div>
-                    <button class="action-btn view-btn">
-                        <i class="fas fa-eye mr-1"></i> View Details
-                    </button>
-                </div>
-                <div>
-                    <button class="action-btn cancel-btn">
-                        <i class="fas fa-times mr-1"></i> Cancel Booking
-                    </button>
-                </div>
-            </div>
-        </div>
+        @if($bookings->count() > 0)
+            @foreach($bookings as $booking)
+                @php
+                    $groundName = '';
+                    $groundLocation = '';
+                    $groundImage = 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?q=80&w=1200&auto=format&fit=crop';
 
-        <!-- Another Upcoming Booking -->
-        <div class="booking-card fade-in-delay-1" data-category="upcoming">
-            <div class="booking-status pending">Payment Pending</div>
-            <div class="booking-header">
-                <img src="https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?q=80&w=1200&auto=format&fit=crop"
-                    class="booking-image">
-                <div>
-                    <h3 class="booking-title">Cricket Ground B</h3>
-                    <div class="booking-meta">
-                        <div class="booking-meta-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Sports Arena, Satellite</span>
-                        </div>
-                        <div class="booking-meta-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>May 15, 2025</span>
-                        </div>
-                        <div class="booking-meta-item">
-                            <i class="fas fa-clock"></i>
-                            <span>15:00 - 18:00</span>
-                        </div>
-                    </div>
-                    <div class="booking-meta-item">
-                        <i class="fas fa-id-card"></i>
-                        <span>Booking ID: #GB15052025</span>
-                    </div>
-                </div>
-            </div>
-            <div class="booking-details">
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Duration</div>
-                    <div class="booking-info-value">3 hours</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Number of Players</div>
-                    <div class="booking-info-value">22 players</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Additional Services</div>
-                    <div class="booking-info-value">Full Equipment Set</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Payment Method</div>
-                    <div class="booking-info-value">Pay at Venue</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Total Amount</div>
-                    <div class="booking-price">₹5,200</div>
-                </div>
-            </div>
-            <div class="booking-actions">
-                <div>
-                    <button class="action-btn view-btn">
-                        <i class="fas fa-eye mr-1"></i> View Details
-                    </button>
-                </div>
-                <div>
-                    <button class="action-btn cancel-btn">
-                        <i class="fas fa-times mr-1"></i> Cancel Booking
-                    </button>
-                </div>
-            </div>
-        </div>
+                    // Get the ground details from the first booking detail
+                    if ($booking->details->isNotEmpty() && $booking->details->first()->ground) {
+                        $ground = $booking->details->first()->ground;
+                        $groundName = $ground->name;
+                        $groundLocation = $ground->location;
 
-        <!-- Completed Booking -->
-        <div class="booking-card fade-in-delay-2" data-category="completed">
-            <div class="booking-status completed">Completed</div>
-            <div class="booking-header">
-                <img src="https://images.pexels.com/photos/114296/pexels-photo-114296.jpeg?auto=compress&w=1200"
-                    class="booking-image">
-                <div>
-                    <h3 class="booking-title">Basketball Court C</h3>
-                    <div class="booking-meta">
-                        <div class="booking-meta-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>City Sports Hub, Vastrapur</span>
-                        </div>
-                        <div class="booking-meta-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>April 30, 2025</span>
-                        </div>
-                        <div class="booking-meta-item">
-                            <i class="fas fa-clock"></i>
-                            <span>19:00 - 21:00</span>
-                        </div>
-                    </div>
-                    <div class="booking-meta-item">
-                        <i class="fas fa-id-card"></i>
-                        <span>Booking ID: #GB30042025</span>
-                    </div>
-                </div>
-            </div>
-            <div class="booking-details">
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Duration</div>
-                    <div class="booking-info-value">2 hours</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Number of Players</div>
-                    <div class="booking-info-value">8 players</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Additional Services</div>
-                    <div class="booking-info-value">None</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Payment Method</div>
-                    <div class="booking-info-value">Credit Card</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Total Amount</div>
-                    <div class="booking-price">₹2,800</div>
-                </div>
-            </div>
-            <div class="booking-actions">
-                <div>
-                    <button class="action-btn view-btn">
-                        <i class="fas fa-eye mr-1"></i> View Details
-                    </button>
-                </div>
-                <div>
-                    <button class="action-btn review-btn" data-booking="GB30042025">
-                        <i class="fas fa-star mr-1"></i> Leave Review
-                    </button>
-                    <button class="action-btn rebook-btn">
-                        <i class="fas fa-redo mr-1"></i> Book Again
-                    </button>
-                </div>
-            </div>
-        </div>
+                        // If ground has images, use the first one
+                        if ($ground->images && $ground->images->isNotEmpty()) {
+                            // Check if image_url exists, otherwise fall back to image_path
+                            if (isset($ground->images->first()->image_url)) {
+                                $groundImage = $ground->images->first()->image_url;
+                            } elseif (isset($ground->images->first()->image_path)) {
+                                $groundImage = asset($ground->images->first()->image_path);
+                            }
+                        }
+                    }
 
-        <!-- Cancelled Booking -->
-        <div class="booking-card fade-in-delay-2" data-category="cancelled">
-            <div class="booking-status cancelled">Cancelled</div>
-            <div class="booking-header">
-                <img src="https://images.unsplash.com/photo-1624880357913-a8539238245b?q=80&w=1200&auto=format&fit=crop"
-                    class="booking-image">
-                <div>
-                    <h3 class="booking-title">Tennis Court D</h3>
-                    <div class="booking-meta">
-                        <div class="booking-meta-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Premium Sports Club, Bopal</span>
-                        </div>
-                        <div class="booking-meta-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>April 25, 2025</span>
-                        </div>
-                        <div class="booking-meta-item">
-                            <i class="fas fa-clock"></i>
-                            <span>09:00 - 11:00</span>
-                        </div>
-                    </div>
-                    <div class="booking-meta-item">
-                        <i class="fas fa-id-card"></i>
-                        <span>Booking ID: #GB25042025</span>
-                    </div>
-                </div>
-            </div>
-            <div class="booking-details">
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Duration</div>
-                    <div class="booking-info-value">2 hours</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Number of Players</div>
-                    <div class="booking-info-value">4 players</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Cancellation Reason</div>
-                    <div class="booking-info-value">Weather conditions</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Refund Status</div>
-                    <div class="booking-info-value">Refunded (May 1, 2025)</div>
-                </div>
-                <div class="booking-info-row">
-                    <div class="booking-info-label">Total Amount</div>
-                    <div class="booking-price">₹2,100</div>
-                </div>
-            </div>
-            <div class="booking-actions">
-                <div>
-                    <button class="action-btn view-btn">
-                        <i class="fas fa-eye mr-1"></i> View Details
-                    </button>
-                </div>
-                <div>
-                    <button class="action-btn rebook-btn">
-                        <i class="fas fa-redo mr-1"></i> Book Again
-                    </button>
-                </div>
-            </div>
-        </div>
+                    // Determine booking category
+                    $bookingCategory = 'upcoming';
+                    if ($booking->booking_status == 'cancelled') {
+                        $bookingCategory = 'cancelled';
+                    } elseif ($booking->booking_status == 'completed' ||
+                            (\Carbon\Carbon::parse($booking->booking_date)->lt(\Carbon\Carbon::today()) &&
+                             $booking->booking_status != 'cancelled')) {
+                        $bookingCategory = 'completed';
+                    }
 
-        <!-- Empty State (Hidden by default) -->
-        <div class="empty-state" style="display: none;">
-            <div class="empty-icon">
-                <i class="fas fa-calendar-times"></i>
+                    // Format booking date
+                    $bookingDate = \Carbon\Carbon::parse($booking->booking_date)->format('M d, Y');
+
+                    // Calculate end time
+                    $startTime = \Carbon\Carbon::parse($booking->booking_time);
+                    $endTime = (clone $startTime)->addHours($booking->duration);
+                    $timeRange = $startTime->format('H:i') . ' - ' . $endTime->format('H:i');
+
+                    // Determine booking status class and label
+                    $statusClass = 'pending';
+                    $statusLabel = 'Pending';
+
+                    if ($booking->booking_status == 'confirmed') {
+                        $statusClass = 'confirmed';
+                        $statusLabel = 'Confirmed';
+                    } elseif ($booking->booking_status == 'cancelled') {
+                        $statusClass = 'cancelled';
+                        $statusLabel = 'Cancelled';
+                    } elseif ($booking->booking_status == 'completed' ||
+                            (\Carbon\Carbon::parse($booking->booking_date)->lt(\Carbon\Carbon::today()) &&
+                             $booking->booking_status != 'cancelled')) {
+                        $statusClass = 'completed';
+                        $statusLabel = 'Completed';
+                    } elseif ($booking->payment && $booking->payment->payment_status == 'pending') {
+                        $statusClass = 'pending';
+                        $statusLabel = 'Payment Pending';
+                    }
+
+                    $groundId = $booking->details->isNotEmpty() && $booking->details->first()->ground
+                              ? $booking->details->first()->ground->id
+                              : '';
+                    $viewUrl = route('user.view_booking', $booking->booking_sku);
+                @endphp
+
+                <div class="booking-card fade-in-delay-1" data-category="{{ $bookingCategory }}" data-ground-id="{{ $groundId }}" data-view-url="{{ $viewUrl }}">
+                    <div class="booking-status {{ $statusClass }}">{{ $statusLabel }}</div>
+                    <div class="booking-header">
+                        <img src="{{ $groundImage }}" class="booking-image">
+                        <div>
+                            <h3 class="booking-title">{{ $groundName }}</h3>
+                            <div class="booking-meta">
+                                <div class="booking-meta-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>{{ $groundLocation }}</span>
+                                </div>
+                                <div class="booking-meta-item">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>{{ $bookingDate }}</span>
+                                </div>
+                                <div class="booking-meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>{{ $timeRange }}</span>
+                                </div>
+                            </div>
+                            <div class="booking-meta-item">
+                                <i class="fas fa-id-card"></i>
+                                <span>Booking ID: #{{ $booking->booking_sku }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="booking-details">
+                        <div class="booking-info-row">
+                            <div class="booking-info-label">Duration</div>
+                            <div class="booking-info-value">{{ $booking->duration }} hours</div>
+                        </div>
+                        <div class="booking-info-row">
+                            <div class="booking-info-label">Number of Players</div>
+                            <div class="booking-info-value">
+                                @if(isset($booking->details->first()->ground->capacity))
+                                    {{ $booking->details->first()->ground->capacity }} players
+                                @else
+                                    N/A
+                                @endif
+                            </div>
+                        </div>
+                        <div class="booking-info-row">
+                            <div class="booking-info-label">Additional Services</div>
+                            <div class="booking-info-value">
+                                @if(isset($booking->details->first()->ground->features) && $booking->details->first()->ground->features->isNotEmpty())
+                                    {{ $booking->details->first()->ground->features->pluck('feature_name')->implode(', ') }}
+                                @else
+                                    None
+                                @endif
+                            </div>
+                        </div>
+                        <div class="booking-info-row">
+                            <div class="booking-info-label">Payment Method</div>
+                            <div class="booking-info-value">
+                                @if ($booking->payment)
+                                    {{ ucfirst($booking->payment->payment_method) }}
+                                @else
+                                    N/A
+                                @endif
+                            </div>
+                        </div>
+                        <div class="booking-info-row">
+                            <div class="booking-info-label">Total Amount</div>
+                            <div class="booking-price">₹{{ number_format($booking->amount, 2) }}</div>
+                        </div>
+                    </div>
+                    <div class="booking-actions">
+                        <div>
+                            <a href="{{ route('user.view_booking', $booking->booking_sku) }}" class="action-btn view-btn">
+                                <i class="fas fa-eye mr-1"></i> View Details
+                            </a>
+                            <a href="{{ route('user.download_invoice', $booking->booking_sku) }}" class="action-btn download-btn">
+                                <i class="fas fa-download mr-1"></i> Download Invoice
+                            </a>
+                        </div>
+                        <div>
+                            @if($bookingCategory == 'upcoming')
+                                <button class="action-btn cancel-btn" data-booking="{{ $booking->id }}">
+                                    <i class="fas fa-times mr-1"></i> Cancel Booking
+                                </button>
+                            @elseif($bookingCategory == 'completed')
+                                <button class="action-btn review-btn" data-booking="{{ $booking->booking_sku }}">
+                                    <i class="fas fa-star mr-1"></i> Leave Review
+                                </button>
+                                @if($booking->details->isNotEmpty() && $booking->details->first()->ground)
+                                    <a href="{{ route('user.view_ground', $booking->details->first()->ground->id) }}" class="action-btn rebook-btn">
+                                        <i class="fas fa-redo mr-1"></i> Book Again
+                                    </a>
+                                @endif
+                            @elseif($bookingCategory == 'cancelled')
+                                @if($booking->details->isNotEmpty() && $booking->details->first()->ground)
+                                    <a href="{{ route('user.view_ground', $booking->details->first()->ground->id) }}" class="action-btn rebook-btn">
+                                        <i class="fas fa-redo mr-1"></i> Book Again
+                                    </a>
+                                @endif
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        @else
+            <!-- Empty State (Show when no bookings found) -->
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-calendar-times"></i>
+                </div>
+                <h3 class="empty-title">No bookings found</h3>
+                <p class="empty-subtitle">You haven't made any bookings yet. Start by exploring our available grounds.</p>
+                <a href="{{ route('user.all_grounds') }}" class="browse-btn">
+                    <i class="fas fa-search mr-2"></i> Browse Grounds
+                </a>
             </div>
-            <h3 class="empty-title">No bookings found</h3>
-            <p class="empty-subtitle">You haven't made any bookings yet. Start by exploring our available grounds.</p>
-            <button class="browse-btn">
-                <i class="fas fa-search mr-2"></i> Browse Grounds
-            </button>
-        </div>
+        @endif
     </div>
 </div>
 
@@ -787,9 +834,39 @@
     </div>
 </div>
 
+<!-- Cancellation Confirmation Modal -->
+<div class="cancellation-modal-bg">
+    <div class="cancellation-modal">
+        <div class="modal-header">
+            <h4 class="modal-title">Cancel Booking</h4>
+            <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="cancellation-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <p class="cancellation-message">Are you sure you want to cancel this booking?</p>
+            <div class="cancellation-policy">
+                <h5>Cancellation Policy:</h5>
+                <ul>
+                    <li>Free cancellation up to 24 hours before booking time</li>
+                    <li>50% refund for cancellations between 24 and 12 hours before booking time</li>
+                    <li>No refund for cancellations less than 12 hours before booking time</li>
+                </ul>
+            </div>
+            <div class="modal-actions">
+                <button class="cancel-confirm-btn">Yes, Cancel Booking</button>
+                <button class="cancel-dismiss-btn">No, Keep Booking</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        console.log('DOM Content Loaded');
+
         // Initialize AOS
         AOS.init({
             duration: 800,
@@ -802,8 +879,18 @@
         const bookingCards = document.querySelectorAll('.booking-card');
         const emptyState = document.querySelector('.empty-state');
 
+        console.log('Total booking cards:', bookingCards.length);
+        console.log('Empty state element:', emptyState);
+
+        // Show all cards initially
+        bookingCards.forEach(card => {
+            card.style.display = 'block';
+        });
+
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
+                console.log('Tab clicked:', tab.dataset.tab);
+
                 // Remove active class from all tabs
                 tabs.forEach(t => t.classList.remove('active'));
 
@@ -812,6 +899,7 @@
 
                 // Get the category
                 const category = tab.dataset.tab;
+                console.log('Selected category:', category);
 
                 // Hide all booking cards
                 bookingCards.forEach(card => {
@@ -820,6 +908,7 @@
 
                 // If category is 'all', show all cards
                 if (category === 'all') {
+                    console.log('Showing all cards');
                     bookingCards.forEach(card => {
                         card.style.display = 'block';
                     });
@@ -832,6 +921,7 @@
                 } else {
                     // Show only cards with matching category
                     const filteredCards = document.querySelectorAll(`.booking-card[data-category="${category}"]`);
+                    console.log('Filtered cards for category', category, ':', filteredCards.length);
 
                     filteredCards.forEach(card => {
                         card.style.display = 'block';
@@ -839,8 +929,10 @@
 
                     // If no cards match the category, show empty state
                     if (filteredCards.length === 0) {
+                        console.log('No cards found for category, showing empty state');
                         emptyState.style.display = 'block';
                     } else {
+                        console.log('Cards found for category, hiding empty state');
                         emptyState.style.display = 'none';
                     }
                 }
@@ -953,47 +1045,133 @@
             }, 1500);
         });
 
-        // Cancel booking functionality
+        // Cancellation Modal Functionality
+        const cancellationModal = document.querySelector('.cancellation-modal-bg');
         const cancelButtons = document.querySelectorAll('.cancel-btn');
+        let currentBookingId = null;
+        let currentCancelButton = null;
+
+        function updateBookingCounts() {
+            const allCount = document.querySelector('.booking-tab[data-tab="all"] .count-badge');
+            const upcomingCount = document.querySelector('.booking-tab[data-tab="upcoming"] .count-badge');
+            const cancelledCount = document.querySelector('.booking-tab[data-tab="cancelled"] .count-badge');
+
+            // Decrement all and upcoming counts
+            allCount.textContent = parseInt(allCount.textContent);
+            upcomingCount.textContent = parseInt(upcomingCount.textContent) - 1;
+            // Increment cancelled count
+            cancelledCount.textContent = parseInt(cancelledCount.textContent) + 1;
+        }
 
         cancelButtons.forEach(button => {
             button.addEventListener('click', function() {
-                const confirmed = confirm('Are you sure you want to cancel this booking? Cancellation policies may apply.');
-
-                if (confirmed) {
-                    const bookingCard = this.closest('.booking-card');
-                    const statusBadge = bookingCard.querySelector('.booking-status');
-
-                    // Show cancellation in progress
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Cancelling...';
-
-                    // Simulate cancellation process
-                    setTimeout(() => {
-                        statusBadge.className = 'booking-status cancelled';
-                        statusBadge.textContent = 'Cancelled';
-
-                        // Update actions
-                        const actionsContainer = this.closest('.booking-actions');
-                        actionsContainer.innerHTML = `
-                            <div>
-                                <button class="action-btn view-btn">
-                                    <i class="fas fa-eye mr-1"></i> View Details
-                                </button>
-                            </div>
-                            <div>
-                                <button class="action-btn rebook-btn">
-                                    <i class="fas fa-redo mr-1"></i> Book Again
-                                </button>
-                            </div>
-                        `;
-
-                        // Update booking category
-                        bookingCard.dataset.category = 'cancelled';
-
-                        alert('Booking cancelled successfully. A confirmation email has been sent to your registered email address.');
-                    }, 1500);
-                }
+                currentBookingId = this.dataset.booking;
+                currentCancelButton = this;
+                cancellationModal.classList.add('active');
             });
+        });
+
+        // Close modal when clicking outside
+        cancellationModal.addEventListener('click', (e) => {
+            if (e.target === cancellationModal) {
+                cancellationModal.classList.remove('active');
+            }
+        });
+
+        // Close modal when clicking close button
+        document.querySelector('.cancellation-modal .close-modal').addEventListener('click', () => {
+            cancellationModal.classList.remove('active');
+        });
+
+        // Handle cancel confirmation
+        document.querySelector('.cancel-confirm-btn').addEventListener('click', function() {
+            if (!currentBookingId || !currentCancelButton) return;
+
+            const bookingCard = currentCancelButton.closest('.booking-card');
+            const statusBadge = bookingCard.querySelector('.booking-status');
+
+            // Show cancellation in progress
+            currentCancelButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Cancelling...';
+            currentCancelButton.disabled = true;
+
+            // Send cancellation request
+            fetch(`/user/bookings/${currentBookingId}/cancel`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update status badge
+                    statusBadge.className = 'booking-status cancelled';
+                    statusBadge.textContent = 'Cancelled';
+
+                    // Update actions
+                    const actionsContainer = currentCancelButton.closest('.booking-actions');
+                    const groundId = bookingCard.dataset.groundId || '';
+
+                    actionsContainer.innerHTML = `
+                        <div>
+                            <a href="${bookingCard.dataset.viewUrl || window.location.href}" class="action-btn view-btn">
+                                <i class="fas fa-eye mr-1"></i> View Details
+                            </a>
+                        </div>
+                        <div>
+                            <a href="/user/grounds/${groundId}" class="action-btn rebook-btn">
+                                <i class="fas fa-redo mr-1"></i> Book Again
+                            </a>
+                        </div>
+                    `;
+
+                    // Update booking category
+                    bookingCard.dataset.category = 'cancelled';
+
+                    // Update counts
+                    updateBookingCounts();
+
+                    // Show refund information if applicable
+                    let refundMessage = '';
+                    if (data.refundPercentage > 0) {
+                        refundMessage = ` A refund of ₹${data.refundAmount.toFixed(2)} (${data.refundPercentage}%) has been initiated.`;
+                    } else {
+                        refundMessage = ' No refund was applicable according to cancellation policy.';
+                    }
+
+                    // Show success message
+                    const successMessage = document.createElement('div');
+                    successMessage.className = 'alert alert-success';
+                    successMessage.innerHTML = 'Booking cancelled successfully.' + refundMessage;
+                    document.querySelector('.my-bookings-container').insertBefore(successMessage, document.querySelector('.booking-list'));
+
+                    // Remove success message after 5 seconds
+                    setTimeout(() => {
+                        successMessage.remove();
+                    }, 5000);
+                } else {
+                    // Error occurred
+                    alert('Error: ' + data.message);
+                    currentCancelButton.innerHTML = '<i class="fas fa-times mr-1"></i> Cancel Booking';
+                    currentCancelButton.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while trying to cancel the booking.');
+                currentCancelButton.innerHTML = '<i class="fas fa-times mr-1"></i> Cancel Booking';
+                currentCancelButton.disabled = false;
+            });
+
+            // Close the modal
+            cancellationModal.classList.remove('active');
+        });
+
+        // Handle cancel dismissal
+        document.querySelector('.cancel-dismiss-btn').addEventListener('click', () => {
+            cancellationModal.classList.remove('active');
         });
 
         // Browse grounds button

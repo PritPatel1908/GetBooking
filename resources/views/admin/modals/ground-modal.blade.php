@@ -85,6 +85,27 @@
                                 </div>
                             </div>
                             <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Ground Category</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-list-alt text-gray-400"></i>
+                                    </div>
+                                    <select name="ground_category" id="ground_category"
+                                        class="w-full rounded-lg border border-gray-300 pl-10 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white appearance-none">
+                                        <option value="allgrounds">All Grounds</option>
+                                        <option value="football">Football</option>
+                                        <option value="cricket">Cricket</option>
+                                        <option value="basketball">Basketball</option>
+                                        <option value="tennis">Tennis</option>
+                                        <option value="volleyball">Volleyball</option>
+                                        <option value="badminton">Badminton</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Price Per Hour (₹)</label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

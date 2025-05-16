@@ -310,6 +310,7 @@ class AdminController extends Controller
                     'price_per_hour' => $ground->price_per_hour,
                     'capacity' => $ground->capacity,
                     'ground_type' => $ground->ground_type,
+                    'ground_category' => $ground->ground_category,
                     'description' => $ground->description,
                     'rules' => $ground->rules,
                     'opening_time' => $ground->opening_time,
@@ -384,6 +385,7 @@ class AdminController extends Controller
             'price_per_hour' => 'required|numeric|min:0',
             'capacity' => 'required|integer|min:1',
             'ground_type' => 'nullable|string|max:255',
+            'ground_category' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'rules' => 'nullable|string',
             'opening_time' => 'nullable|string',
@@ -424,6 +426,7 @@ class AdminController extends Controller
         $ground->price_per_hour = $request->price_per_hour;
         $ground->capacity = $request->capacity;
         $ground->ground_type = $request->ground_type;
+        $ground->ground_category = $request->ground_category;
         $ground->description = $request->description;
         $ground->rules = $request->rules;
         $ground->opening_time = $request->opening_time;
@@ -563,6 +566,7 @@ class AdminController extends Controller
             'price_per_hour' => $ground->price_per_hour,
             'capacity' => $ground->capacity,
             'ground_type' => $ground->ground_type,
+            'ground_category' => $ground->ground_category,
             'description' => $ground->description,
             'rules' => $ground->rules,
             'opening_time' => $ground->opening_time,
@@ -647,6 +651,7 @@ class AdminController extends Controller
             'price_per_hour' => $ground->price_per_hour,
             'capacity' => $ground->capacity,
             'ground_type' => $ground->ground_type,
+            'ground_category' => $ground->ground_category,
             'description' => $ground->description,
             'rules' => $ground->rules,
             'opening_time' => $ground->opening_time,
@@ -748,6 +753,7 @@ class AdminController extends Controller
                 'price_per_hour' => $ground->price_per_hour,
                 'capacity' => $ground->capacity,
                 'ground_type' => $ground->ground_type,
+                'ground_category' => $ground->ground_category,
                 'description' => $ground->description,
                 'rules' => $ground->rules,
                 'opening_time' => $ground->opening_time,
@@ -803,6 +809,7 @@ class AdminController extends Controller
                 'price_per_hour' => $ground->price_per_hour,
                 'capacity' => $ground->capacity,
                 'ground_type' => $ground->ground_type,
+                'ground_category' => $ground->ground_category,
                 'description' => $ground->description,
                 'rules' => $ground->rules,
                 'opening_time' => $ground->opening_time,

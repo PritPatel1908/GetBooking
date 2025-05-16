@@ -74,7 +74,8 @@ class LoginController extends Controller
             if ($user->user_type == 'admin') {
                 return redirect()->route('admin.dashboard');
             } else {
-                return redirect()->route('user.home');
+                // Add success message to session
+                return redirect()->route('user.home')->with('success', 'Login successful.');
             }
         }
 

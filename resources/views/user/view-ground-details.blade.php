@@ -786,6 +786,10 @@
                         <i class="fas fa-map-marker-alt"></i>
                         <span>{{ $ground->location }}</span>
                     </div>
+                    <div class="meta-item fade-in-delay-1">
+                        <i class="fas fa-list-alt"></i>
+                        <span>{{ ucfirst($ground->ground_category ?? 'All Grounds') }}</span>
+                    </div>
                     <div class="meta-item fade-in-delay-2">
                         <i class="fas fa-star"></i>
                         <span>4.5 (150 reviews)</span>
@@ -856,10 +860,12 @@
                     // Get all slots for this ground
                     $groundSlots = $ground->slots;
 
-                    // Get booked slots for the selected date
-                    $bookedSlotIds = \App\Models\Booking::where('ground_id', $ground->id)
-                        ->where('booking_date', $selectedDate)
-                        ->where('booking_status', '!=', 'cancelled')
+                    // Get booked slots for the selected date through BookingDetail
+                    $bookedSlotIds = \App\Models\BookingDetail::where('ground_id', $ground->id)
+                        ->whereHas('booking', function($query) use ($selectedDate) {
+                            $query->where('booking_date', $selectedDate)
+                                  ->where('booking_status', '!=', 'cancelled');
+                        })
                         ->pluck('slot_id')
                         ->toArray();
 
@@ -1052,7 +1058,7 @@
                         <div class="stat-circle mb-2">
                             <i class="fas fa-users"></i>
                         </div>
-                        <h5 class="stat-number">{{ $ground->bookings->count() }}</h5>
+                        <h5 class="stat-number">{{ \App\Models\BookingDetail::where('ground_id', $ground->id)->count() }}</h5>
                         <div class="stat-label">Bookings</div>
                     </div>
                     <div class="col-4">
@@ -1470,16 +1476,66 @@
                     bookButton.style.background = '#28a745';
                     bookButton.style.opacity = '1';
 
-                    // Show a success message
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = 'alert alert-success mt-3';
-                    messageDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message || 'Booking confirmed successfully!'}`;
-                    bookButton.parentNode.appendChild(messageDiv);
+                                        // Create a custom toast notification
+                    const toastDiv = document.createElement('div');
+                    toastDiv.style.position = 'fixed';
+                    toastDiv.style.top = '20px';
+                    toastDiv.style.right = '20px';
+                    toastDiv.style.zIndex = '9999';
+                    toastDiv.style.backgroundColor = '#28a745';
+                    toastDiv.style.color = 'white';
+                    toastDiv.style.padding = '15px 25px';
+                    toastDiv.style.borderRadius = '10px';
+                    toastDiv.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+                    toastDiv.style.minWidth = '300px';
+                    toastDiv.style.transform = 'translateX(400px)';
+                    toastDiv.style.transition = 'transform 0.3s ease-in-out';
 
-                    // Redirect to booking confirmation or payment page
+                    toastDiv.innerHTML = `
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center;">
+                                <i class="fas fa-check-circle" style="margin-right: 10px; font-size: 20px;"></i>
+                                <strong>Booking Successful</strong>
+                            </div>
+                            <span id="close-toast" style="cursor: pointer; font-size: 20px;">&times;</span>
+                        </div>
+                        <p style="margin: 0;">${data.message || 'Booking confirmed successfully!'}</p>
+                        <p style="margin: 5px 0 0 0;">Booking Reference: <strong>${data.booking_sku || 'N/A'}</strong></p>
+                    `;
+
+                    document.body.appendChild(toastDiv);
+
+                    // Display the toast with animation
                     setTimeout(() => {
-                        window.location.href = data.redirect_url;
-                    }, 1500);
+                        toastDiv.style.transform = 'translateX(0)';
+                    }, 10);
+
+                    // Close button functionality
+                    const closeToast = toastDiv.querySelector('#close-toast');
+                    closeToast.addEventListener('click', () => {
+                        toastDiv.style.transform = 'translateX(400px)';
+                        setTimeout(() => {
+                            toastDiv.remove();
+                        }, 300);
+                    });
+
+                    // Auto-dismiss toast after 5 seconds
+                    setTimeout(() => {
+                        toastDiv.style.transform = 'translateX(400px)';
+                        setTimeout(() => {
+                            toastDiv.remove();
+                        }, 300);
+                    }, 5000);
+
+                    // Reset booking form
+                    resetSlotSelection();
+                    document.querySelector('.booking-summary').classList.remove('active');
+
+                    // Fetch updated slot availability without page reload
+                    const activeDate = document.querySelector('.date-box.active');
+                    if (activeDate) {
+                        activeDate.click(); // This will refresh the slots for the current date
+                    }
                 } else {
                     // Show error message
                     bookButton.innerHTML = originalButtonText;

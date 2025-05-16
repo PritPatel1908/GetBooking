@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Builder;
 
 class Ground extends Model
@@ -23,6 +24,7 @@ class Ground extends Model
         'price_per_hour',
         'capacity',
         'ground_type',
+        'ground_category',
         'description',
         'rules',
         'opening_time',
@@ -88,9 +90,16 @@ class Ground extends Model
     /**
      * Get the bookings for the ground.
      */
-    public function bookings(): HasMany
+    public function bookings(): HasManyThrough
     {
-        return $this->hasMany(Booking::class);
+        return $this->hasManyThrough(
+            Booking::class,
+            BookingDetail::class,
+            'ground_id', // Foreign key on booking_details table
+            'id', // Foreign key on bookings table
+            'id', // Local key on grounds table
+            'booking_id' // Local key on booking_details table
+        );
     }
 
     /**
@@ -99,10 +108,10 @@ class Ground extends Model
     public function activeBookings()
     {
         return $this->bookings()
-            ->whereIn('booking_status', ['pending', 'confirmed'])
-            ->where('booking_date', '>=', now()->format('Y-m-d'))
-            ->orderBy('booking_date')
-            ->orderBy('booking_time');
+            ->whereIn('bookings.booking_status', ['pending', 'confirmed'])
+            ->where('bookings.booking_date', '>=', now()->format('Y-m-d'))
+            ->orderBy('bookings.booking_date')
+            ->orderBy('bookings.booking_time');
     }
 
     /**
@@ -111,9 +120,9 @@ class Ground extends Model
     public function completedBookings()
     {
         return $this->bookings()
-            ->where('booking_status', 'completed')
-            ->orderBy('booking_date', 'desc')
-            ->orderBy('booking_time', 'desc');
+            ->where('bookings.booking_status', 'completed')
+            ->orderBy('bookings.booking_date', 'desc')
+            ->orderBy('bookings.booking_time', 'desc');
     }
 
     /**
@@ -183,27 +192,29 @@ class Ground extends Model
             }
         }
 
-        // Check for any overlapping bookings
-        $overlappingBookings = $this->bookings()
-            ->whereIn('booking_status', ['pending', 'confirmed'])
-            ->where('booking_date', $date)
-            ->where(function ($query) use ($time, $startTime, $endTime) {
-                $query->where(function ($q) use ($startTime, $endTime) {
-                    // Check if the existing booking starts during our requested time
-                    $q->whereRaw("STR_TO_DATE(CONCAT(booking_date, ' ', booking_time), '%Y-%m-%d %H:%i') >= ?", [$startTime])
-                        ->whereRaw("STR_TO_DATE(CONCAT(booking_date, ' ', booking_time), '%Y-%m-%d %H:%i') < ?", [$endTime]);
-                })->orWhere(function ($q) use ($startTime, $endTime) {
-                    // Check if the existing booking ends during our requested time
-                    $timeFieldWithDuration = "STR_TO_DATE(CONCAT(booking_date, ' ', booking_time), '%Y-%m-%d %H:%i') + INTERVAL duration HOUR";
-                    $q->whereRaw("$timeFieldWithDuration > ?", [$startTime])
-                        ->whereRaw("$timeFieldWithDuration <= ?", [$endTime]);
-                })->orWhere(function ($q) use ($startTime, $endTime) {
-                    // Check if the existing booking completely encompasses our requested time
-                    $timeField = "STR_TO_DATE(CONCAT(booking_date, ' ', booking_time), '%Y-%m-%d %H:%i')";
-                    $timeFieldWithDuration = "$timeField + INTERVAL duration HOUR";
-                    $q->whereRaw("$timeField <= ?", [$startTime])
-                        ->whereRaw("$timeFieldWithDuration >= ?", [$endTime]);
-                });
+        // Check for any overlapping bookings through booking details
+        $overlappingBookings = BookingDetail::where('ground_id', $this->id)
+            ->whereHas('booking', function ($query) use ($date, $time, $startTime, $endTime) {
+                $query->whereIn('booking_status', ['pending', 'confirmed'])
+                    ->where('booking_date', $date)
+                    ->where(function ($q) use ($time, $startTime, $endTime) {
+                        $q->where(function ($subQ) use ($startTime, $endTime) {
+                            // Check if the existing booking starts during our requested time
+                            $subQ->whereRaw("STR_TO_DATE(CONCAT(booking_date, ' ', booking_time), '%Y-%m-%d %H:%i') >= ?", [$startTime])
+                                ->whereRaw("STR_TO_DATE(CONCAT(booking_date, ' ', booking_time), '%Y-%m-%d %H:%i') < ?", [$endTime]);
+                        })->orWhere(function ($subQ) use ($startTime, $endTime) {
+                            // Check if the existing booking ends during our requested time
+                            $timeFieldWithDuration = "STR_TO_DATE(CONCAT(booking_date, ' ', booking_time), '%Y-%m-%d %H:%i') + INTERVAL duration HOUR";
+                            $subQ->whereRaw("$timeFieldWithDuration > ?", [$startTime])
+                                ->whereRaw("$timeFieldWithDuration <= ?", [$endTime]);
+                        })->orWhere(function ($subQ) use ($startTime, $endTime) {
+                            // Check if the existing booking completely encompasses our requested time
+                            $timeField = "STR_TO_DATE(CONCAT(booking_date, ' ', booking_time), '%Y-%m-%d %H:%i')";
+                            $timeFieldWithDuration = "$timeField + INTERVAL duration HOUR";
+                            $subQ->whereRaw("$timeField <= ?", [$startTime])
+                                ->whereRaw("$timeFieldWithDuration >= ?", [$endTime]);
+                        });
+                    });
             })->count();
 
         return $overlappingBookings === 0;

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Booking extends Model
 {
@@ -18,9 +19,7 @@ class Booking extends Model
      */
     protected $fillable = [
         'booking_sku',
-        'ground_id',
         'user_id',
-        'slot_id',
         'booking_date',
         'booking_time',
         'duration',
@@ -37,23 +36,13 @@ class Booking extends Model
      */
     protected $casts = [
         'booking_date' => 'date',
-        'ground_id' => 'integer',
         'user_id' => 'integer',
-        'slot_id' => 'integer',
         'payment_id' => 'integer',
         'duration' => 'integer',
         'amount' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
-    /**
-     * Get the ground that is booked.
-     */
-    public function ground(): BelongsTo
-    {
-        return $this->belongsTo(Ground::class);
-    }
 
     /**
      * Get the user who made the booking.
@@ -64,18 +53,18 @@ class Booking extends Model
     }
 
     /**
-     * Get the slot that was booked.
-     */
-    public function slot()
-    {
-        return $this->belongsTo(GroundSlot::class);
-    }
-
-    /**
      * Get the payment associated with the booking.
      */
     public function payment(): BelongsTo
     {
         return $this->belongsTo(Payment::class);
+    }
+
+    /**
+     * Get the booking details for this booking.
+     */
+    public function details(): HasMany
+    {
+        return $this->hasMany(BookingDetail::class);
     }
 }

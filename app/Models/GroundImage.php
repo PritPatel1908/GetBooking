@@ -32,6 +32,33 @@ class GroundImage extends Model
     ];
 
     /**
+     * Append these attributes to the model.
+     *
+     * @var array
+     */
+    protected $appends = ['image_url'];
+
+    /**
+     * Get the formatted image URL.
+     *
+     * @return string
+     */
+    public function getImageUrlAttribute()
+    {
+        if (filter_var($this->image_path, FILTER_VALIDATE_URL)) {
+            return $this->image_path;
+        }
+
+        // If it starts with 'http', return as is
+        if (strpos($this->image_path, 'http') === 0) {
+            return $this->image_path;
+        }
+
+        // Otherwise, assume it's a local path and generate a full URL
+        return asset($this->image_path);
+    }
+
+    /**
      * Get the ground that owns the image.
      */
     public function ground(): BelongsTo

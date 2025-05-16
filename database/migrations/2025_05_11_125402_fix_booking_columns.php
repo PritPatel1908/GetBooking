@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('bookings', function (Blueprint $table) {
-            if (!Schema::hasColumn('bookings', 'slot_id')) {
+        Schema::table('booking_details', function (Blueprint $table) {
+            if (!Schema::hasColumn('booking_details', 'slot_id')) {
                 $table->foreignId('slot_id')->nullable()->constrained('ground_slots')->onDelete('cascade');
             }
         });
@@ -23,8 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('bookings', function (Blueprint $table) {
-            if (Schema::hasColumn('bookings', 'slot_id')) {
+        Schema::table('booking_details', function (Blueprint $table) {
+            if (Schema::hasColumn('booking_details', 'slot_id')) {
                 $table->dropForeign(['slot_id']);
                 $table->dropColumn('slot_id');
             }
