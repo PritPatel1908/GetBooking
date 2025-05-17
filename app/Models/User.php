@@ -32,7 +32,8 @@ class User extends Authenticatable
         'postal_code',
         'profile_picture',
         'client_id',
-        'user_type'
+        'user_type',
+        'profile_photo_path',
     ];
 
     /**
@@ -57,5 +58,10 @@ class User extends Authenticatable
             'password' => 'hashed',
             'client_id' => 'int',
         ];
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
     }
 }

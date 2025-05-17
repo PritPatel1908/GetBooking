@@ -42,7 +42,7 @@
                     <!-- Desktop Navigation -->
                     <div class="hidden md:flex items-center space-x-4">
                         <a href="#grounds" class="text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-md text-sm font-medium transition duration-300">Grounds</a>
-                        <a href="#tournaments" class="text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-md text-sm font-medium transition duration-300">Tournaments</a>
+                        {{-- <a href="#tournaments" class="text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-md text-sm font-medium transition duration-300">Tournaments</a> --}}
                         <a href="#features" class="text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-md text-sm font-medium transition duration-300">Features</a>
                         <a href="#testimonials" class="text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-md text-sm font-medium transition duration-300">Testimonials</a>
 
@@ -69,7 +69,7 @@
                 <div id="mobile-menu" class="hidden md:hidden pb-3">
                     <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                         <a href="#grounds" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100">Grounds</a>
-                        <a href="#tournaments" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100">Tournaments</a>
+                        {{-- <a href="#tournaments" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100">Tournaments</a> --}}
                         <a href="#features" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100">Features</a>
                         <a href="#testimonials" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100">Testimonials</a>
 
@@ -98,9 +98,9 @@
                     <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
                         Book Your Perfect Sports Ground
                     </h1>
-                    <p class="text-lg md:text-xl text-white/90 mb-8">
+                    {{-- <p class="text-lg md:text-xl text-white/90 mb-8">
                         Find and book the best sports grounds for football, cricket, basketball, tennis and more. Join tournaments or create your own!
-                    </p>
+                    </p> --}}
                     <div class="flex flex-col sm:flex-row gap-4">
                         <a href="#grounds" class="inline-flex justify-center items-center px-6 py-3 bg-emerald-600 text-white font-medium rounded-lg shadow-lg hover:bg-emerald-700 transition duration-300 transform hover:scale-105">
                             Explore Grounds
@@ -108,9 +108,9 @@
                                 <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
                             </svg>
                         </a>
-                        <a href="#tournaments" class="inline-flex justify-center items-center px-6 py-3 bg-white text-blue-600 font-medium rounded-lg shadow-lg hover:bg-gray-100 transition duration-300 transform hover:scale-105">
+                        {{-- <a href="#tournaments" class="inline-flex justify-center items-center px-6 py-3 bg-white text-blue-600 font-medium rounded-lg shadow-lg hover:bg-gray-100 transition duration-300 transform hover:scale-105">
                             Join Tournaments
-                        </a>
+                        </a> --}}
                     </div>
                 </div>
             </div>
@@ -205,7 +205,7 @@
         </section>
 
         <!-- Upcoming Tournaments Section -->
-        <section id="tournaments" class="py-12 md:py-20 bg-blue-50">
+        {{-- <section id="tournaments" class="py-12 md:py-20 bg-blue-50">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-12" data-aos="fade-up">
                     <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Upcoming Tournaments</h2>
@@ -322,7 +322,7 @@
                     </a>
                 </div>
             </div>
-        </section>
+        </section> --}}
 
         <!-- Features Section -->
         <section id="features" class="py-12 md:py-20 bg-white">

@@ -86,6 +86,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/my-bookings/{bookingSku}', [UserController::class, 'view_booking'])->name('user.view_booking');
     Route::post('/user/bookings/{id}/cancel', [BookingController::class, 'cancelBooking'])->name('user.cancel_booking');
     Route::get('/user/bookings/{bookingSku}/invoice', [UserController::class, 'download_invoice'])->name('user.download_invoice');
+
+    // Profile routes
+    Route::get('/profile', [App\Http\Controllers\User\ProfileController::class, 'show'])->name('user.profile');
+    Route::post('/profile', [App\Http\Controllers\User\ProfileController::class, 'update'])->name('user.profile.update');
 });
 
 // Welcome Page Routes

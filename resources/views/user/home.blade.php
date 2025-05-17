@@ -78,7 +78,7 @@
         <p>Discover the best sports facilities near you and book them instantly for your next game or tournament.</p>
 
         <form class="search-bar">
-            <input type="text" placeholder="Search for sports grounds, tournaments, or activities...">
+            <input type="text" placeholder="Search for sports grounds, or activities...">
             <button type="submit" class="search-btn"><i class="fas fa-search"></i> Search</button>
         </form>
 
@@ -137,7 +137,7 @@
 </section>
 
 <!-- Tournaments Section -->
-<section id="tournaments">
+{{-- <section id="tournaments">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Upcoming Tournaments</h2>
@@ -201,7 +201,7 @@
             </div>
         </div>
     </div>
-</section>
+</section> --}}
 
 <!-- Activity Counter Section -->
 <section id="counter" class="counter-section">
@@ -230,11 +230,11 @@
             </div>
 
             <!-- Counter 4 -->
-            <div class="counter-item">
+            {{-- <div class="counter-item">
                 <div class="counter-icon"><i class="fas fa-trophy"></i></div>
                 <div class="counter-number" data-target="120">0</div>
                 <div class="counter-text">Tournaments</div>
-            </div>
+            </div> --}}
         </div>
     </div>
 </section>
@@ -273,7 +273,7 @@
             <div class="testimonial-slide active">
                 <div class="testimonial-quote">
                     GetBooking has completely changed how our football club operates. We can easily find and book the
-                    best fields in town without any hassle. The tournaments feature is amazing too!
+                    best fields in town without any hassle.
                 </div>
                 <div class="testimonial-user">
                     <div class="testimonial-image">
@@ -306,7 +306,7 @@
 
             <div class="testimonial-slide">
                 <div class="testimonial-quote">
-                    I've been organizing tennis tournaments for years, and GetBooking has made everything so much
+                    GetBooking has made everything so much
                     simpler. The registration system, notifications, and court booking all in one place is perfect.
                 </div>
                 <div class="testimonial-user">

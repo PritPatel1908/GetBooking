@@ -12,13 +12,17 @@ class WelcomeController extends Controller
 {
     public function index()
     {
-        $grounds = Ground::with(['images', 'features'])
-            ->where('status', 'active')
-            ->orderBy('is_featured', 'desc')
-            ->take(6)
-            ->get();
+        if (!auth()->check()) {
+            $grounds = Ground::with(['images', 'features'])
+                ->where('status', 'active')
+                ->orderBy('is_featured', 'desc')
+                ->take(6)
+                ->get();
 
-        return view('welcome.welcome', compact('grounds'));
+            return view('welcome.welcome', compact('grounds'));
+        } else {
+            return redirect()->route('user.home');
+        }
     }
 
     public function showGround($id)

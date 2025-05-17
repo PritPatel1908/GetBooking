@@ -769,13 +769,13 @@
                                     <i class="fas fa-star mr-1"></i> Leave Review
                                 </button>
                                 @if($booking->details->isNotEmpty() && $booking->details->first()->ground)
-                                    <a href="{{ route('user.view_ground', $booking->details->first()->ground->id) }}" class="action-btn rebook-btn">
+                                    <a href="{{ route('user.view_ground', $booking->booking_sku) }}/${groundId}" class="action-btn rebook-btn">
                                         <i class="fas fa-redo mr-1"></i> Book Again
                                     </a>
                                 @endif
                             @elseif($bookingCategory == 'cancelled')
                                 @if($booking->details->isNotEmpty() && $booking->details->first()->ground)
-                                    <a href="{{ route('user.view_ground', $booking->details->first()->ground->id) }}" class="action-btn rebook-btn">
+                                    <a href="{{ route('user.view_ground', $booking->booking_sku) }}/${groundId}" class="action-btn rebook-btn">
                                         <i class="fas fa-redo mr-1"></i> Book Again
                                     </a>
                                 @endif
