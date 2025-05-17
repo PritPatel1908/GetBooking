@@ -34,12 +34,13 @@
                 </div>
 
                 <ul class="nav-links">
-                    <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="{{ route('user.home') }}"><i class="fas fa-home"></i> Home</a></li>
                     <li><a href="#sports-grounds"><i class="fas fa-map-marker-alt"></i> Sports Grounds</a></li>
-                    <li><a href="#tournaments"><i class="fas fa-trophy"></i> Tournaments</a></li>
+                    {{-- <li><a href="#tournaments"><i class="fas fa-trophy"></i> Tournaments</a></li> --}}
                     <li><a href="{{ route('user.my_bookings') }}"><i class="fas fa-calendar-alt"></i> My Bookings</a></li>
                     <li><a href="#"><i class="fas fa-info-circle"></i> About Us</a></li>
                     <li><a href="#"><i class="fas fa-phone"></i> Contact</a></li>
+                    <li><a href="{{ route('user.profile') }}"><i class="fas fa-user"></i> Profile</a></li>
                     <li><a href="{{ route('logout') }}"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
                 </ul>
 
@@ -81,7 +82,7 @@
                     <ul class="footer-links">
                         <li><a href="#"><i class="fas fa-chevron-right"></i> Home</a></li>
                         <li><a href="#sports-grounds"><i class="fas fa-chevron-right"></i> Sports Grounds</a></li>
-                        <li><a href="#tournaments"><i class="fas fa-chevron-right"></i> Tournaments</a></li>
+                        {{-- <li><a href="#tournaments"><i class="fas fa-chevron-right"></i> Tournaments</a></li> --}}
                         <li><a href="#"><i class="fas fa-chevron-right"></i> My Bookings</a></li>
                         <li><a href="#"><i class="fas fa-chevron-right"></i> About Us</a></li>
                         <li><a href="#"><i class="fas fa-chevron-right"></i> Contact</a></li>

@@ -3,33 +3,51 @@
 @section('styles')
 <style>
     :root {
-        --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-        --primary-color: #6366f1;
-        --primary-dark: #4f46e5;
-        --bg-primary: #f8f9fa;
-        --bg-card: #ffffff;
-        --text-primary: #1f2937;
-        --text-secondary: #4b5563;
-        --border-color: #e5e7eb;
-        --input-bg: #f9fafb;
-        --shadow-color: rgba(0, 0, 0, 0.05);
-        --card-shadow: 0 10px 30px var(--shadow-color);
-        --hover-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
+        --primary-color: #3490dc;
+        --primary-dark: #2779bd;
+        --secondary-color: #38c172;
+        --accent-color: #f6993f;
+        --bg-color: #f8fafc;
+        --text-color: #2d3748;
+        --card-bg: #ffffff;
+        --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --card-hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        --header-bg: #ffffff;
+        --footer-bg: #2d3748;
+        --footer-text: #f7fafc;
+        --border-color: #e2e8f0;
+        --input-bg: #edf2f7;
+        --input-text: #4a5568;
+        --primary-gradient: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        --bg-primary: var(--bg-color);
+        --bg-card: var(--card-bg);
+        --text-primary: var(--text-color);
+        --text-secondary: #718096;
+        --hover-shadow: var(--card-hover-shadow);
     }
 
-    [data-theme="dark"] {
-        --primary-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
-        --primary-color: #818cf8;
-        --primary-dark: #6366f1;
-        --bg-primary: #111827;
-        --bg-card: #1f2937;
-        --text-primary: #f9fafb;
-        --text-secondary: #d1d5db;
-        --border-color: #374151;
-        --input-bg: #374151;
-        --shadow-color: rgba(0, 0, 0, 0.2);
-        --card-shadow: 0 10px 30px var(--shadow-color);
-        --hover-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+    .dark {
+        --primary-color: #4299e1;
+        --primary-dark: #3182ce;
+        --secondary-color: #48bb78;
+        --accent-color: #f6ad55;
+        --bg-color: #1a202c;
+        --text-color: #f7fafc;
+        --card-bg: #2d3748;
+        --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+        --card-hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        --header-bg: #2d3748;
+        --footer-bg: #1a202c;
+        --footer-text: #f7fafc;
+        --border-color: #4a5568;
+        --input-bg: #4a5568;
+        --input-text: #e2e8f0;
+        --primary-gradient: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        --bg-primary: var(--bg-color);
+        --bg-card: var(--card-bg);
+        --text-primary: var(--text-color);
+        --text-secondary: #a0aec0;
+        --hover-shadow: var(--card-hover-shadow);
     }
 
     .profile-container {
