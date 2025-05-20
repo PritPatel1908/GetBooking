@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/all_grounds', [UserController::class, 'all_grounds'])->name('user.all_grounds');
     Route::get('/view_ground/{id}', [UserController::class, 'view_ground'])->name('user.view_ground');
     Route::get('/my_bookings', [UserController::class, 'my_bookings'])->name('user.my_bookings');
+    Route::get('/pending-payments', [PaymentController::class, 'pendingPayments'])->name('user.pending-payments');
 
     // Ground booking related routes
     Route::get('/get-ground-slots/{date}/{groundId}', [UserController::class, 'getGroundSlots']);
@@ -90,6 +91,23 @@ Route::middleware('auth')->group(function () {
     // Profile routes
     Route::get('/profile', [App\Http\Controllers\User\ProfileController::class, 'show'])->name('user.profile');
     Route::post('/profile', [App\Http\Controllers\User\ProfileController::class, 'update'])->name('user.profile.update');
+    Route::post('/profile/password', [App\Http\Controllers\User\ProfileController::class, 'updatePassword'])->name('user.password.update');
+
+    // Transaction routes
+    Route::get('/user/transaction/{id}', [PaymentController::class, 'viewTransaction'])->name('user.transaction.view');
+
+    // Admin Booking Routes
+    Route::get('/admin/bookings', [AdminController::class, 'admin_bookings'])->name('admin.bookings');
+    Route::post('/admin/bookings', [AdminController::class, 'booking_create'])->name('admin.bookings.store');
+    Route::put('/admin/bookings/{id}', [AdminController::class, 'booking_update'])->name('admin.bookings.update');
+    Route::delete('/admin/bookings/{id}', [AdminController::class, 'booking_delete'])->name('admin.bookings.delete');
+    Route::get('/admin/bookings/{id}', [AdminController::class, 'booking_view_page'])->name('admin.bookings.show');
+    Route::get('/admin/bookings/{id}/edit', [AdminController::class, 'booking_edit'])->name('admin.bookings.edit');
+    Route::get('/admin/bookings/pagination', [AdminController::class, 'bookings_pagination'])->name('admin.bookings.pagination');
+
+    // Ground slots and details for booking modal
+    Route::get('/admin/grounds/{id}/available-slots', [AdminController::class, 'getAvailableSlots'])->name('admin.grounds.available-slots');
+    Route::get('/admin/grounds/{id}/details', [AdminController::class, 'getGroundDetails'])->name('admin.grounds.details');
 });
 
 // Welcome Page Routes

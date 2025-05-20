@@ -30,7 +30,6 @@ class User extends Authenticatable
         'state',
         'country',
         'postal_code',
-        'profile_picture',
         'client_id',
         'user_type',
         'profile_photo_path',

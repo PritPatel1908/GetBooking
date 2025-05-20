@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('state')->nullable();
             $table->string('country')->nullable();
             $table->string('postal_code')->nullable();
-            $table->string('profile_picture')->nullable();
         });
     }
 
@@ -40,7 +39,6 @@ return new class extends Migration
             $table->dropColumn('state');
             $table->dropColumn('country');
             $table->dropColumn('postal_code');
-            $table->dropColumn('profile_picture');
         });
     }
 };

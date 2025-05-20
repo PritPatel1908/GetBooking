@@ -47,6 +47,31 @@ class Payment extends Model
     ];
 
     /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = [
+        'date',
+        'created_at',
+        'updated_at'
+    ];
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($payment) {
+            if (empty($payment->date)) {
+                $payment->date = now();
+            }
+        });
+    }
+
+    /**
      * Get the booking that belongs to the payment.
      */
     public function booking(): BelongsTo

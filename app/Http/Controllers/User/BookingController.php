@@ -8,12 +8,22 @@ use App\Models\Ground;
 use App\Models\Booking;
 use App\Models\BookingDetail;
 use App\Models\GroundSlot;
+use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Razorpay\Api\Api;
+use Illuminate\Support\Facades\Config;
 
 class BookingController extends Controller
 {
+    private $razorpay;
+
+    public function __construct()
+    {
+        $this->razorpay = new Api(Config::get('services.razorpay.key'), Config::get('services.razorpay.secret'));
+    }
+
     /**
      * Get available slots for a ground on a specific date
      *
@@ -223,9 +233,10 @@ class BookingController extends Controller
             $booking->notes = "Cancelled by user. " . ($refundPercentage > 0 ? "Refund of {$refundPercentage}% applied." : "No refund applied.");
             $booking->save();
 
-            // If there's a payment, update its status
+            // If there's a payment, update its status to cancelled
             if ($booking->payment) {
-                $booking->payment->payment_status = 'refunded';
+                $booking->payment->payment_status = 'cancelled';
+                $booking->payment->notes = "Payment cancelled due to booking cancellation. " . ($refundPercentage > 0 ? "Refund of {$refundPercentage}% applied." : "No refund applied.");
                 $booking->payment->save();
             }
 
@@ -242,6 +253,179 @@ class BookingController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error cancelling booking: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Store a new booking
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function store(Request $request)
+    {
+        try {
+            // Validate request
+            $request->validate([
+                'ground_id' => 'required|exists:grounds,id',
+                'date' => 'required|date|after_or_equal:today',
+                'slot_ids' => 'required|array',
+                'slot_ids.*' => 'required|exists:ground_slots,id',
+                'time_slots' => 'required|array',
+                'time_slots.*' => 'required|string',
+                'total_price' => 'required|numeric|min:0'
+            ]);
+
+            // Check authentication
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must be logged in to make a booking.'
+                ], 401);
+            }
+
+            // Get the ground
+            $ground = Ground::findOrFail($request->ground_id);
+
+            // Check if slots are still available
+            $bookedSlots = BookingDetail::where('ground_id', $ground->id)
+                ->whereHas('booking', function ($query) use ($request) {
+                    $query->where('booking_date', $request->date)
+                        ->where('booking_status', '!=', 'cancelled');
+                })
+                ->pluck('slot_id')
+                ->toArray();
+
+            $requestedSlots = $request->slot_ids;
+            $unavailableSlots = array_intersect($requestedSlots, $bookedSlots);
+
+            if (!empty($unavailableSlots)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Some selected slots are no longer available. Please refresh and try again.'
+                ], 400);
+            }
+
+            // Generate unique booking SKU
+            $bookingSku = 'BK' . strtoupper(uniqid());
+
+            // Create Razorpay Order
+            $orderData = [
+                'receipt'         => $bookingSku,
+                'amount'          => $request->total_price * 100, // Razorpay expects amount in paise
+                'currency'        => 'INR',
+                'payment_capture' => 1
+            ];
+
+            $razorpayOrder = $this->razorpay->order->create($orderData);
+
+            // Store booking data in session for later use
+            session([
+                'pending_booking' => [
+                    'ground_id' => $ground->id,
+                    'date' => $request->date,
+                    'slot_ids' => $request->slot_ids,
+                    'time_slots' => $request->time_slots,
+                    'total_price' => $request->total_price,
+                    'booking_sku' => $bookingSku,
+                    'razorpay_order_id' => $razorpayOrder['id']
+                ]
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Razorpay order created successfully!',
+                'order_id' => $razorpayOrder['id'],
+                'amount' => $request->total_price * 100,
+                'currency' => 'INR',
+                'booking_sku' => $bookingSku
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in store booking: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating booking: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function handlePaymentCallback(Request $request)
+    {
+        try {
+            $paymentId = $request->razorpay_payment_id;
+            $orderId = $request->razorpay_order_id;
+            $signature = $request->razorpay_signature;
+
+            // Verify signature
+            $attributes = [
+                'razorpay_payment_id' => $paymentId,
+                'razorpay_order_id' => $orderId,
+                'razorpay_signature' => $signature
+            ];
+
+            $this->razorpay->utility->verifyPaymentSignature($attributes);
+
+            // Get payment details from Razorpay
+            $payment = $this->razorpay->payment->fetch($paymentId);
+
+            // Get pending booking data from session
+            $pendingBooking = session('pending_booking');
+            if (!$pendingBooking) {
+                throw new \Exception('No pending booking found');
+            }
+
+            // Create the booking
+            $booking = Booking::create([
+                'user_id' => Auth::id(),
+                'ground_id' => $pendingBooking['ground_id'],
+                'booking_date' => $pendingBooking['date'],
+                'booking_time' => $pendingBooking['time_slots'][0],
+                'amount' => $pendingBooking['total_price'],
+                'booking_status' => 'confirmed',
+                'booking_sku' => $pendingBooking['booking_sku'],
+                'notes' => 'Booking created after successful payment'
+            ]);
+
+            // Create booking details
+            foreach ($pendingBooking['slot_ids'] as $index => $slotId) {
+                BookingDetail::create([
+                    'booking_id' => $booking->id,
+                    'ground_id' => $pendingBooking['ground_id'],
+                    'slot_id' => $slotId,
+                    'time_slot' => $pendingBooking['time_slots'][$index]
+                ]);
+            }
+
+            // Create payment record
+            Payment::create([
+                'booking_id' => $booking->id,
+                'user_id' => Auth::id(),
+                'date' => now(),
+                'amount' => $pendingBooking['total_price'],
+                'payment_status' => 'completed',
+                'payment_method' => 'online',
+                'payment_type' => 'razorpay',
+                'transaction_id' => $paymentId,
+                'payment_response' => json_encode($payment->toArray()),
+                'payment_response_code' => $payment->status,
+                'payment_response_message' => 'Payment successful',
+                'payment_response_data' => json_encode($attributes)
+            ]);
+
+            // Clear the pending booking from session
+            session()->forget('pending_booking');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment successful and booking confirmed!',
+                'booking_id' => $booking->id
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in payment callback: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error processing payment: ' . $e->getMessage()
             ], 500);
         }
     }

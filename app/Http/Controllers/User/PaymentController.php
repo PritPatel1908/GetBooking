@@ -162,4 +162,43 @@ class PaymentController extends Controller
                 ->with('error', 'An error occurred processing your payment. Please contact support.');
         }
     }
+
+    public function pendingPayments()
+    {
+        $payments = Payment::where('user_id', Auth::id())
+            ->with(['booking' => function ($query) {
+                $query->with(['details' => function ($query) {
+                    $query->with('ground');
+                }]);
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $totalAmountPaid = $payments->where('payment_status', 'completed')->sum('amount');
+        $totalPaymentsCount = $payments->count();
+        $totalRefundedAmount = $payments->where('payment_status', 'refunded')->sum('amount');
+        $totalFailedAmount = $payments->where('payment_status', 'failed')->sum('amount');
+
+        return view('user.pending-payments', compact(
+            'payments',
+            'totalAmountPaid',
+            'totalPaymentsCount',
+            'totalRefundedAmount',
+            'totalFailedAmount'
+        ));
+    }
+
+    public function viewTransaction($id)
+    {
+        $transaction = Payment::where('user_id', Auth::id())
+            ->where('id', $id)
+            ->with(['booking' => function ($query) {
+                $query->with(['details' => function ($query) {
+                    $query->with('ground');
+                }]);
+            }])
+            ->firstOrFail();
+
+        return view('user.transaction-details', compact('transaction'));
+    }
 }

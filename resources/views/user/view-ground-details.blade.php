@@ -244,6 +244,15 @@
         margin-bottom: 1.5rem;
         scrollbar-width: thin;
         scrollbar-color: var(--primary-color) var(--input-bg);
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        cursor: grab;
+    }
+
+    .date-selector:active {
+        cursor: grabbing;
     }
 
     .date-selector::-webkit-scrollbar {
@@ -272,6 +281,10 @@
         overflow: hidden;
         color: var(--text-color);
         background: var(--card-bg);
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
     }
 
     .date-box:before {
@@ -529,6 +542,34 @@
         left: 100%;
     }
 
+    /* Pending Payments Button */
+    .btn-warning {
+        background: rgba(246, 173, 85, 0.1);
+        color: #C05621;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+    .btn-warning:hover {
+        background: #C05621;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(192, 86, 33, 0.3);
+        text-decoration: none;
+    }
+
+    .dark .btn-warning:hover {
+        box-shadow: 0 5px 15px rgba(192, 86, 33, 0.4);
+    }
+
     /* Enhanced reviews section */
     .reviews-section {
         margin-top: 3rem;
@@ -736,6 +777,117 @@
             font-size: 1.4rem;
         }
     }
+
+    .date-selector-container {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .date-navigation {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .date-selector {
+        display: flex;
+        overflow-x: auto;
+        gap: 10px;
+        padding: 1rem 0;
+        scroll-behavior: smooth;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        flex: 1;
+    }
+
+    .date-selector::-webkit-scrollbar {
+        display: none;
+    }
+
+    .date-nav-btn {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .date-nav-btn:hover {
+        background: var(--primary-dark);
+        transform: scale(1.1);
+    }
+
+    .date-nav-btn:disabled {
+        background: var(--border-color);
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .date-box {
+        min-width: 100px;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        color: var(--text-color);
+        background: var(--card-bg);
+        flex-shrink: 0;
+    }
+
+    .date-box:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--primary-color);
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+        z-index: -1;
+    }
+
+    .date-box:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-3px);
+    }
+
+    .date-box:hover:before {
+        transform: translateY(70%);
+    }
+
+    .date-box.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(52, 144, 220, 0.3);
+    }
+
+    .date-box.active:before {
+        transform: translateY(0);
+    }
+
+    .date-box .day {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .date-box .date {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
 </style>
 @endsection
 
@@ -834,17 +986,32 @@
                 <h3 class="mb-4">Book a Slot</h3>
 
                 <!-- Date Selection -->
-                <div class="date-selector">
-                    @for($i = 0; $i < 7; $i++)
-                        @php
-                        $date = \Carbon\Carbon::now()->addDays($i);
-                        $isActive = $i === 0;
-                        @endphp
-                        <div class="date-box {{ $isActive ? 'active' : '' }}" data-date="{{ $date->format('Y-m-d') }}">
-                            <div class="day">{{ $date->format('D') }}</div>
-                            <div class="date">{{ $date->format('d M') }}</div>
+                <div class="date-selector-container">
+                    <div class="date-navigation">
+                        <button class="date-nav-btn prev-dates" id="prevDates">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="date-selector" id="dateSelector">
+                            @php
+                            $startDate = \Carbon\Carbon::now();
+                            $endDate = \Carbon\Carbon::now()->addMonths(3);
+                            $currentDate = $startDate;
+                            @endphp
+                            @while($currentDate <= $endDate)
+                                <div class="date-box {{ $currentDate->isToday() ? 'active' : '' }}"
+                                     data-date="{{ $currentDate->format('Y-m-d') }}">
+                                    <div class="day">{{ $currentDate->format('D') }}</div>
+                                    <div class="date">{{ $currentDate->format('d M') }}</div>
+                                </div>
+                                @php
+                                $currentDate->addDay();
+                                @endphp
+                            @endwhile
                         </div>
-                    @endfor
+                        <button class="date-nav-btn next-dates" id="nextDates">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Time Slots -->
@@ -1170,92 +1337,109 @@
         }
 
         // Date selection functionality
-        const dateBoxes = document.querySelectorAll('.date-box');
-        let selectedDate = dateBoxes[0].getAttribute('data-date');
-        let selectedSlots = []; // Initialize the array for selected slots
+        const dateSelector = document.getElementById('dateSelector');
+        const prevDates = document.getElementById('prevDates');
+        const nextDates = document.getElementById('nextDates');
+        const scrollAmount = 300;
+        let isDragging = false;
+        let startX;
+        let scrollLeft;
+        let touchStartX = null;
 
-        dateBoxes.forEach(dateBox => {
-            dateBox.addEventListener('click', () => {
-                document.querySelector('.date-box.active').classList.remove('active');
-                dateBox.classList.add('active');
-                selectedDate = dateBox.getAttribute('data-date');
+        // Function to check if we can scroll further
+        function updateNavigationButtons() {
+            prevBtn.disabled = dateSelector.scrollLeft <= 0;
+            nextBtn.disabled = dateSelector.scrollLeft + dateSelector.clientWidth >= dateSelector.scrollWidth;
+        }
 
-                // Update selected date in summary
-                const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
-                document.querySelector('.selected-date').textContent = formattedDate;
+        // Initialize button states
+        updateNavigationButtons();
 
-                // Reset slot selection
-                resetSlotSelection();
-
-                // Show loading state for slots
-                const timeSlotsContainer = document.querySelector('.time-slots');
-                timeSlotsContainer.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Loading available slots...</div>';
-
-                // Fetch slots for the selected date via AJAX
-                fetch(`/get-ground-slots/${selectedDate}/{{ $ground->id }}`)
-                .then(response => {
-                    // Check for authentication issues
-                    if (response.redirected) {
-                        window.location.href = response.url;
-                        return;
-                    }
-
-                    if (response.status === 401) {
-                        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.href);
-                        return;
-                    }
-
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                            throw new Error(`Network response was not ok: ${response.status}`);
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Clear the container
-                        timeSlotsContainer.innerHTML = '';
-
-                        if (data.slots.length === 0) {
-                            timeSlotsContainer.innerHTML = '<div class="text-center p-4">No slots available for this date</div>';
-                            return;
-                        }
-
-                        // Add slots to the container
-                        data.slots.forEach((slot, index) => {
-                            const slotHtml = `
-                                <div class="time-slot-container" data-aos="zoom-in" data-aos-delay="${100 + (index * 50)}">
-                                    <div class="time-slot ${slot.available ? 'available' : 'booked'}"
-                                        data-time="${slot.time}"
-                                        data-slot-id="${slot.id}"
-                                        data-price="${slot.price}"
-                                        data-hours="${slot.hours}"
-                                        data-available="${slot.available ? 'true' : 'false'}">
-                                        <div>${slot.time.replace('-', ' - ')}</div>
-                                        <div>₹${slot.price} (${slot.hours} hours)</div>
-                                    </div>
-                                </div>
-                            `;
-                            timeSlotsContainer.innerHTML += slotHtml;
-                        });
-
-                        // Re-attach event listeners to the new slots
-                        attachSlotEventListeners();
-                    } else {
-                        timeSlotsContainer.innerHTML = `<div class="text-center p-4">Error: ${data.message || 'Could not load slots'}</div>`;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching slots:', error);
-                    timeSlotsContainer.innerHTML = '<div class="text-center p-4 text-danger">Error loading slots. Please try again.<br><small>Check browser console for details.</small></div>';
-                });
+        // Previous dates button click
+        prevDates.addEventListener('click', () => {
+            dateSelector.scrollBy({
+                left: -scrollAmount,
+                behavior: 'smooth'
             });
+            setTimeout(updateNavigationButtons, 500);
         });
+
+        // Next dates button click
+        nextDates.addEventListener('click', () => {
+            dateSelector.scrollBy({
+                left: scrollAmount,
+                behavior: 'smooth'
+            });
+            setTimeout(updateNavigationButtons, 500);
+        });
+
+        // Mouse wheel scroll functionality
+        dateSelector.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const scrollDirection = e.deltaY > 0 ? 1 : -1;
+            dateSelector.scrollBy({
+                left: scrollAmount * scrollDirection,
+                behavior: 'smooth'
+            });
+            setTimeout(updateNavigationButtons, 500);
+        });
+
+        // Mouse events for dragging
+        dateSelector.addEventListener('mousedown', (e) => {
+            // Only start dragging if clicking on the container, not on a date box
+            if (e.target === dateSelector || e.target.parentElement === dateSelector) {
+                isDragging = true;
+                startX = e.pageX - dateSelector.offsetLeft;
+                scrollLeft = dateSelector.scrollLeft;
+                dateSelector.style.cursor = 'grabbing';
+                e.preventDefault();
+            }
+        });
+
+        dateSelector.addEventListener('mouseleave', () => {
+            isDragging = false;
+            dateSelector.style.cursor = 'grab';
+        });
+
+        dateSelector.addEventListener('mouseup', () => {
+            isDragging = false;
+            dateSelector.style.cursor = 'grab';
+        });
+
+        dateSelector.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - dateSelector.offsetLeft;
+            const walk = (x - startX) * 2;
+            dateSelector.scrollLeft = scrollLeft - walk;
+            updateNavigationButtons();
+        });
+
+        // Touch events
+        dateSelector.addEventListener('touchstart', (e) => {
+            // Only start touch tracking if touching the container, not a date box
+            if (e.target === dateSelector || e.target.parentElement === dateSelector) {
+                touchStartX = e.touches[0].clientX;
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        dateSelector.addEventListener('touchmove', (e) => {
+            if (!touchStartX) return;
+            e.preventDefault();
+            const touchX = e.touches[0].clientX;
+            const diff = touchStartX - touchX;
+            dateSelector.scrollLeft += diff;
+            touchStartX = touchX;
+            updateNavigationButtons();
+        }, { passive: false });
+
+        dateSelector.addEventListener('touchend', () => {
+            touchStartX = null;
+        });
+
+        // Make selectedSlots accessible globally
+        let selectedSlots = [];
 
         // Function to attach event listeners to time slots
         function attachSlotEventListeners() {
@@ -1294,9 +1478,6 @@
                 }
             });
         }
-
-        // Initial setup for the time slots
-        attachSlotEventListeners();
 
         function resetSlotSelection() {
             // Clear the selected class from all slots
@@ -1412,6 +1593,9 @@
             }
         }
 
+        // Initial setup for the time slots
+        attachSlotEventListeners();
+
         // Book now button
         document.querySelector('.book-now-btn').addEventListener('click', function() {
             if (selectedSlots.length === 0) {
@@ -1476,7 +1660,7 @@
                     bookButton.style.background = '#28a745';
                     bookButton.style.opacity = '1';
 
-                                        // Create a custom toast notification
+                    // Create a custom toast notification
                     const toastDiv = document.createElement('div');
                     toastDiv.style.position = 'fixed';
                     toastDiv.style.top = '20px';

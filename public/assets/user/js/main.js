@@ -97,6 +97,8 @@ function runCounter() {
 
 // Run counter animation when section is in view
 function isInViewport(element) {
+    if (!element) return false;
+
     const rect = element.getBoundingClientRect();
     return (
         rect.top <= (window.innerHeight || document.documentElement.clientHeight) * 0.8 &&
@@ -109,6 +111,9 @@ function isInViewport(element) {
 const counterSection = document.getElementById('counter');
 
 function checkCounterVisibility() {
+    // Check if counter section exists before proceeding
+    if (!counterSection) return;
+
     if (isInViewport(counterSection) && !hasRun) {
         // Add animation class to each counter item
         counterItems.forEach((item, index) => {
@@ -128,6 +133,9 @@ function checkCounterVisibility() {
 
 // Reset counter animation when section scrolls out of view
 function resetCounterAnimation() {
+    // Check if counter section exists before proceeding
+    if (!counterSection) return;
+
     const counterSectionBottom = counterSection.getBoundingClientRect().bottom;
 
     // If counter section has scrolled completely out of view (upward)
@@ -153,6 +161,11 @@ const testimonialDots = document.querySelectorAll('.testimonial-dot');
 let currentSlide = 0;
 
 function showSlide(index) {
+    // Check if testimonial elements exist before proceeding
+    if (testimonialSlides.length === 0 || testimonialDots.length === 0) {
+        return;
+    }
+
     testimonialSlides.forEach(slide => slide.classList.remove('active'));
     testimonialDots.forEach(dot => dot.classList.remove('active'));
 
@@ -161,17 +174,20 @@ function showSlide(index) {
     currentSlide = index;
 }
 
-testimonialDots.forEach((dot, index) => {
-    dot.addEventListener('click', () => {
-        showSlide(index);
+// Only set up testimonial slider if elements exist
+if (testimonialSlides.length > 0 && testimonialDots.length > 0) {
+    testimonialDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            showSlide(index);
+        });
     });
-});
 
-// Auto slide every 5 seconds
-setInterval(() => {
-    let nextSlide = (currentSlide + 1) % testimonialSlides.length;
-    showSlide(nextSlide);
-}, 5000);
+    // Auto slide every 5 seconds
+    setInterval(() => {
+        let nextSlide = (currentSlide + 1) % testimonialSlides.length;
+        showSlide(nextSlide);
+    }, 5000);
+}
 
 // Go to top button
 const goTopButton = document.getElementById('goTop');

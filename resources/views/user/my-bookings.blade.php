@@ -282,6 +282,16 @@
         color: white;
     }
 
+    .payment-btn {
+        background: rgba(72, 187, 120, 0.1);
+        color: #2F855A;
+    }
+
+    .payment-btn:hover {
+        background: #2F855A;
+        color: white;
+    }
+
     /* Empty state */
     .empty-state {
         text-align: center;
@@ -760,7 +770,11 @@
                             </a>
                         </div>
                         <div>
-                            @if($bookingCategory == 'upcoming')
+                            @if($booking->payment && $booking->payment->payment_status == 'pending' && $bookingCategory != 'cancelled')
+                                <a href="{{ route('user.pending-payments') }}" class="action-btn payment-btn">
+                                    <i class="fas fa-credit-card mr-1"></i> Pay Now
+                                </a>
+                            @elseif($bookingCategory == 'upcoming')
                                 <button class="action-btn cancel-btn" data-booking="{{ $booking->id }}">
                                     <i class="fas fa-times mr-1"></i> Cancel Booking
                                 </button>

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Booking extends Model
 {
@@ -25,8 +26,10 @@ class Booking extends Model
         'duration',
         'amount',
         'booking_status',
+        'payment_status',
         'notes',
-        'payment_id'
+        'payment_id',
+        'slot_id'
     ];
 
     /**
@@ -38,6 +41,7 @@ class Booking extends Model
         'booking_date' => 'date',
         'user_id' => 'integer',
         'payment_id' => 'integer',
+        'slot_id' => 'integer',
         'duration' => 'integer',
         'amount' => 'decimal:2',
         'created_at' => 'datetime',
@@ -50,6 +54,14 @@ class Booking extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the slot associated with the booking.
+     */
+    public function slot(): BelongsTo
+    {
+        return $this->belongsTo(GroundSlot::class, 'slot_id');
     }
 
     /**
@@ -66,5 +78,35 @@ class Booking extends Model
     public function details(): HasMany
     {
         return $this->hasMany(BookingDetail::class);
+    }
+
+    /**
+     * Get the grounds associated with the booking through booking details.
+     */
+    public function grounds()
+    {
+        return $this->hasManyThrough(
+            Ground::class,
+            BookingDetail::class,
+            'booking_id', // Foreign key on booking_details table
+            'id', // Foreign key on grounds table
+            'id', // Local key on bookings table
+            'ground_id' // Local key on booking_details table
+        );
+    }
+
+    /**
+     * Get the first ground associated with the booking.
+     */
+    public function ground()
+    {
+        return $this->hasOneThrough(
+            Ground::class,
+            BookingDetail::class,
+            'booking_id', // Foreign key on booking_details table
+            'id', // Foreign key on grounds table
+            'id', // Local key on bookings table
+            'ground_id' // Local key on booking_details table
+        );
     }
 }

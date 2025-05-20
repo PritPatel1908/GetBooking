@@ -9,6 +9,11 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use App\Models\Booking;
+use App\Models\BookingDetail;
+use App\Models\Payment;
+use Illuminate\Support\Facades\DB;
+use App\Models\Ground;
 
 class AdminController extends Controller
 {
@@ -989,6 +994,337 @@ class AdminController extends Controller
             'message' => 'Images uploaded successfully!',
             'images' => $uploadedImages,
             'photos' => $uploadedImages, // Adding an alias to match the variable name used in the blade template
+        ]);
+    }
+
+    /**
+     * Display the bookings list page
+     */
+    public function admin_bookings(Request $request)
+    {
+        $bookings = \App\Models\Booking::with(['user', 'ground', 'payment'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        // Check if this is an AJAX request for table reload
+        if ($request->ajax()) {
+            $view = view('admin.bookings', compact('bookings'))->render();
+            return response()->json(['html' => $view]);
+        }
+
+        // Get users and grounds for the modal
+        $users = \App\Models\User::where('user_type', 'user')->orderBy('name', 'asc')->get();
+        $grounds = \App\Models\Ground::where('status', 'active')->orderBy('name', 'asc')->get();
+
+        return view('admin.bookings', compact('bookings', 'users', 'grounds'));
+    }
+
+    /**
+     * Display the booking view page
+     */
+    public function booking_view_page($id)
+    {
+        $booking = \App\Models\Booking::with(['user', 'ground', 'payment'])
+            ->findOrFail($id);
+
+        return view('admin.booking-view', compact('booking'));
+    }
+
+    /**
+     * Create a new booking
+     */
+    public function booking_create(Request $request)
+    {
+        // Validate the request data
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'ground_id' => 'required|exists:grounds,id',
+            'slot_ids' => 'required|array',
+            'slot_ids.*' => 'exists:ground_slots,id',
+            'booking_date' => 'required|date|after_or_equal:today',
+            'booking_time' => 'required',
+            'duration' => 'required|numeric|min:1|max:24',
+            'amount' => 'required|numeric|min:0',
+            'booking_status' => 'required|in:pending,confirmed,completed,cancelled',
+            'payment_status' => 'required|in:pending,completed,failed',
+            'notes' => 'nullable|string',
+        ]);
+
+        // Generate a unique booking SKU
+        $bookingSku = 'BK-' . strtoupper(substr(md5(uniqid()), 0, 8));
+
+        try {
+            DB::beginTransaction();
+
+            // Create the booking
+            $booking = new Booking();
+            $booking->user_id = $request->user_id;
+            $booking->booking_sku = $bookingSku;
+            $booking->booking_date = $request->booking_date;
+            $booking->booking_time = $request->booking_time;
+            $booking->duration = $request->duration;
+            $booking->amount = $request->amount;
+            $booking->booking_status = $request->booking_status;
+            $booking->payment_status = $request->payment_status;
+            $booking->notes = $request->notes;
+            // No longer using slot_id directly in the booking as we're supporting multiple slots
+            $booking->save();
+
+            // Create booking details for each selected slot
+            foreach ($request->slot_ids as $slotId) {
+                $bookingDetail = new BookingDetail();
+                $bookingDetail->booking_id = $booking->id;
+                $bookingDetail->ground_id = $request->ground_id;
+                $bookingDetail->slot_id = $slotId;
+                $bookingDetail->save();
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Booking created successfully',
+                'booking' => $booking,
+                'redirect' => route('admin.bookings')
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Booking creation failed: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create booking: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update an existing booking
+     */
+    public function booking_update(Request $request, $id)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'ground_id' => 'required|exists:grounds,id',
+            'slot_ids' => 'required|array',
+            'slot_ids.*' => 'exists:ground_slots,id',
+            'booking_date' => 'required|date',
+            'booking_time' => 'required',
+            'duration' => 'required|numeric|min:1',
+            'amount' => 'required|numeric|min:0',
+            'booking_status' => 'required|in:pending,confirmed,completed,cancelled',
+            'notes' => 'nullable|string'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $booking = \App\Models\Booking::findOrFail($id);
+
+            // Update booking
+            $booking->update([
+                'user_id' => $request->user_id,
+                'booking_date' => $request->booking_date,
+                'booking_time' => $request->booking_time,
+                'duration' => $request->duration,
+                'amount' => $request->amount,
+                'booking_status' => $request->booking_status,
+                'notes' => $request->notes
+            ]);
+
+            // Delete existing booking details
+            $booking->details()->delete();
+
+            // Create new booking details for each selected slot
+            foreach ($request->slot_ids as $slotId) {
+                $bookingDetail = new BookingDetail();
+                $bookingDetail->booking_id = $booking->id;
+                $bookingDetail->ground_id = $request->ground_id;
+                $bookingDetail->slot_id = $slotId;
+                $bookingDetail->save();
+            }
+
+            // Update payment amount
+            if ($booking->payment) {
+                $booking->payment->update([
+                    'amount' => $request->amount
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Booking updated successfully!',
+                'booking' => $booking
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error updating booking: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete a booking
+     */
+    public function booking_delete($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $booking = \App\Models\Booking::findOrFail($id);
+
+            // Delete related records
+            $booking->details()->delete();
+            $booking->payment()->delete();
+            $booking->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Booking deleted successfully!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error deleting booking: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get booking data for editing
+     */
+    public function booking_edit($id)
+    {
+        $booking = \App\Models\Booking::with(['user', 'payment', 'details.ground', 'details.slot'])
+            ->findOrFail($id);
+
+        // Get the ground ID from the first booking detail
+        $groundId = $booking->details->first() ? $booking->details->first()->ground_id : null;
+
+        // Get all selected slot IDs
+        $selectedSlotIds = $booking->details->pluck('slot_id')->toArray();
+
+        return response()->json([
+            'status' => 'success',
+            'booking' => $booking,
+            'ground_id' => $groundId,
+            'slot_ids' => $selectedSlotIds
+        ]);
+    }
+
+    /**
+     * Handle booking pagination
+     */
+    public function bookings_pagination(Request $request)
+    {
+        $page = $request->get('page', 1);
+        $bookings = \App\Models\Booking::with(['user', 'ground', 'payment'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'page', $page);
+
+        // Render only the pagination section
+        $paginationHtml = '
+        <div class="flex items-center justify-between w-full">
+            <div class="text-sm text-gray-600">
+                Showing ' . ($bookings->firstItem() ?? 0) . ' to ' . ($bookings->lastItem() ?? 0) . ' of ' . ($bookings->total() ?? 0) . ' entries
+            </div>
+            <div>
+                ' . $bookings->links()->toHtml() . '
+            </div>
+        </div>';
+
+        return response($paginationHtml);
+    }
+
+    /**
+     * Get available slots for a ground
+     */
+    public function getAvailableSlots(Request $request, $id)
+    {
+        try {
+            // Find the ground with all its slots
+            $ground = Ground::with(['slots'])->findOrFail($id);
+
+            // Get booking date from request or use today's date as default
+            $bookingDate = $request->input('date', now()->format('Y-m-d'));
+
+            // Get current booking ID if we're editing
+            $currentBookingId = $request->input('booking_id');
+
+            // Get all active slots for this ground
+            $allSlots = $ground->slots->where('slot_status', 'active');
+
+            // Find booked slots for this date (that aren't part of the current booking)
+            $bookedSlotIds = BookingDetail::whereHas('booking', function ($query) use ($bookingDate, $currentBookingId) {
+                $query->where('booking_date', $bookingDate)
+                    ->whereIn('booking_status', ['pending', 'confirmed']);
+
+                // Exclude the current booking if we're editing
+                if ($currentBookingId) {
+                    $query->where('bookings.id', '!=', $currentBookingId);
+                }
+            })
+                ->where('ground_id', $id)
+                ->pluck('slot_id')
+                ->toArray();
+
+            // Get available slots (all slots minus booked slots)
+            $availableSlots = $allSlots->filter(function ($slot) use ($bookedSlotIds) {
+                return !in_array($slot->id, $bookedSlotIds);
+            })->values();
+
+            Log::info('Available slots for ground', [
+                'ground_id' => $id,
+                'date' => $bookingDate,
+                'total_slots' => $allSlots->count(),
+                'booked_slots' => count($bookedSlotIds),
+                'available_slots' => $availableSlots->count(),
+                'booked_slot_ids' => $bookedSlotIds
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'ground' => [
+                    'id' => $ground->id,
+                    'name' => $ground->name,
+                    'price_per_hour' => $ground->price_per_hour
+                ],
+                'slots' => $availableSlots
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error getting slots: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error retrieving slots: ' . $e->getMessage(),
+                'slots' => []
+            ], 500);
+        }
+    }
+
+    /**
+     * Get ground details including price
+     */
+    public function getGroundDetails($id)
+    {
+        $ground = Ground::findOrFail($id);
+
+        return response()->json([
+            'status' => 'success',
+            'ground' => [
+                'id' => $ground->id,
+                'name' => $ground->name,
+                'price_per_hour' => $ground->price_per_hour,
+                'opening_time' => $ground->opening_time,
+                'closing_time' => $ground->closing_time
+            ]
         ]);
     }
 }
