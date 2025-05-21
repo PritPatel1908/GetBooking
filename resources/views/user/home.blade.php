@@ -125,7 +125,7 @@
                     <div class="card-meta">
                         <span><i class="fas fa-star"></i> {{ $ground->rating }} ({{ $ground->review_count }}
                             reviews)</span>
-                        <span><i class="fas fa-dollar-sign"></i> {{ $ground->hourly_price }}/hr</span>
+                        <span><i class="fas fa-rupee-sign"></i> {{ $ground->price_per_hour }}/hr</span>
                     </div>
                 </div>
             </div>

@@ -387,10 +387,10 @@
                     <h3>Total Bookings</h3>
                     <p>{{ $bookings }}</p>
                 </a>
-                <a href="{{ route('user.pending-payments') }}" class="stat-card" style="text-decoration: none;">
+                <a href="{{ route('user.pending-payments') }}" class="stat-card" style="text-decoration: none; background: linear-gradient(135deg, #38c172, #1f9d55);">
                     <i class="fas fa-money-bill-wave"></i>
                     <h3>Total Payments</h3>
-                    <p>{{ $totalPayments }}</p>
+                    <p style="font-size: 2.2rem; font-weight: bold;">₹{{ number_format($totalPayments, 2) }}</p>
                 </a>
             </div>
         </div>
