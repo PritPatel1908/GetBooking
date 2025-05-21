@@ -4,6 +4,7 @@
 {{-- <link rel="stylesheet" href="{{ asset('assets/user/css/all-grounds.css') }}"> --}}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
     .ground-details-container {
         padding: 2rem 0;
@@ -1252,12 +1253,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Initialize AOS (Animate on Scroll)
-        AOS.init({
-            duration: 800,
-            easing: 'ease-in-out',
-            once: true
-        });
+    // Initialize AOS (Animate on Scroll)
+    AOS.init({
+        duration: 800,
+        easing: 'ease-in-out',
+        once: true
+    });
+
+    // Initialize selected date with today's date
+    let selectedDate = "{{ \Carbon\Carbon::now()->format('Y-m-d') }}";
 
         // Image slider functionality
         const sliderDots = document.querySelectorAll('.slider-dot');
@@ -1353,16 +1357,107 @@
         }
 
         // Initialize button states
-        updateNavigationButtons();
+updateNavigationButtons();
 
-        // Previous dates button click
-        prevDates.addEventListener('click', () => {
-            dateSelector.scrollBy({
-                left: -scrollAmount,
-                behavior: 'smooth'
+// Previous dates button click
+prevDates.addEventListener('click', () => {
+    dateSelector.scrollBy({
+        left: -scrollAmount,
+        behavior: 'smooth'
+    });
+    setTimeout(updateNavigationButtons, 500);
+});
+
+// Set up click handlers for date boxes
+const dateBoxes = document.querySelectorAll('.date-box');
+dateBoxes.forEach(dateBox => {
+    dateBox.addEventListener('click', function() {
+        // Update selectedDate value when a date is clicked
+        selectedDate = this.getAttribute('data-date');
+
+        // Remove active class from all date boxes
+        dateBoxes.forEach(box => box.classList.remove('active'));
+
+        // Add active class to the clicked date box
+        this.classList.add('active');
+
+        // Update the displayed selected date in the booking summary
+        const selectedDateElement = document.querySelector('.selected-date');
+        if (selectedDateElement) {
+            const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
             });
-            setTimeout(updateNavigationButtons, 500);
+            selectedDateElement.textContent = formattedDate;
+        }
+
+        // Load time slots for the selected date
+        loadTimeSlots(selectedDate);
+
+        console.log('Selected date:', selectedDate);
+    });
+});
+
+// Function to load time slots for selected date
+function loadTimeSlots(date) {
+    const timeSlotsContainer = document.querySelector('.time-slots');
+    if (!timeSlotsContainer) return;
+
+    // Show loading indicator
+    timeSlotsContainer.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Loading available slots...</div>';
+
+    // Reset slot selection
+    resetSlotSelection();
+
+    // Fetch slots from server
+    fetch(`/get-ground-slots/${date}/{{ $ground->id }}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Clear loading indicator
+                timeSlotsContainer.innerHTML = '';
+
+                if (data.slots && data.slots.length > 0) {
+                    // Create slot elements
+                    data.slots.forEach((slot, index) => {
+                        const slotElement = document.createElement('div');
+                        slotElement.className = 'time-slot-container';
+                        slotElement.setAttribute('data-aos', 'zoom-in');
+                        slotElement.setAttribute('data-aos-delay', `${100 + (index * 50)}`);
+
+                        slotElement.innerHTML = `
+                            <div class="time-slot ${slot.available ? 'available' : 'booked'}"
+                                data-time="${slot.time}"
+                                data-slot-id="${slot.id}"
+                                data-price="${slot.price}"
+                                data-hours="${slot.hours}"
+                                data-available="${slot.available ? 'true' : 'false'}">
+                                <div>${slot.time.replace('-', ' - ')}</div>
+                                <div>₹${slot.price} (${slot.hours} hours)</div>
+                            </div>
+                        `;
+
+                        timeSlotsContainer.appendChild(slotElement);
+                    });
+
+                    // Initialize AOS for new elements
+                    AOS.refresh();
+
+                    // Attach event listeners to new slots
+                    attachSlotEventListeners();
+                } else {
+                    timeSlotsContainer.innerHTML = '<div class="alert alert-info">No slots available for this date.</div>';
+                }
+            } else {
+                timeSlotsContainer.innerHTML = `<div class="alert alert-danger">${data.message || 'Failed to load slots'}</div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading slots:', error);
+            timeSlotsContainer.innerHTML = '<div class="alert alert-danger">Error loading available slots. Please try again.</div>';
         });
+}
 
         // Next dates button click
         nextDates.addEventListener('click', () => {
@@ -1373,9 +1468,13 @@
             setTimeout(updateNavigationButtons, 500);
         });
 
-        // Mouse wheel scroll functionality
-        dateSelector.addEventListener('wheel', (e) => {
-            e.preventDefault();
+        // Mouse wheel scroll functionality for horizontal scrolling
+dateSelector.addEventListener('wheel', (e) => {
+    // Instead of preventDefault, use a more performant approach
+    // Only handle horizontal scroll when the cursor is over the date selector
+    if (e.deltaY !== 0) {
+        // Use requestAnimationFrame for smoother performance
+        requestAnimationFrame(() => {
             const scrollDirection = e.deltaY > 0 ? 1 : -1;
             dateSelector.scrollBy({
                 left: scrollAmount * scrollDirection,
@@ -1383,6 +1482,8 @@
             });
             setTimeout(updateNavigationButtons, 500);
         });
+    }
+}, { passive: true }); // Mark as passive for better performance
 
         // Mouse events for dragging
         dateSelector.addEventListener('mousedown', (e) => {
@@ -1415,24 +1516,30 @@
             updateNavigationButtons();
         });
 
-        // Touch events
-        dateSelector.addEventListener('touchstart', (e) => {
-            // Only start touch tracking if touching the container, not a date box
-            if (e.target === dateSelector || e.target.parentElement === dateSelector) {
-                touchStartX = e.touches[0].clientX;
-                e.preventDefault();
-            }
-        }, { passive: false });
+        // Touch events - using passive event listener for better performance
+dateSelector.addEventListener('touchstart', (e) => {
+    // Only start touch tracking if touching the container, not a date box
+    if (e.target === dateSelector || e.target.parentElement === dateSelector) {
+        touchStartX = e.touches[0].clientX;
+        // Don't call preventDefault in a passive listener
+    }
+}, { passive: true });
 
         dateSelector.addEventListener('touchmove', (e) => {
-            if (!touchStartX) return;
-            e.preventDefault();
-            const touchX = e.touches[0].clientX;
-            const diff = touchStartX - touchX;
-            dateSelector.scrollLeft += diff;
-            touchStartX = touchX;
-            updateNavigationButtons();
-        }, { passive: false });
+    if (!touchStartX) return;
+    // Instead of preventing default, which would block scrolling,
+    // we'll just handle our custom scrolling alongside the default behavior
+    const touchX = e.touches[0].clientX;
+    const diff = touchStartX - touchX;
+
+    // Use requestAnimationFrame for smoother scrolling
+    requestAnimationFrame(() => {
+        dateSelector.scrollLeft += diff;
+        updateNavigationButtons();
+    });
+
+    touchStartX = touchX;
+}, { passive: true });
 
         dateSelector.addEventListener('touchend', () => {
             touchStartX = null;
@@ -1655,71 +1762,134 @@
                 if (!data) return; // Handle redirected cases
 
                 if (data.success) {
-                    // Show success message
-                    bookButton.innerHTML = `<i class="fas fa-check"></i> Booking Confirmed!`;
-                    bookButton.style.background = '#28a745';
-                    bookButton.style.opacity = '1';
+                    // Initialize Razorpay payment
+                    const options = {
+                        key: '{{ Config::get('services.razorpay.key') }}',
+                        amount: data.amount,
+                        currency: data.currency,
+                        name: 'GetBooking',
+                        description: 'Ground Booking Payment',
+                        order_id: data.order_id,
+                        handler: function (response) {
+                            // Send payment verification details to server
+                            fetch('/payment-callback', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': csrfToken,
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_signature: response.razorpay_signature
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Show success message
+                                    bookButton.innerHTML = `<i class="fas fa-check"></i> Booking Confirmed!`;
+                                    bookButton.style.background = '#28a745';
+                                    bookButton.style.opacity = '1';
 
-                    // Create a custom toast notification
-                    const toastDiv = document.createElement('div');
-                    toastDiv.style.position = 'fixed';
-                    toastDiv.style.top = '20px';
-                    toastDiv.style.right = '20px';
-                    toastDiv.style.zIndex = '9999';
-                    toastDiv.style.backgroundColor = '#28a745';
-                    toastDiv.style.color = 'white';
-                    toastDiv.style.padding = '15px 25px';
-                    toastDiv.style.borderRadius = '10px';
-                    toastDiv.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
-                    toastDiv.style.minWidth = '300px';
-                    toastDiv.style.transform = 'translateX(400px)';
-                    toastDiv.style.transition = 'transform 0.3s ease-in-out';
+                                    // Create a custom toast notification
+                                    const toastDiv = document.createElement('div');
+                                    toastDiv.style.position = 'fixed';
+                                    toastDiv.style.top = '20px';
+                                    toastDiv.style.right = '20px';
+                                    toastDiv.style.zIndex = '9999';
+                                    toastDiv.style.backgroundColor = '#28a745';
+                                    toastDiv.style.color = 'white';
+                                    toastDiv.style.padding = '15px 25px';
+                                    toastDiv.style.borderRadius = '10px';
+                                    toastDiv.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+                                    toastDiv.style.minWidth = '300px';
+                                    toastDiv.style.transform = 'translateX(400px)';
+                                    toastDiv.style.transition = 'transform 0.3s ease-in-out';
 
-                    toastDiv.innerHTML = `
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                            <div style="display: flex; align-items: center;">
-                                <i class="fas fa-check-circle" style="margin-right: 10px; font-size: 20px;"></i>
-                                <strong>Booking Successful</strong>
-                            </div>
-                            <span id="close-toast" style="cursor: pointer; font-size: 20px;">&times;</span>
-                        </div>
-                        <p style="margin: 0;">${data.message || 'Booking confirmed successfully!'}</p>
-                        <p style="margin: 5px 0 0 0;">Booking Reference: <strong>${data.booking_sku || 'N/A'}</strong></p>
-                    `;
+                                    toastDiv.innerHTML = `
+                                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                            <div style="display: flex; align-items: center;">
+                                                <i class="fas fa-check-circle" style="margin-right: 10px; font-size: 20px;"></i>
+                                                <strong>Booking Successful</strong>
+                                            </div>
+                                            <span id="close-toast" style="cursor: pointer; font-size: 20px;">&times;</span>
+                                        </div>
+                                        <p style="margin: 0;">${data.message || 'Booking confirmed successfully!'}</p>
+                                        <p style="margin: 5px 0 0 0;">Booking Reference: <strong>${data.booking_id || 'N/A'}</strong></p>
+                                    `;
 
-                    document.body.appendChild(toastDiv);
+                                    document.body.appendChild(toastDiv);
 
-                    // Display the toast with animation
-                    setTimeout(() => {
-                        toastDiv.style.transform = 'translateX(0)';
-                    }, 10);
+                                    // Display the toast with animation
+                                    setTimeout(() => {
+                                        toastDiv.style.transform = 'translateX(0)';
+                                    }, 10);
 
-                    // Close button functionality
-                    const closeToast = toastDiv.querySelector('#close-toast');
-                    closeToast.addEventListener('click', () => {
-                        toastDiv.style.transform = 'translateX(400px)';
-                        setTimeout(() => {
-                            toastDiv.remove();
-                        }, 300);
-                    });
+                                    // Close button functionality
+                                    const closeToast = toastDiv.querySelector('#close-toast');
+                                    closeToast.addEventListener('click', () => {
+                                        toastDiv.style.transform = 'translateX(400px)';
+                                        setTimeout(() => {
+                                            toastDiv.remove();
+                                        }, 300);
+                                    });
 
-                    // Auto-dismiss toast after 5 seconds
-                    setTimeout(() => {
-                        toastDiv.style.transform = 'translateX(400px)';
-                        setTimeout(() => {
-                            toastDiv.remove();
-                        }, 300);
-                    }, 5000);
+                                    // Auto-dismiss toast after 5 seconds
+                                    setTimeout(() => {
+                                        toastDiv.style.transform = 'translateX(400px)';
+                                        setTimeout(() => {
+                                            toastDiv.remove();
+                                        }, 300);
+                                    }, 5000);
 
-                    // Reset booking form
-                    resetSlotSelection();
-                    document.querySelector('.booking-summary').classList.remove('active');
+                                    // Reset booking form
+                                    resetSlotSelection();
+                                    document.querySelector('.booking-summary').classList.remove('active');
 
-                    // Fetch updated slot availability without page reload
-                    const activeDate = document.querySelector('.date-box.active');
-                    if (activeDate) {
-                        activeDate.click(); // This will refresh the slots for the current date
-                    }
+                                    // Fetch updated slot availability without page reload
+                                    const activeDate = document.querySelector('.date-box.active');
+                                    if (activeDate) {
+                                        activeDate.click(); // This will refresh the slots for the current date
+                                    }
+                                } else {
+                                    // Show error message
+                                    bookButton.innerHTML = originalButtonText;
+                                    bookButton.disabled = false;
+                                    bookButton.style.opacity = '1';
+                                    alert(data.message || 'Payment verification failed');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Payment verification error:', error);
+                                bookButton.innerHTML = originalButtonText;
+                                bookButton.disabled = false;
+                                bookButton.style.opacity = '1';
+                                alert('Payment verification failed. Please contact support.');
+                            });
+                        },
+                        prefill: {
+                            name: '{{ Auth::check() ? Auth::user()->name : "" }}',
+                            email: '{{ Auth::check() ? Auth::user()->email : "" }}',
+                            contact: '{{ Auth::check() ? Auth::user()->phone : "" }}'
+                        },
+                        theme: {
+                            color: '#3490dc'
+                        },
+                        modal: {
+                            ondismiss: function() {
+                                // Reset button state if payment modal is dismissed
+                                bookButton.innerHTML = originalButtonText;
+                                bookButton.disabled = false;
+                                bookButton.style.opacity = '1';
+                            }
+                        }
+                    };
+
+                    // Open Razorpay payment modal
+                    const razorpayPayment = new Razorpay(options);
+                    razorpayPayment.open();
                 } else {
                     // Show error message
                     bookButton.innerHTML = originalButtonText;

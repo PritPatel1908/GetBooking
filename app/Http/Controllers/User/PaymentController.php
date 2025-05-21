@@ -66,7 +66,14 @@ class PaymentController extends Controller
                     'payment_method' => $validated['payment_method'],
                     'payment_status' => 'completed',
                     'payment_type' => 'booking',
-                    'transaction_id' => 'TXN' . time() . rand(1000, 9999)
+                    'transaction_id' => 'TXN' . time() . rand(1000, 9999),
+                    'payment_response' => json_encode([
+                        'method' => $validated['payment_method'],
+                        'amount' => $validated['amount'],
+                        'status' => 'completed',
+                        'transaction_date' => now()->format('Y-m-d H:i:s'),
+                        'user_id' => Auth::id()
+                    ], JSON_PRETTY_PRINT)
                 ]
             );
 

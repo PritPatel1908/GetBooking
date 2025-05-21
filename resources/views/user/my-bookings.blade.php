@@ -663,10 +663,22 @@
                     // Format booking date
                     $bookingDate = \Carbon\Carbon::parse($booking->booking_date)->format('M d, Y');
 
-                    // Calculate end time
-                    $startTime = \Carbon\Carbon::parse($booking->booking_time);
-                    $endTime = (clone $startTime)->addHours($booking->duration);
-                    $timeRange = $startTime->format('H:i') . ' - ' . $endTime->format('H:i');
+                    // Calculate end time (handle time slot format safely)
+                    $timeRange = $booking->booking_time;
+                    try {
+                        // Check if the booking time already contains a range (e.g., "05:00 - 07:00")
+                        if (strpos($booking->booking_time, '-') !== false) {
+                            $timeRange = $booking->booking_time; // Use as is if it's already a range
+                        } else {
+                            // If it's just a start time, calculate end time using duration
+                            $startTime = \Carbon\Carbon::parse($booking->booking_time);
+                            $endTime = (clone $startTime)->addHours($booking->duration);
+                            $timeRange = $startTime->format('H:i') . ' - ' . $endTime->format('H:i');
+                        }
+                    } catch (\Exception $e) {
+                        // Fallback if parsing fails
+                        $timeRange = $booking->booking_time;
+                    }
 
                     // Determine booking status class and label
                     $statusClass = 'pending';

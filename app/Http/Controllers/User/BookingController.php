@@ -369,52 +369,101 @@ class BookingController extends Controller
             // Get payment details from Razorpay
             $payment = $this->razorpay->payment->fetch($paymentId);
 
-            // Get pending booking data from session
-            $pendingBooking = session('pending_booking');
-            if (!$pendingBooking) {
-                throw new \Exception('No pending booking found');
+            // Get pending booking data from session or request
+            $pendingBooking = null;
+
+            // Try to get data from session first (for authenticated users)
+            if (session('pending_booking') && session('pending_booking')['razorpay_order_id'] == $orderId) {
+                $pendingBooking = session('pending_booking');
+                $userId = Auth::id();
+            }
+            // If no data in session, try to get from Razorpay payment metadata
+            else {
+                // Try to find the order in database
+                $order = $this->razorpay->order->fetch($orderId);
+                if (!$order) {
+                    throw new \Exception('Order not found');
+                }
+
+                // Extract data from order notes or metadata
+                $bookingSku = $order['receipt'] ?? null;
+                $pendingBooking = [
+                    'razorpay_order_id' => $orderId,
+                    'booking_sku' => $bookingSku
+                ];
+
+                // Find the booking data in database if possible
+                $tempBooking = Booking::where('booking_sku', $bookingSku)->first();
+                if ($tempBooking) {
+                    $userId = $tempBooking->user_id;
+                    $pendingBooking['ground_id'] = $tempBooking->ground_id;
+                    $pendingBooking['date'] = $tempBooking->booking_date;
+                    $pendingBooking['total_price'] = $tempBooking->amount;
+                } else {
+                    throw new \Exception('No pending booking found for this order');
+                }
             }
 
-            // Create the booking
-            $booking = Booking::create([
-                'user_id' => Auth::id(),
-                'ground_id' => $pendingBooking['ground_id'],
-                'booking_date' => $pendingBooking['date'],
-                'booking_time' => $pendingBooking['time_slots'][0],
-                'amount' => $pendingBooking['total_price'],
-                'booking_status' => 'confirmed',
-                'booking_sku' => $pendingBooking['booking_sku'],
-                'notes' => 'Booking created after successful payment'
-            ]);
+            if (!$pendingBooking) {
+                throw new \Exception('No pending booking data found');
+            }
 
-            // Create booking details
-            foreach ($pendingBooking['slot_ids'] as $index => $slotId) {
-                BookingDetail::create([
-                    'booking_id' => $booking->id,
-                    'ground_id' => $pendingBooking['ground_id'],
-                    'slot_id' => $slotId,
-                    'time_slot' => $pendingBooking['time_slots'][$index]
-                ]);
+            // Create or update the booking
+            $booking = Booking::updateOrCreate(
+                ['booking_sku' => $pendingBooking['booking_sku']],
+                [
+                    'user_id' => $userId ?? null,
+                    'ground_id' => $pendingBooking['ground_id'] ?? null,
+                    'booking_date' => $pendingBooking['date'] ?? now()->format('Y-m-d'),
+                    'booking_time' => isset($pendingBooking['time_slots'][0]) ? $pendingBooking['time_slots'][0] : null,
+                    'amount' => $pendingBooking['total_price'] ?? $payment->amount / 100,
+                    'booking_status' => 'confirmed',
+                    'notes' => 'Booking confirmed after successful payment',
+                    'duration' => isset($pendingBooking['time_slots']) && isset($pendingBooking['slot_ids'])
+                        ? count($pendingBooking['slot_ids']) * 2 // Assuming each slot is 2 hours
+                        : 2, // Default to 2 hours if no slot information
+                ]
+            );
+
+            // Create booking details if we have the data
+            if (isset($pendingBooking['slot_ids']) && isset($pendingBooking['time_slots'])) {
+                foreach ($pendingBooking['slot_ids'] as $index => $slotId) {
+                    BookingDetail::updateOrCreate(
+                        [
+                            'booking_id' => $booking->id,
+                            'slot_id' => $slotId
+                        ],
+                        [
+                            'ground_id' => $pendingBooking['ground_id'],
+                            'time_slot' => isset($pendingBooking['time_slots'][$index]) ? $pendingBooking['time_slots'][$index] : null
+                        ]
+                    );
+                }
             }
 
             // Create payment record
-            Payment::create([
-                'booking_id' => $booking->id,
-                'user_id' => Auth::id(),
-                'date' => now(),
-                'amount' => $pendingBooking['total_price'],
-                'payment_status' => 'completed',
-                'payment_method' => 'online',
-                'payment_type' => 'razorpay',
-                'transaction_id' => $paymentId,
-                'payment_response' => json_encode($payment->toArray()),
-                'payment_response_code' => $payment->status,
-                'payment_response_message' => 'Payment successful',
-                'payment_response_data' => json_encode($attributes)
-            ]);
+            Payment::updateOrCreate(
+                ['transaction_id' => $paymentId],
+                [
+                    'booking_id' => $booking->id,
+                    'user_id' => $userId ?? null,
+                    'date' => now(),
+                    'amount' => $pendingBooking['total_price'] ?? ($payment->amount / 100),
+                    'payment_status' => 'completed',
+                    'payment_method' => 'online',
+                    'payment_type' => 'razorpay',
+                    'transaction_id' => $paymentId,
+                    'payment_response' => json_encode($payment->toArray()), // Store full response without truncation
+                    'payment_response_code' => $payment->status,
+                    'payment_response_message' => 'Payment successful',
+                    'payment_response_data' => json_encode($attributes)
+                ]
+            );
 
-            // Clear the pending booking from session
-            session()->forget('pending_booking');
+            // Clear the pending booking from session if it exists
+            if (session()->has('pending_booking')) {
+                session()->forget('pending_booking');
+            }
 
             return response()->json([
                 'success' => true,

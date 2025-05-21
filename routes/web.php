@@ -122,5 +122,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/book-ground', [BookingController::class, 'store'])->name('booking.store');
 });
 
+// Payment callback route - accessible without authentication
+Route::post('/payment-callback', [BookingController::class, 'handlePaymentCallback'])->name('payment.callback');
+
 // Debug route - remove in production
 Route::get('/debug/bookings', [App\Http\Controllers\User\UserController::class, 'debug_bookings'])->name('debug.bookings');

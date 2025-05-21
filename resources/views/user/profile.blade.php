@@ -65,10 +65,12 @@
         display: flex;
         gap: 1.5rem;
         margin-bottom: 2rem;
+        flex-wrap: wrap;
     }
 
     .profile-stats .stat-card {
         flex: 1;
+        min-width: 250px;
     }
 
     .profile-stats .stat-card.full-width {
@@ -93,6 +95,7 @@
         overflow: hidden;
         cursor: pointer;
         display: block;
+        margin-bottom: 1rem;
     }
 
     .stat-card::before {
@@ -144,7 +147,7 @@
 
     .profile-content {
         display: grid;
-        grid-template-columns: 350px 1fr;
+        grid-template-columns: minmax(300px, 350px) 1fr;
         gap: 2.5rem;
     }
 
@@ -189,6 +192,25 @@
         margin-bottom: 2rem;
         font-weight: 600;
         transition: color 0.3s ease;
+        position: relative;
+        padding-bottom: 0.75rem;
+    }
+
+    .profile-details h2::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 3px;
+        width: 50px;
+        background: var(--primary-color);
+        border-radius: 2px;
+    }
+
+    .password-section {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
     }
 
     .form-group {
@@ -286,6 +308,7 @@
 
         .profile-sidebar {
             position: static;
+            margin-bottom: 2rem;
         }
     }
 
@@ -364,9 +387,7 @@
                     <h3>Total Bookings</h3>
                     <p>{{ $bookings }}</p>
                 </a>
-            </div>
-            <div class="profile-stats mt-4">
-                <a href="{{ route('user.payment-history') }}" class="stat-card" style="text-decoration: none; width: 100%;">
+                <a href="{{ route('user.pending-payments') }}" class="stat-card" style="text-decoration: none;">
                     <i class="fas fa-money-bill-wave"></i>
                     <h3>Total Payments</h3>
                     <p>{{ $totalPayments }}</p>
@@ -496,7 +517,7 @@
                 </form>
 
                 <!-- Password Change Form -->
-                <div class="password-section" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+                <div class="password-section">
                     <h2>Change Password</h2>
                     <form action="{{ route('user.password.update') }}" method="POST" id="password-form">
                         @csrf
