@@ -39,7 +39,7 @@ class UserController extends Controller
     public function view_ground($id)
     {
         // Fetch ground with relationships
-        $ground = Ground::with(['images', 'features', 'bookings', 'client'])
+        $ground = Ground::with(['images', 'features', 'bookings', 'client', 'reviews.user', 'reviews.replies.user'])
             ->findOrFail($id);
 
         return view('user.view-ground-details', compact('ground'));

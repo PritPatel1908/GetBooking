@@ -169,6 +169,14 @@ class Ground extends Model
     }
 
     /**
+     * Get the reviews for the ground.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class)->orderBy('created_at', 'desc');
+    }
+
+    /**
      * Check if the ground is available on a specific date and time.
      *
      * @param string $date The date in Y-m-d format

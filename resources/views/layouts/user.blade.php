@@ -1,4 +1,3 @@
-<!-- filepath: d:\WebProjects\Laravel\Personal\GetBooking\resources\views\layouts\user-modern.blade.php -->
 <!DOCTYPE html>
 <html lang="en">
 

@@ -10,6 +10,8 @@ use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\GroundController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReviewReplyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -120,6 +122,18 @@ Route::post('/booking-summary', [WelcomeController::class, 'getBookingSummary'])
 // Protected Routes
 Route::middleware(['auth'])->group(function () {
     Route::post('/book-ground', [BookingController::class, 'store'])->name('booking.store');
+
+    // Review routes
+    Route::post('/store-review', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::get('/get-review/{id}', [ReviewController::class, 'show'])->name('reviews.show');
+    Route::put('/update-review/{id}', [ReviewController::class, 'update'])->name('reviews.update');
+    Route::delete('/delete-review/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    // Review reply routes
+    Route::post('/store-reply', [ReviewReplyController::class, 'store'])->name('replies.store');
+    Route::get('/get-reply/{id}', [ReviewReplyController::class, 'show'])->name('replies.show');
+    Route::put('/update-reply/{id}', [ReviewReplyController::class, 'update'])->name('replies.update');
+    Route::delete('/delete-reply/{id}', [ReviewReplyController::class, 'destroy'])->name('replies.destroy');
 });
 
 // Payment callback route - accessible without authentication

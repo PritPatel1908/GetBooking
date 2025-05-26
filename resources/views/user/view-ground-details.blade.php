@@ -6,6 +6,241 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
+    /* Enhanced Theme Colors */
+    :root {
+        --primary-color: #3490dc;
+        --primary-dark: #2779bd;
+        --secondary-color: #38c172;
+        --accent-color: #f6993f;
+        --danger-color: #e3342f;
+        --text-color: #2d3748;
+        --text-muted: #718096;
+        --bg-color: #f8fafc;
+        --card-bg: #ffffff;
+        --input-bg: #f1f5f9;
+        --input-text: #4a5568;
+        --border-color: #e2e8f0;
+        --input-bg-rgb: 241, 245, 249;
+        --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        --card-hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        --primary-color-rgb: 52, 144, 220;
+    }
+
+    /* Animated Buttons */
+    .btn-animated {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        z-index: 1;
+        padding: 10px 24px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(52, 144, 220, 0.3);
+        transform: translateY(0);
+        transition: all 0.3s ease;
+    }
+
+    .btn-animated:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.2), rgba(255,255,255,0));
+        transform: skewX(-25deg);
+        transition: all 0.5s ease;
+        z-index: -1;
+    }
+
+    .btn-animated:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(52, 144, 220, 0.4);
+    }
+
+    .btn-animated:hover:before {
+        left: 100%;
+        transition: 0.7s ease;
+    }
+
+    /* Enhanced Alert Styling */
+    .alert {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        padding: 1rem 1.25rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .alert:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: currentColor;
+        opacity: 0.7;
+    }
+
+    .alert-info {
+        background: rgba(52, 144, 220, 0.1);
+        color: var(--primary-color);
+    }
+
+    .alert-warning {
+        background: rgba(246, 173, 85, 0.1);
+        color: #C05621;
+    }
+
+    .alert-danger {
+        background: rgba(227, 52, 47, 0.1);
+        color: var(--danger-color);
+    }
+
+    .alert-success {
+        background: rgba(56, 193, 114, 0.1);
+        color: var(--secondary-color);
+    }
+
+    .alert-link {
+        color: inherit;
+        text-decoration: underline;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .alert-link:hover {
+        color: inherit;
+        opacity: 0.8;
+    }
+
+    /* Enhanced Icons */
+    .fa-star, .fa-check-circle, .fa-info-circle, .fa-exclamation-circle {
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+    }
+
+    /* Add shimmer effect to buttons */
+    @keyframes shimmer {
+        0% {
+            background-position: -100% 0;
+        }
+        100% {
+            background-position: 100% 0;
+        }
+    }
+
+    .book-now-btn, .btn-primary, .btn-warning {
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite alternate;
+    }
+
+    .book-now-btn {
+        background-image: linear-gradient(135deg, var(--primary-color), var(--primary-dark), var(--primary-color));
+    }
+
+    .btn-primary {
+        background-image: linear-gradient(135deg, var(--primary-color), var(--primary-dark), var(--primary-color));
+    }
+
+    .btn-warning {
+        background-image: linear-gradient(135deg, #F6AD55, #ED8936, #F6AD55);
+    }
+
+    /* Enhanced Transitions */
+    .ground-info, .review-item, .date-box, .time-slot, .meta-item, .amenity-item {
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    /* Pulsating effect for CTA elements */
+    @keyframes softPulse {
+        0% {
+            box-shadow: 0 5px 15px rgba(52, 144, 220, 0.3);
+        }
+        50% {
+            box-shadow: 0 5px 25px rgba(52, 144, 220, 0.5);
+        }
+        100% {
+            box-shadow: 0 5px 15px rgba(52, 144, 220, 0.3);
+        }
+    }
+
+    #writeReviewBtn, .book-now-btn {
+        animation: softPulse 3s infinite;
+    }
+
+    /* Highlighted containers */
+    .ground-info, .review-item {
+        position: relative;
+        background: linear-gradient(to bottom, var(--card-bg), var(--card-bg));
+        background-size: 100% 100%;
+        z-index: 1;
+    }
+
+    .ground-info:after, .review-item:after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.1), transparent);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: -1;
+        border-radius: inherit;
+        pointer-events: none;
+    }
+
+    .ground-info:hover:after, .review-item:hover:after {
+        opacity: 1;
+    }
+
+    /* Enhanced ground name animation */
+    .ground-name {
+        background: linear-gradient(90deg, var(--text-color), var(--primary-color), var(--text-color));
+        background-size: 200% auto;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: textShine 5s linear infinite;
+    }
+
+    @keyframes textShine {
+        to { background-position: 200% center; }
+    }
+
+    /* Enhance shadows for depth */
+    .ground-image-slider, .ground-info, .review-item, .booking-summary {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05),
+                    0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Additional button states */
+    .btn:active {
+        transform: translateY(0) !important;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .dark {
+        --primary-color: #4299e1;
+        --primary-dark: #3182ce;
+        --secondary-color: #48bb78;
+        --accent-color: #ed8936;
+        --danger-color: #f56565;
+        --text-color: #f7fafc;
+        --text-muted: #cbd5e0;
+        --bg-color: #1a202c;
+        --card-bg: #2d3748;
+        --input-bg: #4a5568;
+        --input-text: #e2e8f0;
+        --border-color: #4a5568;
+        --input-bg-rgb: 74, 85, 104;
+        --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        --card-hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Base styles */
     .ground-details-container {
         padding: 2rem 0;
         color: var(--text-color);
@@ -129,6 +364,7 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        border-top: 5px solid var(--primary-color);
     }
 
     .ground-info:hover {
@@ -143,6 +379,7 @@
         margin-bottom: 1rem;
         position: relative;
         display: inline-block;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
     }
 
     .ground-name:after {
@@ -152,8 +389,9 @@
         left: 0;
         width: 60px;
         height: 3px;
-        background: var(--primary-color);
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
         transform-origin: left;
+        border-radius: 3px;
         animation: underlineAnimation 3s infinite alternate;
     }
 
@@ -175,10 +413,14 @@
         gap: 0.5rem;
         color: var(--text-color);
         transition: transform 0.3s ease;
+        background: rgba(var(--input-bg-rgb), 0.5);
+        padding: 8px 12px;
+        border-radius: 8px;
     }
 
     .meta-item:hover {
         transform: translateY(-3px);
+        background: rgba(var(--input-bg-rgb), 0.8);
     }
 
     .meta-item i {
@@ -194,6 +436,10 @@
         line-height: 1.6;
         color: var(--text-color);
         margin-bottom: 1.5rem;
+        padding: 15px;
+        background: rgba(var(--input-bg-rgb), 0.3);
+        border-radius: 8px;
+        border-left: 3px solid var(--primary-color);
     }
 
     /* Enhanced amenities section */
@@ -203,9 +449,10 @@
         gap: 8px;
         margin-bottom: 10px;
         padding: 8px;
-        border-radius: 6px;
+        border-radius: 10px;
         transition: all 0.3s ease;
         color: var(--text-color);
+        background: rgba(var(--input-bg-rgb), 0.3);
         flex-wrap: nowrap;
     }
 
@@ -222,7 +469,7 @@
 
     .amenity-item i {
         color: var(--secondary-color);
-        background: rgba(56, 193, 114, 0.1);
+        background: rgba(56, 193, 114, 0.2);
         padding: 8px;
         border-radius: 50%;
         transition: all 0.3s ease;
@@ -273,7 +520,7 @@
     .date-box {
         min-width: 100px;
         padding: 12px;
-        border-radius: 8px;
+        border-radius: 12px;
         border: 1px solid var(--border-color);
         cursor: pointer;
         text-align: center;
@@ -286,6 +533,7 @@
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.05);
     }
 
     .date-box:before {
@@ -295,7 +543,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: var(--primary-color);
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
         transform: translateY(100%);
         transition: transform 0.3s ease;
         z-index: -1;
@@ -574,16 +822,68 @@
     /* Enhanced reviews section */
     .reviews-section {
         margin-top: 3rem;
+        position: relative;
     }
 
+    .reviews-header {
+        margin-bottom: 2rem;
+    }
+
+    .reviews-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        margin: 0;
+    }
+
+    .reviews-count {
+        color: var(--text-muted);
+        font-weight: 500;
+        margin-left: 5px;
+    }
+
+    .write-review-btn {
+        padding: 10px 18px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border-radius: 8px;
+    }
+
+    .login-to-review {
+        padding: 8px 16px;
+        font-weight: 500;
+        border-radius: 8px;
+        border: 1px solid var(--primary-color);
+    }
+
+    .user-reviewed-alert, .login-alert {
+        border-radius: 10px;
+        border: none;
+        padding: 15px 20px;
+    }
+
+    .user-reviewed-alert {
+        background-color: rgba(52, 144, 220, 0.1);
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .login-alert {
+        background-color: rgba(246, 173, 85, 0.1);
+        border-left: 4px solid #ED8936;
+    }
+
+    /* Enhanced review item */
     .review-item {
         background: var(--card-bg);
         border-radius: 12px;
         padding: 1.5rem;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
         box-shadow: var(--card-shadow);
         transition: all 0.3s ease;
         transform: translateY(0);
+        border-left: 4px solid var(--primary-color);
+        position: relative;
     }
 
     .review-item:hover {
@@ -591,28 +891,59 @@
         box-shadow: var(--card-hover-shadow);
     }
 
+    /* Review header with avatar */
     .review-header {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 0.8rem;
+        align-items: flex-start;
+        margin-bottom: 1.2rem;
+    }
+
+    .reviewer-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .reviewer-avatar {
+        color: var(--primary-color);
+        opacity: 0.8;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(52, 144, 220, 0.1);
+        border-radius: 50%;
     }
 
     .reviewer-name {
         font-weight: 600;
         color: var(--text-color);
+        margin-bottom: 2px;
     }
 
     .review-date {
-        color: var(--input-text);
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+
+    /* Enhanced review stars */
+    .review-stars {
+        display: flex;
+        align-items: center;
+        color: #FFC107;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .rating-text {
+        color: var(--text-muted);
         font-size: 0.9rem;
     }
 
-    .review-stars {
-        color: #ffc107;
-        margin-bottom: 0.8rem;
-    }
-
     .review-stars i {
+        margin-right: 3px;
         transition: all 0.3s ease;
     }
 
@@ -623,6 +954,107 @@
     .review-text {
         color: var(--text-color);
         line-height: 1.6;
+        font-size: 1.05rem;
+        padding: 5px 0;
+    }
+
+    /* Review actions */
+    .review-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .review-actions .btn {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+    }
+
+    /* Empty state styling */
+    .no-reviews-container {
+        text-align: center;
+        padding: 3rem 1rem;
+        background: rgba(var(--input-bg-rgb), 0.3);
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        border: 1px dashed var(--border-color);
+    }
+
+    .no-reviews-icon {
+        margin-bottom: 1rem;
+    }
+
+    .no-reviews-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+    }
+
+    .no-reviews-text {
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+    }
+
+    /* Reply styling */
+    .review-replies {
+        margin-top: 1.5rem;
+        border-top: 1px dashed var(--border-color);
+        padding-top: 1rem;
+    }
+
+    .replies-container {
+        margin-left: 1.5rem;
+    }
+
+    .reply-item {
+        background: rgba(var(--input-bg-rgb), 0.4);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 0.8rem;
+        border-left: 3px solid var(--secondary-color);
+        transition: all 0.3s ease;
+    }
+
+    .reply-item:hover {
+        transform: translateX(5px);
+        background: rgba(var(--input-bg-rgb), 0.6);
+    }
+
+    .reply-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .replier-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .replier-badge {
+        color: var(--secondary-color);
+        font-size: 0.8rem;
+    }
+
+    .replier-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .reply-date {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+
+    .reply-text {
+        font-size: 0.95rem;
+        color: var(--text-color);
+    }
+
+    .reply-btn {
+        margin-left: 1.5rem;
+        padding: 5px 12px;
+        font-size: 0.85rem;
     }
 
     /* Enhanced map container */
@@ -889,6 +1321,416 @@
         font-size: 0.9rem;
         opacity: 0.8;
     }
+
+    /* Review Styling */
+    .review-item {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .review-item:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.8rem;
+    }
+
+    .reviewer-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .reviewer-name {
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    .review-date {
+        color: var(--input-text);
+        font-size: 0.9rem;
+    }
+
+    .review-stars {
+        color: #ffc107;
+        margin-bottom: 0.8rem;
+    }
+
+    .review-text {
+        color: var(--text-color);
+        line-height: 1.6;
+    }
+
+    .review-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    /* Reply Styling */
+    .review-replies {
+        margin-top: 1rem;
+        border-top: 1px dashed var(--border-color);
+        padding-top: 1rem;
+    }
+
+    .replies-container {
+        margin-bottom: 1rem;
+    }
+
+    .reply-item {
+        background: var(--input-bg);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        margin-left: 1.5rem;
+        border-left: 3px solid var(--secondary-color);
+        transition: all 0.3s ease;
+    }
+
+    .reply-item:hover {
+        transform: translateX(5px);
+        background: rgba(var(--input-bg-rgb), 0.7);
+    }
+
+    .reply-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .replier-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .replier-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-color);
+    }
+
+    .reply-date {
+        color: var(--input-text);
+        font-size: 0.8rem;
+    }
+
+    .reply-text {
+        color: var(--text-color);
+        font-size: 0.95rem;
+    }
+
+    .reply-actions {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    /* Rating Input Styling */
+    .rating-input {
+        display: flex;
+        gap: 0.5rem;
+        font-size: 1.5rem;
+        color: #ffc107;
+        margin-bottom: 1rem;
+    }
+
+    .rating-input i {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .rating-input i:hover {
+        transform: scale(1.2);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        .review-header {
+            flex-direction: column;
+        }
+
+        .review-actions {
+            margin-top: 0.5rem;
+        }
+
+        .reply-item {
+            margin-left: 0.5rem;
+        }
+    }
+
+    /* Custom Modal Styles */
+    .custom-modal .modal-content {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        background-color: rgba(255, 255, 255, 0.98);
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    }
+
+    .bg-gradient-danger {
+        background: linear-gradient(135deg, var(--danger-color), #dc3545);
+    }
+
+    .custom-modal .modal-header {
+        border-bottom: none;
+        padding: 20px 25px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .custom-modal .modal-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .custom-modal .modal-title {
+        font-weight: 600;
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .custom-modal .modal-header .close {
+        color: white;
+        opacity: 0.8;
+        text-shadow: none;
+        transition: all 0.3s ease;
+        margin: -1rem 0 -1rem auto;
+        padding: 0.75rem 1rem;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .custom-modal .modal-header .close:hover {
+        opacity: 1;
+        transform: rotate(90deg);
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .custom-modal .modal-body {
+        padding: 25px;
+        position: relative;
+    }
+
+    .custom-modal .modal-footer {
+        border-top: none;
+        padding: 15px 25px 25px;
+    }
+
+    .custom-modal label {
+        font-weight: 500;
+        margin-bottom: 10px;
+        color: var(--text-color);
+    }
+
+    .custom-modal .form-control {
+        border-radius: 10px;
+        padding: 15px;
+        border: 1px solid var(--border-color);
+        background-color: var(--input-bg);
+        color: var(--text-color);
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        font-size: 1rem;
+    }
+
+    .custom-modal .form-control:focus {
+        box-shadow: 0 0 0 3px rgba(52, 144, 220, 0.25);
+        border-color: var(--primary-color);
+        background-color: #fff;
+    }
+
+    .custom-modal textarea.form-control {
+        min-height: 100px;
+        line-height: 1.6;
+    }
+
+    .custom-modal .btn {
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        letter-spacing: 0.5px;
+    }
+
+    .custom-modal .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border: none;
+        box-shadow: 0 4px 10px rgba(52, 144, 220, 0.3);
+    }
+
+    .custom-modal .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(52, 144, 220, 0.4);
+    }
+
+    .custom-modal .btn-light {
+        background: #f8f9fa;
+        color: #5a6268;
+        border: 1px solid #eaedf0;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .custom-modal .btn-light:hover {
+        background: #e2e6ea;
+        color: #212529;
+        transform: translateY(-2px);
+    }
+
+    .custom-modal .btn-danger {
+        background: linear-gradient(135deg, var(--danger-color), #dc3545);
+        border: none;
+        box-shadow: 0 4px 10px rgba(227, 52, 47, 0.3);
+    }
+
+    .custom-modal .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(227, 52, 47, 0.4);
+    }
+
+    /* Enhanced Rating Input */
+    .custom-modal .rating-input {
+        display: flex;
+        gap: 12px;
+        font-size: 2.5rem;
+        color: #ffc107;
+        margin: 15px 0 20px;
+        justify-content: center;
+    }
+
+    .custom-modal .rating-input i {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+    }
+
+    .custom-modal .rating-input i:hover {
+        transform: scale(1.3) rotate(5deg);
+    }
+
+    .custom-modal .rating-text {
+        height: 20px;
+        font-weight: 500;
+    }
+
+    /* Rating hover effects */
+    .rating-input i.far.active-hover,
+    .rating-input i.fas.active-hover {
+        transform: scale(1.2);
+        color: #ffce3d;
+        filter: drop-shadow(0 0 3px rgba(255, 193, 7, 0.5));
+    }
+
+    /* Modal Animation */
+    .modal.fade .modal-dialog {
+        transform: translateY(-30px) scale(0.95);
+        opacity: 0;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    }
+
+    .modal.show .modal-dialog {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    /* Custom modal positioning to ensure centering */
+    .modal-dialog-centered {
+        display: flex;
+        align-items: center;
+        min-height: calc(100% - 1rem);
+    }
+
+    @media (min-width: 576px) {
+        .modal-dialog-centered {
+            min-height: calc(100% - 3.5rem);
+        }
+    }
+
+    /* Rating stars animations */
+    .pulse-animation .far,
+    .pulse-animation .fas {
+        animation: starsPulse 0.5s ease-in-out;
+    }
+
+    @keyframes starsPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.3); }
+        100% { transform: scale(1); }
+    }
+
+    .rating-input.edit-mode {
+        animation: editHighlight 1s ease;
+    }
+
+    @keyframes editHighlight {
+        0% { filter: brightness(1); }
+        30% { filter: brightness(1.2); }
+        100% { filter: brightness(1); }
+    }
+
+    /* Form group animations */
+    .custom-modal .form-group {
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .custom-modal.show .form-group {
+        animation: slideIn 0.5s forwards;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Dark mode modal adjustments */
+    .dark .custom-modal .modal-content {
+        background-color: rgba(45, 55, 72, 0.98);
+    }
+
+    .dark .custom-modal .form-control {
+        background-color: var(--card-bg);
+        border-color: var(--border-color);
+        color: var(--text-color);
+    }
+
+    .dark .custom-modal .form-control:focus {
+        background-color: rgba(74, 85, 104, 0.8);
+    }
+
+    .dark .custom-modal .btn-light {
+        background: #4a5568;
+        color: #e2e8f0;
+        border-color: #4a5568;
+    }
+
+    .dark .custom-modal .btn-light:hover {
+        background: #2d3748;
+    }
 </style>
 @endsection
 
@@ -1138,40 +1980,148 @@
 
             <!-- Reviews Section -->
             <div class="reviews-section" data-aos="fade-up">
-                <h3 class="mb-4">Reviews (150)</h3>
+                <div class="reviews-header">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h3 class="reviews-title">
+                            <i class="fas fa-comments text-primary mr-2"></i>
+                            Reviews <span class="reviews-count">({{ count($ground->reviews) }})</span>
+                        </h3>
 
-                <!-- For demo purposes, show sample reviews -->
-                <div class="review-item" data-aos="fade-up">
-                    <div class="review-header">
-                        <div class="reviewer-name">Prit Patel</div>
-                        <div class="review-date">{{ \Carbon\Carbon::parse('2025-05-03')->format('M d, Y') }}</div>
-                    </div>
-                    <div class="review-stars">
-                        @for($i = 1; $i <= 5; $i++)
-                            @if($i <= 4.5)
-                                <i class="fas fa-star"></i>
-                            @else
-                                <i class="far fa-star"></i>
+                        @auth
+                            @php
+                                $userHasReviewed = $ground->reviews->where('user_id', Auth::id())->first();
+                            @endphp
+
+                            @if(!$userHasReviewed)
+                                <button class="btn btn-primary btn-animated write-review-btn" id="writeReviewBtn">
+                                    <i class="fas fa-star mr-2"></i> Write a Review
+                                </button>
                             @endif
-                        @endfor
+                        @else
+                            <a href="{{ route('login') }}?redirect={{ url()->current() }}" class="btn btn-outline-primary login-to-review">
+                                <i class="fas fa-sign-in-alt mr-2"></i> Login to Review
+                            </a>
+                        @endauth
                     </div>
-                    <div class="review-text">Very flexible ground with excellent facilities and staff support.</div>
+
+                    @auth
+                        @if($userHasReviewed)
+                            <div class="alert alert-info mb-4 user-reviewed-alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-info-circle mr-3 fa-lg"></i>
+                                    <div>
+                                        <strong>You've reviewed this ground</strong>
+                                        <p class="mb-0">You can edit your review below.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    @else
+                        <div class="alert alert-warning mb-4 login-alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-sign-in-alt mr-3 fa-lg"></i>
+                                <div>
+                                    <strong>Want to share your experience?</strong>
+                                    <p class="mb-0">Please <a href="{{ route('login') }}?redirect={{ url()->current() }}" class="alert-link">login</a> to leave a review.</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endauth
                 </div>
-                <div class="review-item" data-aos="fade-up" data-aos-delay="100">
-                    <div class="review-header">
-                        <div class="reviewer-name">Raj Sharma</div>
-                        <div class="review-date">{{ \Carbon\Carbon::parse('2025-04-28')->format('M d, Y') }}</div>
-                    </div>
-                    <div class="review-stars">
-                        @for($i = 1; $i <= 5; $i++)
-                            @if($i <= 5)
-                                <i class="fas fa-star"></i>
+
+                <!-- Review List -->
+                <div id="reviewsList">
+                    @if($ground->reviews->count() > 0)
+                        @foreach($ground->reviews as $review)
+                            <div class="review-item" data-review-id="{{ $review->id }}">
+                                <div class="review-header">
+                                    <div class="reviewer-info">
+                                        <div class="reviewer-avatar">
+                                            <i class="fas fa-user-circle fa-2x"></i>
+                                        </div>
+                                        <div>
+                                            <div class="reviewer-name">{{ $review->user->name ?? 'Anonymous' }}</div>
+                                            <div class="review-date"><i class="far fa-calendar-alt mr-1"></i> {{ $review->created_at->format('M d, Y') }}</div>
+                                        </div>
+                                    </div>
+                                    @if(Auth::check() && Auth::id() == $review->user_id)
+                                        <div class="review-actions">
+                                            <button class="btn btn-sm btn-outline-primary edit-review-btn" data-review-id="{{ $review->id }}">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger delete-review-btn" data-review-id="{{ $review->id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="review-stars">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        @if($i <= $review->rating)
+                                            <i class="fas fa-star"></i>
+                                        @else
+                                            <i class="far fa-star"></i>
+                                        @endif
+                                    @endfor
+                                    <span class="rating-text ml-2">{{ ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][$review->rating] }}</span>
+                                </div>
+                                <div class="review-text">{{ $review->comment }}</div>
+
+                                <!-- Reply Section -->
+                                <div class="review-replies mt-3">
+                                    @if($review->replies->count() > 0)
+                                        <div class="replies-container">
+                                            @foreach($review->replies as $reply)
+                                                <div class="reply-item" data-reply-id="{{ $reply->id }}">
+                                                    <div class="reply-header">
+                                                        <div class="replier-info">
+                                                            <span class="replier-badge"><i class="fas fa-reply-all mr-1"></i></span>
+                                                            <span class="replier-name">{{ $reply->user->name ?? 'Anonymous' }}</span>
+                                                            <span class="reply-date">{{ $reply->created_at->format('M d, Y') }}</span>
+                                                        </div>
+                                                        @if(Auth::check() && Auth::id() == $reply->user_id)
+                                                            <div class="reply-actions">
+                                                                <button class="btn btn-sm btn-link edit-reply-btn" data-reply-id="{{ $reply->id }}">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </button>
+                                                                <button class="btn btn-sm btn-link text-danger delete-reply-btn" data-reply-id="{{ $reply->id }}">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                    <div class="reply-text">{{ $reply->comment }}</div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                    @auth
+                                        <button class="btn btn-sm btn-outline-secondary reply-btn mt-2" data-review-id="{{ $review->id }}">
+                                            <i class="fas fa-reply"></i> Reply
+                                        </button>
+                                    @endauth
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="no-reviews-container">
+                            <div class="no-reviews-icon">
+                                <i class="far fa-comments fa-3x text-primary mb-3"></i>
+                            </div>
+                            <h4 class="no-reviews-title">No Reviews Yet</h4>
+                            <p class="no-reviews-text">Be the first to share your experience at this ground!</p>
+                            @auth
+                                <button class="btn btn-primary btn-animated mt-2" id="writeReviewBtnEmpty">
+                                    <i class="fas fa-star mr-2"></i> Write a Review
+                                </button>
                             @else
-                                <i class="far fa-star"></i>
-                            @endif
-                        @endfor
-                    </div>
-                    <div class="review-text">Best ground in the city! Always clean and well-maintained.</div>
+                                <a href="{{ route('login') }}?redirect={{ url()->current() }}" class="btn btn-outline-primary mt-2">
+                                    <i class="fas fa-sign-in-alt mr-2"></i> Login to Review
+                                </a>
+                            @endauth
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -1249,6 +2199,12 @@
     </div>
 </div>
 
+@endsection
+
+@section('scripts')
+<!-- Add jQuery and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 <!-- JavaScript for functionality -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 <script>
@@ -1357,603 +2313,1273 @@
         }
 
         // Initialize button states
-updateNavigationButtons();
+    updateNavigationButtons();
 
-// Previous dates button click
-prevDates.addEventListener('click', () => {
-    dateSelector.scrollBy({
-        left: -scrollAmount,
-        behavior: 'smooth'
+    // Previous dates button click
+    prevDates.addEventListener('click', () => {
+        dateSelector.scrollBy({
+            left: -scrollAmount,
+            behavior: 'smooth'
+        });
+        setTimeout(updateNavigationButtons, 500);
     });
-    setTimeout(updateNavigationButtons, 500);
-});
 
-// Set up click handlers for date boxes
-const dateBoxes = document.querySelectorAll('.date-box');
-dateBoxes.forEach(dateBox => {
-    dateBox.addEventListener('click', function() {
-        // Update selectedDate value when a date is clicked
-        selectedDate = this.getAttribute('data-date');
+    // Set up click handlers for date boxes
+    const dateBoxes = document.querySelectorAll('.date-box');
+    dateBoxes.forEach(dateBox => {
+        dateBox.addEventListener('click', function() {
+            // Update selectedDate value when a date is clicked
+            selectedDate = this.getAttribute('data-date');
 
-        // Remove active class from all date boxes
-        dateBoxes.forEach(box => box.classList.remove('active'));
+            // Remove active class from all date boxes
+            dateBoxes.forEach(box => box.classList.remove('active'));
 
-        // Add active class to the clicked date box
-        this.classList.add('active');
+            // Add active class to the clicked date box
+            this.classList.add('active');
 
-        // Update the displayed selected date in the booking summary
-        const selectedDateElement = document.querySelector('.selected-date');
-        if (selectedDateElement) {
-            const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-            });
-            selectedDateElement.textContent = formattedDate;
-        }
+            // Update the displayed selected date in the booking summary
+            const selectedDateElement = document.querySelector('.selected-date');
+            if (selectedDateElement) {
+                const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                selectedDateElement.textContent = formattedDate;
+            }
 
-        // Load time slots for the selected date
-        loadTimeSlots(selectedDate);
+            // Load time slots for the selected date
+            loadTimeSlots(selectedDate);
 
-        console.log('Selected date:', selectedDate);
+            console.log('Selected date:', selectedDate);
+        });
     });
-});
 
-// Function to load time slots for selected date
-function loadTimeSlots(date) {
-    const timeSlotsContainer = document.querySelector('.time-slots');
-    if (!timeSlotsContainer) return;
+    // Function to load time slots for selected date
+    function loadTimeSlots(date) {
+        const timeSlotsContainer = document.querySelector('.time-slots');
+        if (!timeSlotsContainer) return;
 
-    // Show loading indicator
-    timeSlotsContainer.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Loading available slots...</div>';
+        // Show loading indicator
+        timeSlotsContainer.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Loading available slots...</div>';
 
-    // Reset slot selection
-    resetSlotSelection();
+        // Reset slot selection
+        resetSlotSelection();
 
-    // Fetch slots from server
-    fetch(`/get-ground-slots/${date}/{{ $ground->id }}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Clear loading indicator
-                timeSlotsContainer.innerHTML = '';
+        // Fetch slots from server
+        fetch(`/get-ground-slots/${date}/{{ $ground->id }}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Clear loading indicator
+                    timeSlotsContainer.innerHTML = '';
 
-                if (data.slots && data.slots.length > 0) {
-                    // Create slot elements
-                    data.slots.forEach((slot, index) => {
-                        const slotElement = document.createElement('div');
-                        slotElement.className = 'time-slot-container';
-                        slotElement.setAttribute('data-aos', 'zoom-in');
-                        slotElement.setAttribute('data-aos-delay', `${100 + (index * 50)}`);
+                    if (data.slots && data.slots.length > 0) {
+                        // Create slot elements
+                        data.slots.forEach((slot, index) => {
+                            const slotElement = document.createElement('div');
+                            slotElement.className = 'time-slot-container';
+                            slotElement.setAttribute('data-aos', 'zoom-in');
+                            slotElement.setAttribute('data-aos-delay', `${100 + (index * 50)}`);
 
-                        slotElement.innerHTML = `
-                            <div class="time-slot ${slot.available ? 'available' : 'booked'}"
-                                data-time="${slot.time}"
-                                data-slot-id="${slot.id}"
-                                data-price="${slot.price}"
-                                data-hours="${slot.hours}"
-                                data-available="${slot.available ? 'true' : 'false'}">
-                                <div>${slot.time.replace('-', ' - ')}</div>
-                                <div>₹${slot.price} (${slot.hours} hours)</div>
-                            </div>
-                        `;
+                            slotElement.innerHTML = `
+                                <div class="time-slot ${slot.available ? 'available' : 'booked'}"
+                                    data-time="${slot.time}"
+                                    data-slot-id="${slot.id}"
+                                    data-price="${slot.price}"
+                                    data-hours="${slot.hours}"
+                                    data-available="${slot.available ? 'true' : 'false'}">
+                                    <div>${slot.time.replace('-', ' - ')}</div>
+                                    <div>₹${slot.price} (${slot.hours} hours)</div>
+                                </div>
+                            `;
 
-                        timeSlotsContainer.appendChild(slotElement);
-                    });
+                            timeSlotsContainer.appendChild(slotElement);
+                        });
 
-                    // Initialize AOS for new elements
-                    AOS.refresh();
+                        // Initialize AOS for new elements
+                        AOS.refresh();
 
-                    // Attach event listeners to new slots
-                    attachSlotEventListeners();
+                        // Attach event listeners to new slots
+                        attachSlotEventListeners();
+                    } else {
+                        timeSlotsContainer.innerHTML = '<div class="alert alert-info">No slots available for this date.</div>';
+                    }
                 } else {
-                    timeSlotsContainer.innerHTML = '<div class="alert alert-info">No slots available for this date.</div>';
+                    timeSlotsContainer.innerHTML = `<div class="alert alert-danger">${data.message || 'Failed to load slots'}</div>`;
                 }
-            } else {
-                timeSlotsContainer.innerHTML = `<div class="alert alert-danger">${data.message || 'Failed to load slots'}</div>`;
-            }
-        })
-        .catch(error => {
-            console.error('Error loading slots:', error);
-            timeSlotsContainer.innerHTML = '<div class="alert alert-danger">Error loading available slots. Please try again.</div>';
-        });
-}
-
-        // Next dates button click
-        nextDates.addEventListener('click', () => {
-            dateSelector.scrollBy({
-                left: scrollAmount,
-                behavior: 'smooth'
+            })
+            .catch(error => {
+                console.error('Error loading slots:', error);
+                timeSlotsContainer.innerHTML = '<div class="alert alert-danger">Error loading available slots. Please try again.</div>';
             });
-            setTimeout(updateNavigationButtons, 500);
-        });
-
-        // Mouse wheel scroll functionality for horizontal scrolling
-dateSelector.addEventListener('wheel', (e) => {
-    // Instead of preventDefault, use a more performant approach
-    // Only handle horizontal scroll when the cursor is over the date selector
-    if (e.deltaY !== 0) {
-        // Use requestAnimationFrame for smoother performance
-        requestAnimationFrame(() => {
-            const scrollDirection = e.deltaY > 0 ? 1 : -1;
-            dateSelector.scrollBy({
-                left: scrollAmount * scrollDirection,
-                behavior: 'smooth'
-            });
-            setTimeout(updateNavigationButtons, 500);
-        });
     }
-}, { passive: true }); // Mark as passive for better performance
 
-        // Mouse events for dragging
-        dateSelector.addEventListener('mousedown', (e) => {
-            // Only start dragging if clicking on the container, not on a date box
-            if (e.target === dateSelector || e.target.parentElement === dateSelector) {
-                isDragging = true;
-                startX = e.pageX - dateSelector.offsetLeft;
-                scrollLeft = dateSelector.scrollLeft;
-                dateSelector.style.cursor = 'grabbing';
+            // Next dates button click
+            nextDates.addEventListener('click', () => {
+                dateSelector.scrollBy({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+                setTimeout(updateNavigationButtons, 500);
+            });
+
+            // Mouse wheel scroll functionality for horizontal scrolling
+    dateSelector.addEventListener('wheel', (e) => {
+        // Instead of preventDefault, use a more performant approach
+        // Only handle horizontal scroll when the cursor is over the date selector
+        if (e.deltaY !== 0) {
+            // Use requestAnimationFrame for smoother performance
+            requestAnimationFrame(() => {
+                const scrollDirection = e.deltaY > 0 ? 1 : -1;
+                dateSelector.scrollBy({
+                    left: scrollAmount * scrollDirection,
+                    behavior: 'smooth'
+                });
+                setTimeout(updateNavigationButtons, 500);
+            });
+        }
+    }, { passive: true }); // Mark as passive for better performance
+
+            // Mouse events for dragging
+            dateSelector.addEventListener('mousedown', (e) => {
+                // Only start dragging if clicking on the container, not on a date box
+                if (e.target === dateSelector || e.target.parentElement === dateSelector) {
+                    isDragging = true;
+                    startX = e.pageX - dateSelector.offsetLeft;
+                    scrollLeft = dateSelector.scrollLeft;
+                    dateSelector.style.cursor = 'grabbing';
+                    e.preventDefault();
+                }
+            });
+
+            dateSelector.addEventListener('mouseleave', () => {
+                isDragging = false;
+                dateSelector.style.cursor = 'grab';
+            });
+
+            dateSelector.addEventListener('mouseup', () => {
+                isDragging = false;
+                dateSelector.style.cursor = 'grab';
+            });
+
+            dateSelector.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
                 e.preventDefault();
-            }
-        });
+                const x = e.pageX - dateSelector.offsetLeft;
+                const walk = (x - startX) * 2;
+                dateSelector.scrollLeft = scrollLeft - walk;
+                updateNavigationButtons();
+            });
 
-        dateSelector.addEventListener('mouseleave', () => {
-            isDragging = false;
-            dateSelector.style.cursor = 'grab';
-        });
+            // Touch events - using passive event listener for better performance
+    dateSelector.addEventListener('touchstart', (e) => {
+        // Only start touch tracking if touching the container, not a date box
+        if (e.target === dateSelector || e.target.parentElement === dateSelector) {
+            touchStartX = e.touches[0].clientX;
+            // Don't call preventDefault in a passive listener
+        }
+    }, { passive: true });
 
-        dateSelector.addEventListener('mouseup', () => {
-            isDragging = false;
-            dateSelector.style.cursor = 'grab';
-        });
+            dateSelector.addEventListener('touchmove', (e) => {
+        if (!touchStartX) return;
+        // Instead of preventing default, which would block scrolling,
+        // we'll just handle our custom scrolling alongside the default behavior
+        const touchX = e.touches[0].clientX;
+        const diff = touchStartX - touchX;
 
-        dateSelector.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            e.preventDefault();
-            const x = e.pageX - dateSelector.offsetLeft;
-            const walk = (x - startX) * 2;
-            dateSelector.scrollLeft = scrollLeft - walk;
+        // Use requestAnimationFrame for smoother scrolling
+        requestAnimationFrame(() => {
+            dateSelector.scrollLeft += diff;
             updateNavigationButtons();
         });
 
-        // Touch events - using passive event listener for better performance
-dateSelector.addEventListener('touchstart', (e) => {
-    // Only start touch tracking if touching the container, not a date box
-    if (e.target === dateSelector || e.target.parentElement === dateSelector) {
-        touchStartX = e.touches[0].clientX;
-        // Don't call preventDefault in a passive listener
-    }
-}, { passive: true });
+        touchStartX = touchX;
+    }, { passive: true });
 
-        dateSelector.addEventListener('touchmove', (e) => {
-    if (!touchStartX) return;
-    // Instead of preventing default, which would block scrolling,
-    // we'll just handle our custom scrolling alongside the default behavior
-    const touchX = e.touches[0].clientX;
-    const diff = touchStartX - touchX;
+            dateSelector.addEventListener('touchend', () => {
+                touchStartX = null;
+            });
 
-    // Use requestAnimationFrame for smoother scrolling
-    requestAnimationFrame(() => {
-        dateSelector.scrollLeft += diff;
-        updateNavigationButtons();
-    });
+            // Make selectedSlots accessible globally
+            let selectedSlots = [];
 
-    touchStartX = touchX;
-}, { passive: true });
+            // Function to attach event listeners to time slots
+            function attachSlotEventListeners() {
+                const timeSlots = document.querySelectorAll('.time-slot');
+                selectedSlots = []; // Reset selected slots array when attaching new listeners
 
-        dateSelector.addEventListener('touchend', () => {
-            touchStartX = null;
-        });
-
-        // Make selectedSlots accessible globally
-        let selectedSlots = [];
-
-        // Function to attach event listeners to time slots
-        function attachSlotEventListeners() {
-            const timeSlots = document.querySelectorAll('.time-slot');
-            selectedSlots = []; // Reset selected slots array when attaching new listeners
-
-            timeSlots.forEach(slot => {
-                if (slot.getAttribute('data-available') === 'true') {
-                    slot.addEventListener('click', function() {
-                        if (this.classList.contains('booked')) {
-                            return; // Can't select booked slots
-                        }
-
-                        if (this.classList.contains('selected')) {
-                            // Deselect this slot
-                            this.classList.remove('selected');
-                            this.style.animation = '';
-                            // Remove from selected slots array
-                            const index = selectedSlots.findIndex(s =>
-                                s.getAttribute('data-time') === this.getAttribute('data-time') &&
-                                s.getAttribute('data-slot-id') === this.getAttribute('data-slot-id')
-                            );
-                            if (index !== -1) {
-                                selectedSlots.splice(index, 1);
+                timeSlots.forEach(slot => {
+                    if (slot.getAttribute('data-available') === 'true') {
+                        slot.addEventListener('click', function() {
+                            if (this.classList.contains('booked')) {
+                                return; // Can't select booked slots
                             }
-                        } else {
-                            // Select this slot with animation
-                            this.classList.add('selected');
-                            this.style.animation = 'pulse 1.5s infinite';
-                            selectedSlots.push(this);
-                        }
 
-                        // Update booking summary
-                        updateBookingSummary();
-                    });
-                }
-            });
-        }
-
-        function resetSlotSelection() {
-            // Clear the selected class from all slots
-            document.querySelectorAll('.time-slot.selected').forEach(slot => {
-                slot.classList.remove('selected');
-                slot.style.animation = '';
-            });
-            // Empty the array
-            selectedSlots = [];
-            // Update booking summary
-            updateBookingSummary();
-        }
-
-        function updateBookingSummary() {
-            const bookingSummary = document.querySelector('.booking-summary');
-
-            if (selectedSlots.length > 0) {
-                // Show booking summary with animation
-                bookingSummary.classList.add('active');
-
-                // Sort slots by start time
-                selectedSlots.sort((a, b) => {
-                    const timeA = a.getAttribute('data-time').split('-')[0].trim();
-                    const timeB = b.getAttribute('data-time').split('-')[0].trim();
-                    return timeA.localeCompare(timeB);
-                });
-
-                // Calculate start and end times properly
-                let earliestStart = null;
-                let latestEnd = null;
-                let totalDuration = 0;
-
-                selectedSlots.forEach(slot => {
-                    // Get hours directly from data attribute
-                    const slotHours = parseFloat(slot.getAttribute('data-hours'));
-                    totalDuration += slotHours;
-
-                    // Split the time slot (e.g., "10:00-11:00" or "10:00 - 11:00")
-                    const timeRange = slot.getAttribute('data-time');
-                    const [startTime, endTime] = timeRange.split('-').map(t => t.trim());
-
-                    // Parse times into Date objects for comparison
-                    const today = new Date();
-                    const startDate = new Date(today.toDateString() + ' ' + startTime);
-                    const endDate = new Date(today.toDateString() + ' ' + endTime);
-
-                    // Handle case where end time is on the next day (e.g., 23:00-01:00)
-                    if (endDate < startDate) {
-                        endDate.setDate(endDate.getDate() + 1);
-                    }
-
-                    // Update earliest start and latest end
-                    if (!earliestStart || startDate < earliestStart) {
-                        earliestStart = startDate;
-                    }
-
-                    if (!latestEnd || endDate > latestEnd) {
-                        latestEnd = endDate;
-                    }
-                });
-
-                // Format the times
-                const formatTimeStr = (date) => {
-                    const hours = date.getHours().toString().padStart(2, '0');
-                    const minutes = date.getMinutes().toString().padStart(2, '0');
-                    return `${hours}:${minutes}`;
-                };
-
-                const startTimeStr = formatTimeStr(earliestStart);
-                const endTimeStr = formatTimeStr(latestEnd);
-
-                // Format duration as hours and minutes
-                const formatDuration = (hours) => {
-                    const wholeHours = Math.floor(hours);
-                    const minutes = Math.round((hours - wholeHours) * 60);
-
-                    if (minutes === 0) {
-                        return `${wholeHours} hour${wholeHours !== 1 ? 's' : ''}`;
-                    } else if (minutes === 60) {
-                        return `${wholeHours + 1} hour${wholeHours !== 0 ? 's' : ''}`;
-                    } else {
-                        return `${wholeHours} hour${wholeHours !== 1 ? 's' : ''} ${minutes} min`;
-                    }
-                };
-
-                const durationStr = formatDuration(totalDuration);
-
-                // Calculate total price based on each slot's price
-                const totalPrice = selectedSlots.reduce((sum, slot) => {
-                    return sum + parseInt(slot.getAttribute('data-price'));
-                }, 0);
-
-                // Update summary with animation
-                const selectedTimeElement = document.querySelector('.selected-time');
-                const selectedDurationElement = document.querySelector('.selected-duration');
-                const priceAmountElement = document.querySelector('.price-amount');
-
-                // Apply updates with fade effect
-                const elements = [selectedTimeElement, selectedDurationElement, priceAmountElement];
-                elements.forEach(el => el.style.transition = 'opacity 0.3s ease');
-                elements.forEach(el => el.style.opacity = '0');
-
-                setTimeout(() => {
-                    selectedTimeElement.textContent = `${startTimeStr} to ${endTimeStr}`;
-                    selectedDurationElement.textContent = durationStr;
-                    priceAmountElement.textContent = totalPrice;
-
-                    elements.forEach(el => el.style.opacity = '1');
-                }, 300);
-            } else {
-                // Hide booking summary
-                bookingSummary.classList.remove('active');
-            }
-        }
-
-        // Initial setup for the time slots
-        attachSlotEventListeners();
-
-        // Book now button
-        document.querySelector('.book-now-btn').addEventListener('click', function() {
-            if (selectedSlots.length === 0) {
-                alert('Please select at least one time slot.');
-                return;
-            }
-
-            // Get CSRF token from meta tag
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            if (!csrfToken) {
-                console.error('CSRF token not found');
-                alert('Security token missing. Please refresh the page and try again.');
-                return;
-            }
-
-            // Prepare booking data
-            const bookingData = {
-                ground_id: {{ $ground->id }},
-                date: selectedDate,
-                slot_ids: selectedSlots.map(slot => slot.getAttribute('data-slot-id')),
-                time_slots: selectedSlots.map(slot => slot.getAttribute('data-time')),
-                total_price: document.querySelector('.price-amount').textContent
-            };
-
-            // Change button state
-            const bookButton = this;
-            const originalButtonText = bookButton.innerHTML;
-            bookButton.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
-            bookButton.disabled = true;
-            bookButton.style.opacity = '0.7';
-
-            // Send booking request to server
-            fetch('/book-ground', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(bookingData)
-            })
-            .then(response => {
-                // Check for authentication issues
-                if (response.redirected) {
-                    window.location.href = response.url;
-                    return null;
-                }
-
-                if (response.status === 401) {
-                    window.location.href = '/login?redirect=' + encodeURIComponent(window.location.href);
-                    return null;
-                }
-
-                return response.json();
-            })
-            .then(data => {
-                if (!data) return; // Handle redirected cases
-
-                if (data.success) {
-                    // Initialize Razorpay payment
-                    const options = {
-                        key: '{{ Config::get('services.razorpay.key') }}',
-                        amount: data.amount,
-                        currency: data.currency,
-                        name: 'GetBooking',
-                        description: 'Ground Booking Payment',
-                        order_id: data.order_id,
-                        handler: function (response) {
-                            // Send payment verification details to server
-                            fetch('/payment-callback', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': csrfToken,
-                                    'Accept': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    razorpay_payment_id: response.razorpay_payment_id,
-                                    razorpay_order_id: response.razorpay_order_id,
-                                    razorpay_signature: response.razorpay_signature
-                                })
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    // Show success message
-                                    bookButton.innerHTML = `<i class="fas fa-check"></i> Booking Confirmed!`;
-                                    bookButton.style.background = '#28a745';
-                                    bookButton.style.opacity = '1';
-
-                                    // Create a custom toast notification
-                                    const toastDiv = document.createElement('div');
-                                    toastDiv.style.position = 'fixed';
-                                    toastDiv.style.top = '20px';
-                                    toastDiv.style.right = '20px';
-                                    toastDiv.style.zIndex = '9999';
-                                    toastDiv.style.backgroundColor = '#28a745';
-                                    toastDiv.style.color = 'white';
-                                    toastDiv.style.padding = '15px 25px';
-                                    toastDiv.style.borderRadius = '10px';
-                                    toastDiv.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
-                                    toastDiv.style.minWidth = '300px';
-                                    toastDiv.style.transform = 'translateX(400px)';
-                                    toastDiv.style.transition = 'transform 0.3s ease-in-out';
-
-                                    toastDiv.innerHTML = `
-                                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                                            <div style="display: flex; align-items: center;">
-                                                <i class="fas fa-check-circle" style="margin-right: 10px; font-size: 20px;"></i>
-                                                <strong>Booking Successful</strong>
-                                            </div>
-                                            <span id="close-toast" style="cursor: pointer; font-size: 20px;">&times;</span>
-                                        </div>
-                                        <p style="margin: 0;">${data.message || 'Booking confirmed successfully!'}</p>
-                                        <p style="margin: 5px 0 0 0;">Booking Reference: <strong>${data.booking_id || 'N/A'}</strong></p>
-                                    `;
-
-                                    document.body.appendChild(toastDiv);
-
-                                    // Display the toast with animation
-                                    setTimeout(() => {
-                                        toastDiv.style.transform = 'translateX(0)';
-                                    }, 10);
-
-                                    // Close button functionality
-                                    const closeToast = toastDiv.querySelector('#close-toast');
-                                    closeToast.addEventListener('click', () => {
-                                        toastDiv.style.transform = 'translateX(400px)';
-                                        setTimeout(() => {
-                                            toastDiv.remove();
-                                        }, 300);
-                                    });
-
-                                    // Auto-dismiss toast after 5 seconds
-                                    setTimeout(() => {
-                                        toastDiv.style.transform = 'translateX(400px)';
-                                        setTimeout(() => {
-                                            toastDiv.remove();
-                                        }, 300);
-                                    }, 5000);
-
-                                    // Reset booking form
-                                    resetSlotSelection();
-                                    document.querySelector('.booking-summary').classList.remove('active');
-
-                                    // Fetch updated slot availability without page reload
-                                    const activeDate = document.querySelector('.date-box.active');
-                                    if (activeDate) {
-                                        activeDate.click(); // This will refresh the slots for the current date
-                                    }
-                                } else {
-                                    // Show error message
-                                    bookButton.innerHTML = originalButtonText;
-                                    bookButton.disabled = false;
-                                    bookButton.style.opacity = '1';
-                                    alert(data.message || 'Payment verification failed');
+                            if (this.classList.contains('selected')) {
+                                // Deselect this slot
+                                this.classList.remove('selected');
+                                this.style.animation = '';
+                                // Remove from selected slots array
+                                const index = selectedSlots.findIndex(s =>
+                                    s.getAttribute('data-time') === this.getAttribute('data-time') &&
+                                    s.getAttribute('data-slot-id') === this.getAttribute('data-slot-id')
+                                );
+                                if (index !== -1) {
+                                    selectedSlots.splice(index, 1);
                                 }
-                            })
-                            .catch(error => {
-                                console.error('Payment verification error:', error);
-                                bookButton.innerHTML = originalButtonText;
-                                bookButton.disabled = false;
-                                bookButton.style.opacity = '1';
-                                alert('Payment verification failed. Please contact support.');
-                            });
-                        },
-                        prefill: {
-                            name: '{{ Auth::check() ? Auth::user()->name : "" }}',
-                            email: '{{ Auth::check() ? Auth::user()->email : "" }}',
-                            contact: '{{ Auth::check() ? Auth::user()->phone : "" }}'
-                        },
-                        theme: {
-                            color: '#3490dc'
-                        },
-                        modal: {
-                            ondismiss: function() {
-                                // Reset button state if payment modal is dismissed
-                                bookButton.innerHTML = originalButtonText;
-                                bookButton.disabled = false;
-                                bookButton.style.opacity = '1';
+                            } else {
+                                // Select this slot with animation
+                                this.classList.add('selected');
+                                this.style.animation = 'pulse 1.5s infinite';
+                                selectedSlots.push(this);
                             }
+
+                            // Update booking summary
+                            updateBookingSummary();
+                        });
+                    }
+                });
+            }
+
+            function resetSlotSelection() {
+                // Clear the selected class from all slots
+                document.querySelectorAll('.time-slot.selected').forEach(slot => {
+                    slot.classList.remove('selected');
+                    slot.style.animation = '';
+                });
+                // Empty the array
+                selectedSlots = [];
+                // Update booking summary
+                updateBookingSummary();
+            }
+
+            function updateBookingSummary() {
+                const bookingSummary = document.querySelector('.booking-summary');
+
+                if (selectedSlots.length > 0) {
+                    // Show booking summary with animation
+                    bookingSummary.classList.add('active');
+
+                    // Sort slots by start time
+                    selectedSlots.sort((a, b) => {
+                        const timeA = a.getAttribute('data-time').split('-')[0].trim();
+                        const timeB = b.getAttribute('data-time').split('-')[0].trim();
+                        return timeA.localeCompare(timeB);
+                    });
+
+                    // Calculate start and end times properly
+                    let earliestStart = null;
+                    let latestEnd = null;
+                    let totalDuration = 0;
+
+                    selectedSlots.forEach(slot => {
+                        // Get hours directly from data attribute
+                        const slotHours = parseFloat(slot.getAttribute('data-hours'));
+                        totalDuration += slotHours;
+
+                        // Split the time slot (e.g., "10:00-11:00" or "10:00 - 11:00")
+                        const timeRange = slot.getAttribute('data-time');
+                        const [startTime, endTime] = timeRange.split('-').map(t => t.trim());
+
+                        // Parse times into Date objects for comparison
+                        const today = new Date();
+                        const startDate = new Date(today.toDateString() + ' ' + startTime);
+                        const endDate = new Date(today.toDateString() + ' ' + endTime);
+
+                        // Handle case where end time is on the next day (e.g., 23:00-01:00)
+                        if (endDate < startDate) {
+                            endDate.setDate(endDate.getDate() + 1);
+                        }
+
+                        // Update earliest start and latest end
+                        if (!earliestStart || startDate < earliestStart) {
+                            earliestStart = startDate;
+                        }
+
+                        if (!latestEnd || endDate > latestEnd) {
+                            latestEnd = endDate;
+                        }
+                    });
+
+                    // Format the times
+                    const formatTimeStr = (date) => {
+                        const hours = date.getHours().toString().padStart(2, '0');
+                        const minutes = date.getMinutes().toString().padStart(2, '0');
+                        return `${hours}:${minutes}`;
+                    };
+
+                    const startTimeStr = formatTimeStr(earliestStart);
+                    const endTimeStr = formatTimeStr(latestEnd);
+
+                    // Format duration as hours and minutes
+                    const formatDuration = (hours) => {
+                        const wholeHours = Math.floor(hours);
+                        const minutes = Math.round((hours - wholeHours) * 60);
+
+                        if (minutes === 0) {
+                            return `${wholeHours} hour${wholeHours !== 1 ? 's' : ''}`;
+                        } else if (minutes === 60) {
+                            return `${wholeHours + 1} hour${wholeHours !== 0 ? 's' : ''}`;
+                        } else {
+                            return `${wholeHours} hour${wholeHours !== 1 ? 's' : ''} ${minutes} min`;
                         }
                     };
 
-                    // Open Razorpay payment modal
-                    const razorpayPayment = new Razorpay(options);
-                    razorpayPayment.open();
+                    const durationStr = formatDuration(totalDuration);
+
+                    // Calculate total price based on each slot's price
+                    const totalPrice = selectedSlots.reduce((sum, slot) => {
+                        return sum + parseInt(slot.getAttribute('data-price'));
+                    }, 0);
+
+                    // Update summary with animation
+                    const selectedTimeElement = document.querySelector('.selected-time');
+                    const selectedDurationElement = document.querySelector('.selected-duration');
+                    const priceAmountElement = document.querySelector('.price-amount');
+
+                    // Apply updates with fade effect
+                    const elements = [selectedTimeElement, selectedDurationElement, priceAmountElement];
+                    elements.forEach(el => el.style.transition = 'opacity 0.3s ease');
+                    elements.forEach(el => el.style.opacity = '0');
+
+                    setTimeout(() => {
+                        selectedTimeElement.textContent = `${startTimeStr} to ${endTimeStr}`;
+                        selectedDurationElement.textContent = durationStr;
+                        priceAmountElement.textContent = totalPrice;
+
+                        elements.forEach(el => el.style.opacity = '1');
+                    }, 300);
                 } else {
-                    // Show error message
+                    // Hide booking summary
+                    bookingSummary.classList.remove('active');
+                }
+            }
+
+            // Initial setup for the time slots
+            attachSlotEventListeners();
+
+            // Book now button
+            document.querySelector('.book-now-btn').addEventListener('click', function() {
+                if (selectedSlots.length === 0) {
+                    alert('Please select at least one time slot.');
+                    return;
+                }
+
+                // Get CSRF token from meta tag
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                if (!csrfToken) {
+                    console.error('CSRF token not found');
+                    alert('Security token missing. Please refresh the page and try again.');
+                    return;
+                }
+
+                // Prepare booking data
+                const bookingData = {
+                    ground_id: {{ $ground->id }},
+                    date: selectedDate,
+                    slot_ids: selectedSlots.map(slot => slot.getAttribute('data-slot-id')),
+                    time_slots: selectedSlots.map(slot => slot.getAttribute('data-time')),
+                    total_price: document.querySelector('.price-amount').textContent
+                };
+
+                // Change button state
+                const bookButton = this;
+                const originalButtonText = bookButton.innerHTML;
+                bookButton.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
+                bookButton.disabled = true;
+                bookButton.style.opacity = '0.7';
+
+                // Send booking request to server
+                fetch('/book-ground', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(bookingData)
+                })
+                .then(response => {
+                    // Check for authentication issues
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return null;
+                    }
+
+                    if (response.status === 401) {
+                        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.href);
+                        return null;
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) return; // Handle redirected cases
+
+                    if (data.success) {
+                        // Initialize Razorpay payment
+                        const options = {
+                            key: '{{ Config::get('services.razorpay.key') }}',
+                            amount: data.amount,
+                            currency: data.currency,
+                            name: 'GetBooking',
+                            description: 'Ground Booking Payment',
+                            order_id: data.order_id,
+                            handler: function (response) {
+                                // Send payment verification details to server
+                                fetch('/payment-callback', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': csrfToken,
+                                        'Accept': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        razorpay_payment_id: response.razorpay_payment_id,
+                                        razorpay_order_id: response.razorpay_order_id,
+                                        razorpay_signature: response.razorpay_signature
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        // Show success message
+                                        bookButton.innerHTML = `<i class="fas fa-check"></i> Booking Confirmed!`;
+                                        bookButton.style.background = '#28a745';
+                                        bookButton.style.opacity = '1';
+
+                                        // Create a custom toast notification
+                                        const toastDiv = document.createElement('div');
+                                        toastDiv.style.position = 'fixed';
+                                        toastDiv.style.top = '20px';
+                                        toastDiv.style.right = '20px';
+                                        toastDiv.style.zIndex = '9999';
+                                        toastDiv.style.backgroundColor = '#28a745';
+                                        toastDiv.style.color = 'white';
+                                        toastDiv.style.padding = '15px 25px';
+                                        toastDiv.style.borderRadius = '10px';
+                                        toastDiv.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+                                        toastDiv.style.minWidth = '300px';
+                                        toastDiv.style.transform = 'translateX(400px)';
+                                        toastDiv.style.transition = 'transform 0.3s ease-in-out';
+
+                                        toastDiv.innerHTML = `
+                                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                                <div style="display: flex; align-items: center;">
+                                                    <i class="fas fa-check-circle" style="margin-right: 10px; font-size: 20px;"></i>
+                                                    <strong>Booking Successful</strong>
+                                                </div>
+                                                <span id="close-toast" style="cursor: pointer; font-size: 20px;">&times;</span>
+                                            </div>
+                                            <p style="margin: 0;">${data.message || 'Booking confirmed successfully!'}</p>
+                                            <p style="margin: 5px 0 0 0;">Booking Reference: <strong>${data.booking_id || 'N/A'}</strong></p>
+                                        `;
+
+                                        document.body.appendChild(toastDiv);
+
+                                        // Display the toast with animation
+                                        setTimeout(() => {
+                                            toastDiv.style.transform = 'translateX(0)';
+                                        }, 10);
+
+                                        // Close button functionality
+                                        const closeToast = toastDiv.querySelector('#close-toast');
+                                        closeToast.addEventListener('click', () => {
+                                            toastDiv.style.transform = 'translateX(400px)';
+                                            setTimeout(() => {
+                                                toastDiv.remove();
+                                            }, 300);
+                                        });
+
+                                        // Auto-dismiss toast after 5 seconds
+                                        setTimeout(() => {
+                                            toastDiv.style.transform = 'translateX(400px)';
+                                            setTimeout(() => {
+                                                toastDiv.remove();
+                                            }, 300);
+                                        }, 5000);
+
+                                        // Reset booking form
+                                        resetSlotSelection();
+                                        document.querySelector('.booking-summary').classList.remove('active');
+
+                                        // Fetch updated slot availability without page reload
+                                        const activeDate = document.querySelector('.date-box.active');
+                                        if (activeDate) {
+                                            activeDate.click(); // This will refresh the slots for the current date
+                                        }
+                                    } else {
+                                        // Show error message
+                                        bookButton.innerHTML = originalButtonText;
+                                        bookButton.disabled = false;
+                                        bookButton.style.opacity = '1';
+                                        alert(data.message || 'Payment verification failed');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Payment verification error:', error);
+                                    bookButton.innerHTML = originalButtonText;
+                                    bookButton.disabled = false;
+                                    bookButton.style.opacity = '1';
+                                    alert('Payment verification failed. Please contact support.');
+                                });
+                            },
+                            prefill: {
+                                name: '{{ Auth::check() ? Auth::user()->name : "" }}',
+                                email: '{{ Auth::check() ? Auth::user()->email : "" }}',
+                                contact: '{{ Auth::check() ? Auth::user()->phone : "" }}'
+                            },
+                            theme: {
+                                color: '#3490dc'
+                            },
+                            modal: {
+                                ondismiss: function() {
+                                    // Reset button state if payment modal is dismissed
+                                    bookButton.innerHTML = originalButtonText;
+                                    bookButton.disabled = false;
+                                    bookButton.style.opacity = '1';
+                                }
+                            }
+                        };
+
+                        // Open Razorpay payment modal
+                        const razorpayPayment = new Razorpay(options);
+                        razorpayPayment.open();
+                    } else {
+                        // Show error message
+                        bookButton.innerHTML = originalButtonText;
+                        bookButton.disabled = false;
+                        bookButton.style.opacity = '1';
+
+                        // Show inline error message
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'alert alert-danger mt-3';
+                        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${data.message || 'Something went wrong. Please try again.'}`;
+                        bookButton.parentNode.appendChild(errorDiv);
+
+                        // Remove error message after 5 seconds
+                        setTimeout(() => {
+                            errorDiv.remove();
+                        }, 5000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error creating booking:', error);
                     bookButton.innerHTML = originalButtonText;
                     bookButton.disabled = false;
                     bookButton.style.opacity = '1';
 
-                    // Show inline error message
+                    // Show error message
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'alert alert-danger mt-3';
-                    errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${data.message || 'Something went wrong. Please try again.'}`;
+                    errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Something went wrong. Please try again later.`;
                     bookButton.parentNode.appendChild(errorDiv);
 
                     // Remove error message after 5 seconds
                     setTimeout(() => {
                         errorDiv.remove();
                     }, 5000);
+                });
+            });
+
+            // Add additional animations and effects
+            const statItems = document.querySelectorAll('.stat-number');
+
+            // Add stat circles styling
+            document.querySelectorAll('.stat-circle').forEach(circle => {
+                circle.style.width = '60px';
+                circle.style.height = '60px';
+                circle.style.borderRadius = '50%';
+                circle.style.background = 'rgba(52, 144, 220, 0.1)';
+                circle.style.display = 'flex';
+                circle.style.alignItems = 'center';
+                circle.style.justifyContent = 'center';
+                circle.style.margin = '0 auto';
+                circle.style.transition = 'all 0.3s ease';
+                circle.querySelector('i').style.color = '#3490dc';
+                circle.querySelector('i').style.fontSize = '1.5rem';
+
+                circle.addEventListener('mouseenter', () => {
+                    circle.style.transform = 'scale(1.1)';
+                    circle.style.background = 'rgba(52, 144, 220, 0.2)';
+                });
+
+                circle.addEventListener('mouseleave', () => {
+                    circle.style.transform = 'scale(1)';
+                    circle.style.background = 'rgba(52, 144, 220, 0.1)';
+                });
+            });
+        });
+    </script>
+
+<!-- Review Modal -->
+<div class="modal fade custom-modal" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient-primary text-white">
+                <h5 class="modal-title" id="reviewModalLabel">
+                    <i class="fas fa-star-half-alt mr-2"></i> Write a Review
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pb-0">
+                <form id="reviewForm">
+                    <input type="hidden" id="review_id" name="review_id">
+                    <input type="hidden" name="ground_id" value="{{ $ground->id }}">
+
+                    <div class="form-group text-center mb-4">
+                        <label class="d-block mb-3">How would you rate your experience?</label>
+                        <div class="rating-input">
+                            <i class="far fa-star" data-rating="1"></i>
+                            <i class="far fa-star" data-rating="2"></i>
+                            <i class="far fa-star" data-rating="3"></i>
+                            <i class="far fa-star" data-rating="4"></i>
+                            <i class="far fa-star" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" name="rating" id="rating_input" required>
+                        <div class="rating-text mt-2 text-muted small">Select a rating</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="review_comment" class="font-weight-bold">
+                            <i class="fas fa-comment-alt mr-1"></i> Share your experience
+                        </label>
+                        <textarea class="form-control" id="review_comment" name="comment" rows="4"
+                            placeholder="Tell others what you thought about this ground..." required></textarea>
+                        <div class="small text-muted mt-1">
+                            Your review helps others learn about this ground
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary btn-animated" id="submitReview">
+                    <i class="fas fa-paper-plane mr-1"></i> Submit Review
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reply Modal -->
+<div class="modal fade custom-modal" id="replyModal" tabindex="-1" role="dialog" aria-labelledby="replyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient-primary text-white">
+                <h5 class="modal-title" id="replyModalLabel">
+                    <i class="fas fa-reply mr-2"></i> Reply to Review
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pb-0">
+                <form id="replyForm">
+                    <input type="hidden" id="reply_id" name="reply_id">
+                    <input type="hidden" id="review_id_for_reply" name="review_id">
+
+                    <div class="form-group">
+                        <label for="reply_comment" class="font-weight-bold">
+                            <i class="fas fa-comment mr-1"></i> Your Response
+                        </label>
+                        <textarea class="form-control" id="reply_comment" name="comment" rows="3"
+                            placeholder="Share your thoughts about this review..." required></textarea>
+                        <div class="small text-muted mt-1">
+                            Be respectful and constructive in your response
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary btn-animated" id="submitReply">
+                    <i class="fas fa-paper-plane mr-1"></i> Submit Reply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade custom-modal" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient-danger text-white">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> Confirm Delete
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="mb-4">
+                    <i class="fas fa-trash-alt fa-3x text-danger mb-3" style="opacity: 0.7;"></i>
+                    <p class="lead mb-0">Are you sure you want to delete this?</p>
+                    <p class="text-muted">This action cannot be undone.</p>
+                </div>
+                <input type="hidden" id="delete_type">
+                <input type="hidden" id="delete_id">
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">
+                    <i class="fas fa-trash-alt mr-1"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Review functionality -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // CSRF token setup for AJAX requests
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        // Enhanced rating stars interaction
+        const ratingStars = document.querySelectorAll('.rating-input i');
+        let selectedRating = 0;
+        const ratingText = document.querySelector('.rating-text');
+        const ratingTexts = [
+            'Select a rating',
+            'Poor - Not recommended',
+            'Fair - Below average',
+            'Good - Average experience',
+            'Very good - Recommended',
+            'Excellent - Outstanding!'
+        ];
+
+        ratingStars.forEach(star => {
+            star.addEventListener('mouseover', function() {
+                const rating = parseInt(this.getAttribute('data-rating'));
+                updateStars(rating, 'hover');
+
+                // Update rating text on hover
+                if (ratingText) {
+                    ratingText.textContent = ratingTexts[rating];
+                    ratingText.style.color = getRatingColor(rating);
+                }
+            });
+
+            star.addEventListener('mouseout', function() {
+                updateStars(selectedRating, 'selected');
+
+                // Reset text to selected rating or default
+                if (ratingText) {
+                    ratingText.textContent = selectedRating > 0 ?
+                        ratingTexts[selectedRating] : ratingTexts[0];
+                    ratingText.style.color = selectedRating > 0 ?
+                        getRatingColor(selectedRating) : '';
+                }
+            });
+
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.getAttribute('data-rating'));
+                document.getElementById('rating_input').value = selectedRating;
+                updateStars(selectedRating, 'selected');
+
+                // Confirm selection with animation
+                const stars = document.querySelectorAll('.rating-input i');
+                stars.forEach(s => {
+                    s.style.animation = 'none';
+                    s.offsetHeight; // Trigger reflow
+                });
+
+                // Pulse animation for selected stars
+                for (let i = 0; i < selectedRating; i++) {
+                    stars[i].style.animation = `pulse 0.3s ${i * 0.05}s`;
+                }
+
+                // Update text for selected rating
+                if (ratingText) {
+                    ratingText.textContent = ratingTexts[selectedRating];
+                    ratingText.style.color = getRatingColor(selectedRating);
+                    ratingText.style.fontWeight = 'bold';
+                }
+            });
+        });
+
+        function updateStars(rating, mode) {
+            ratingStars.forEach((star, index) => {
+                const starRating = index + 1;
+                star.classList.remove('active-hover');
+
+                if (mode === 'hover') {
+                    if (starRating <= rating) {
+                        star.classList.remove('far');
+                        star.classList.add('fas', 'active-hover');
+                    } else {
+                        star.classList.remove('fas');
+                        star.classList.add('far');
+                    }
+                } else if (mode === 'selected') {
+                    if (starRating <= rating) {
+                        star.classList.remove('far');
+                        star.classList.add('fas');
+                    } else {
+                        star.classList.remove('fas');
+                        star.classList.add('far');
+                    }
+                }
+            });
+        }
+
+        function getRatingColor(rating) {
+            const colors = [
+                '', // No color for 0
+                '#dc3545', // Red for 1
+                '#fd7e14', // Orange for 2
+                '#ffc107', // Yellow for 3
+                '#28a745', // Green for 4
+                '#20c997'  // Teal for 5
+            ];
+            return colors[rating];
+        }
+
+        // Add pulse animation to CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.5); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Write Review Buttons (both in header and empty state)
+        const writeReviewBtn = document.getElementById('writeReviewBtn');
+        const writeReviewBtnEmpty = document.getElementById('writeReviewBtnEmpty');
+
+        if (writeReviewBtn) {
+            writeReviewBtn.addEventListener('click', function() {
+                resetReviewForm();
+                const reviewModal = $('#reviewModal');
+                reviewModal.modal('show');
+
+                // Add animation class
+                setTimeout(() => {
+                    document.querySelector('.rating-input').classList.add('pulse-animation');
+                    setTimeout(() => {
+                        document.querySelector('.rating-input').classList.remove('pulse-animation');
+                    }, 1000);
+                }, 300);
+            });
+        }
+
+        if (writeReviewBtnEmpty) {
+            writeReviewBtnEmpty.addEventListener('click', function() {
+                resetReviewForm();
+                const reviewModal = $('#reviewModal');
+                reviewModal.modal('show');
+
+                // Add animation class
+                setTimeout(() => {
+                    document.querySelector('.rating-input').classList.add('pulse-animation');
+                    setTimeout(() => {
+                        document.querySelector('.rating-input').classList.remove('pulse-animation');
+                    }, 1000);
+                }, 300);
+            });
+        }
+
+        // Edit Review Buttons
+        document.querySelectorAll('.edit-review-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const reviewId = this.getAttribute('data-review-id');
+
+                // Show loading state in the button
+                const originalBtnHtml = this.innerHTML;
+                this.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Loading...`;
+                this.disabled = true;
+
+                // Get review data via AJAX
+                fetch(`/get-review/${reviewId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Reset button state
+                        this.innerHTML = originalBtnHtml;
+                        this.disabled = false;
+
+                        if (data.success) {
+                            const review = data.review;
+
+                            // Populate form
+                            document.getElementById('review_id').value = review.id;
+                            document.getElementById('review_comment').value = review.comment;
+                            document.getElementById('rating_input').value = review.rating;
+                            selectedRating = review.rating;
+                            updateStars(review.rating, 'selected');
+
+                            // Update rating text
+                            if (ratingText) {
+                                ratingText.textContent = ratingTexts[review.rating];
+                                ratingText.style.color = getRatingColor(review.rating);
+                                ratingText.style.fontWeight = 'bold';
+                            }
+
+                            // Change modal title and button text
+                            document.getElementById('reviewModalLabel').innerHTML =
+                                `<i class="fas fa-edit mr-2"></i> Edit Your Review`;
+                            document.getElementById('submitReview').innerHTML =
+                                `<i class="fas fa-save mr-1"></i> Update Review`;
+
+                            // Show modal with animation
+                            const reviewModal = $('#reviewModal');
+                            reviewModal.modal('show');
+
+                            // Add special animation class to highlight that we're editing
+                            setTimeout(() => {
+                                document.querySelector('.rating-input').classList.add('edit-mode');
+                            }, 300);
+                        } else {
+                            showNotification('error', data.message || 'Failed to load review');
+                        }
+                    })
+                    .catch(error => {
+                        // Reset button state on error
+                        this.innerHTML = originalBtnHtml;
+                        this.disabled = false;
+
+                        console.error('Error loading review:', error);
+                        showNotification('error', 'Failed to load review. Please try again.');
+                    });
+            });
+        });
+
+        // Submit Review
+        document.getElementById('submitReview').addEventListener('click', function() {
+            const form = document.getElementById('reviewForm');
+            const formData = new FormData(form);
+            const reviewId = document.getElementById('review_id').value;
+
+            // Validate form
+            if (!formData.get('rating') || !formData.get('comment').trim()) {
+                showNotification('error', 'Please provide both rating and comment');
+                return;
+            }
+
+            // Determine if this is a new review or an edit
+            const endpoint = reviewId ? `/update-review/${reviewId}` : '/store-review';
+            const method = reviewId ? 'PUT' : 'POST';
+
+            // Submit form
+            fetch(endpoint, {
+                method: method,
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Hide modal
+                    $('#reviewModal').modal('hide');
+
+                    // Show success message
+                    showNotification('success', data.message || 'Review submitted successfully');
+
+                    // Reload page to show updated reviews
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showNotification('error', data.message || 'Failed to submit review');
                 }
             })
             .catch(error => {
-                console.error('Error creating booking:', error);
-                bookButton.innerHTML = originalButtonText;
-                bookButton.disabled = false;
-                bookButton.style.opacity = '1';
+                console.error('Error submitting review:', error);
+                showNotification('error', 'Failed to submit review. Please try again.');
+            });
+        });
 
-                // Show error message
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'alert alert-danger mt-3';
-                errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Something went wrong. Please try again later.`;
-                bookButton.parentNode.appendChild(errorDiv);
+        // Reply to Review
+        document.querySelectorAll('.reply-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const reviewId = this.getAttribute('data-review-id');
+                document.getElementById('review_id_for_reply').value = reviewId;
+                document.getElementById('reply_id').value = '';
+                document.getElementById('reply_comment').value = '';
+                document.getElementById('replyModalLabel').textContent = 'Reply to Review';
+                $('#replyModal').modal('show');
+            });
+        });
 
-                // Remove error message after 5 seconds
+        // Submit Reply
+        document.getElementById('submitReply').addEventListener('click', function() {
+            const form = document.getElementById('replyForm');
+            const formData = new FormData(form);
+            const replyId = document.getElementById('reply_id').value;
+
+            // Validate form
+            if (!formData.get('comment').trim()) {
+                showNotification('error', 'Please provide a comment');
+                return;
+            }
+
+            // Determine if this is a new reply or an edit
+            const endpoint = replyId ? `/update-reply/${replyId}` : '/store-reply';
+            const method = replyId ? 'PUT' : 'POST';
+
+            // Submit form
+            fetch(endpoint, {
+                method: method,
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Hide modal
+                    $('#replyModal').modal('hide');
+
+                    // Show success message
+                    showNotification('success', data.message || 'Reply submitted successfully');
+
+                    // Reload page to show updated replies
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showNotification('error', data.message || 'Failed to submit reply');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting reply:', error);
+                showNotification('error', 'Failed to submit reply. Please try again.');
+            });
+        });
+
+        // Edit Reply
+        document.querySelectorAll('.edit-reply-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const replyId = this.getAttribute('data-reply-id');
+
+                // Show loading state in the button
+                const originalBtnHtml = this.innerHTML;
+                this.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+                this.disabled = true;
+
+                // Get reply data via AJAX
+                fetch(`/get-reply/${replyId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Reset button state
+                        this.innerHTML = originalBtnHtml;
+                        this.disabled = false;
+
+                        if (data.success) {
+                            const reply = data.reply;
+
+                            // Populate form
+                            document.getElementById('reply_id').value = reply.id;
+                            document.getElementById('review_id_for_reply').value = reply.review_id;
+                            document.getElementById('reply_comment').value = reply.comment;
+
+                            // Change modal title and submit button
+                            document.getElementById('replyModalLabel').innerHTML =
+                                `<i class="fas fa-edit mr-2"></i> Edit Your Reply`;
+                            document.getElementById('submitReply').innerHTML =
+                                `<i class="fas fa-save mr-1"></i> Update Reply`;
+
+                            // Show modal with visual cue
+                            const replyModal = $('#replyModal');
+                            replyModal.modal('show');
+
+                            // Highlight the textarea to indicate editing mode
+                            const textarea = document.getElementById('reply_comment');
+                            textarea.style.boxShadow = '0 0 0 3px rgba(52, 144, 220, 0.3)';
+                            setTimeout(() => {
+                                textarea.style.boxShadow = '';
+                            }, 1000);
+
+                            // Set focus to textarea
+                            setTimeout(() => {
+                                textarea.focus();
+                                // Position cursor at the end
+                                textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+                            }, 400);
+                        } else {
+                            showNotification('error', data.message || 'Failed to load reply');
+                        }
+                    })
+                    .catch(error => {
+                        // Reset button state on error
+                        this.innerHTML = originalBtnHtml;
+                        this.disabled = false;
+
+                        console.error('Error loading reply:', error);
+                        showNotification('error', 'Failed to load reply. Please try again.');
+                    });
+            });
+        });
+
+        // Delete Review
+        document.querySelectorAll('.delete-review-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const reviewId = this.getAttribute('data-review-id');
+                document.getElementById('delete_type').value = 'review';
+                document.getElementById('delete_id').value = reviewId;
+                document.getElementById('deleteConfirmModalLabel').textContent = 'Delete Review';
+                document.querySelector('#deleteConfirmModal .modal-body p').textContent =
+                    'Are you sure you want to delete this review? This will also delete all replies to this review.';
+                $('#deleteConfirmModal').modal('show');
+            });
+        });
+
+        // Delete Reply
+        document.querySelectorAll('.delete-reply-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const replyId = this.getAttribute('data-reply-id');
+                document.getElementById('delete_type').value = 'reply';
+                document.getElementById('delete_id').value = replyId;
+                document.getElementById('deleteConfirmModalLabel').textContent = 'Delete Reply';
+                document.querySelector('#deleteConfirmModal .modal-body p').textContent =
+                    'Are you sure you want to delete this reply?';
+                $('#deleteConfirmModal').modal('show');
+            });
+        });
+
+        // Confirm Delete
+        document.getElementById('confirmDelete').addEventListener('click', function() {
+            const deleteType = document.getElementById('delete_type').value;
+            const deleteId = document.getElementById('delete_id').value;
+
+            // Determine endpoint based on type
+            const endpoint = deleteType === 'review' ?
+                `/delete-review/${deleteId}` : `/delete-reply/${deleteId}`;
+
+            // Send delete request
+            fetch(endpoint, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Hide modal
+                    $('#deleteConfirmModal').modal('hide');
+
+                    // Show success message
+                    showNotification('success', data.message || 'Deleted successfully');
+
+                    // Reload page to update UI
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showNotification('error', data.message || 'Failed to delete');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting:', error);
+                showNotification('error', 'Failed to delete. Please try again.');
+            });
+        });
+
+        // Helper Functions
+        function resetReviewForm() {
+            // Reset form fields
+            document.getElementById('review_id').value = '';
+            document.getElementById('review_comment').value = '';
+            document.getElementById('rating_input').value = '';
+            selectedRating = 0;
+            updateStars(0, 'selected');
+
+            // Reset UI elements
+            document.getElementById('reviewModalLabel').innerHTML = '<i class="fas fa-star-half-alt mr-2"></i> Write a Review';
+            document.getElementById('submitReview').innerHTML = '<i class="fas fa-paper-plane mr-1"></i> Submit Review';
+
+            // Reset rating text
+            if (ratingText) {
+                ratingText.textContent = 'Select a rating';
+                ratingText.style.color = '';
+                ratingText.style.fontWeight = '';
+            }
+
+            // Remove any special animation classes
+            document.querySelector('.rating-input').classList.remove('edit-mode');
+
+            // Reset any animations on stars
+            document.querySelectorAll('.rating-input i').forEach(star => {
+                star.style.animation = 'none';
+            });
+        }
+
+        function showNotification(type, message) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${alertClass} notification-alert`;
+            alertDiv.style.position = 'fixed';
+            alertDiv.style.top = '20px';
+            alertDiv.style.right = '20px';
+            alertDiv.style.zIndex = '9999';
+            alertDiv.style.minWidth = '300px';
+            alertDiv.style.padding = '15px 20px';
+            alertDiv.style.borderRadius = '5px';
+            alertDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+            alertDiv.style.transform = 'translateX(400px)';
+            alertDiv.style.transition = 'transform 0.3s ease';
+
+            alertDiv.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <i class="fas ${iconClass}" style="margin-right: 10px;"></i>
+                    <span>${message}</span>
+                    <button type="button" class="close ml-auto" style="margin-left: auto;">
+                        <span>&times;</span>
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(alertDiv);
+
+            // Show the notification
+            setTimeout(() => {
+                alertDiv.style.transform = 'translateX(0)';
+            }, 10);
+
+            // Close button functionality
+            const closeBtn = alertDiv.querySelector('.close');
+            closeBtn.addEventListener('click', () => {
+                alertDiv.style.transform = 'translateX(400px)';
                 setTimeout(() => {
-                    errorDiv.remove();
-                }, 5000);
-            });
-        });
-
-        // Add additional animations and effects
-        const statItems = document.querySelectorAll('.stat-number');
-
-        // Add stat circles styling
-        document.querySelectorAll('.stat-circle').forEach(circle => {
-            circle.style.width = '60px';
-            circle.style.height = '60px';
-            circle.style.borderRadius = '50%';
-            circle.style.background = 'rgba(52, 144, 220, 0.1)';
-            circle.style.display = 'flex';
-            circle.style.alignItems = 'center';
-            circle.style.justifyContent = 'center';
-            circle.style.margin = '0 auto';
-            circle.style.transition = 'all 0.3s ease';
-            circle.querySelector('i').style.color = '#3490dc';
-            circle.querySelector('i').style.fontSize = '1.5rem';
-
-            circle.addEventListener('mouseenter', () => {
-                circle.style.transform = 'scale(1.1)';
-                circle.style.background = 'rgba(52, 144, 220, 0.2)';
+                    alertDiv.remove();
+                }, 300);
             });
 
-            circle.addEventListener('mouseleave', () => {
-                circle.style.transform = 'scale(1)';
-                circle.style.background = 'rgba(52, 144, 220, 0.1)';
-            });
-        });
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.style.transform = 'translateX(400px)';
+                    setTimeout(() => {
+                        if (alertDiv.parentNode) {
+                            alertDiv.remove();
+                        }
+                    }, 300);
+                }
+            }, 5000);
+        }
     });
 </script>
 @endsection
