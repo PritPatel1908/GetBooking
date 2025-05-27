@@ -22,42 +22,48 @@ class ReviewController extends Controller
         $validator = Validator::make($request->all(), [
             'ground_id' => 'required|exists:grounds,id',
             'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'required|string|max:1000',
+            'comment' => 'required|string|min:5|max:500',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
+                'message' => $validator->errors()->first()
+            ]);
         }
 
-        // Check if user has already reviewed this ground
-        $existingReview = Review::where('user_id', Auth::id())
-            ->where('ground_id', $request->ground_id)
-            ->first();
+        try {
+            // Check if user already has a review for this ground
+            $existingReview = Review::where('user_id', Auth::id())
+                ->where('ground_id', $request->ground_id)
+                ->first();
 
-        if ($existingReview) {
+            if ($existingReview) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You have already reviewed this ground. Please edit your existing review.'
+                ]);
+            }
+
+            // Create new review
+            $review = new Review();
+            $review->user_id = Auth::id();
+            $review->ground_id = $request->ground_id;
+            $review->rating = $request->rating;
+            $review->comment = $request->comment;
+            $review->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Review submitted successfully!',
+                'review' => $review
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'You have already reviewed this ground'
-            ], 422);
+                'message' => 'Error submitting review: ' . $e->getMessage()
+            ]);
         }
-
-        // Create the review
-        $review = Review::create([
-            'user_id' => Auth::id(),
-            'ground_id' => $request->ground_id,
-            'rating' => $request->rating,
-            'comment' => $request->comment,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Review submitted successfully',
-            'review' => $review
-        ]);
     }
 
     /**
@@ -68,20 +74,19 @@ class ReviewController extends Controller
      */
     public function show($id)
     {
-        $review = Review::findOrFail($id);
+        try {
+            $review = Review::findOrFail($id);
 
-        // Check if the user is authorized to view this review
-        if (Auth::id() !== $review->user_id) {
+            return response()->json([
+                'success' => true,
+                'review' => $review
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'You are not authorized to view this review'
-            ], 403);
+                'message' => 'Error fetching review: ' . $e->getMessage()
+            ]);
         }
-
-        return response()->json([
-            'success' => true,
-            'review' => $review
-        ]);
     }
 
     /**
@@ -96,38 +101,43 @@ class ReviewController extends Controller
         // Validate the request data
         $validator = Validator::make($request->all(), [
             'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'required|string|max:1000',
+            'comment' => 'required|string|min:5|max:500',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
+                'message' => $validator->errors()->first()
+            ]);
         }
 
-        $review = Review::findOrFail($id);
+        try {
+            $review = Review::findOrFail($id);
 
-        // Check if the user is authorized to update this review
-        if (Auth::id() !== $review->user_id) {
+            // Check if the review belongs to the authenticated user
+            if ($review->user_id != Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You are not authorized to update this review.'
+                ], 403);
+            }
+
+            // Update the review
+            $review->rating = $request->rating;
+            $review->comment = $request->comment;
+            $review->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Review updated successfully!',
+                'review' => $review
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'You are not authorized to update this review'
-            ], 403);
+                'message' => 'Error updating review: ' . $e->getMessage()
+            ]);
         }
-
-        // Update the review
-        $review->update([
-            'rating' => $request->rating,
-            'comment' => $request->comment,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Review updated successfully',
-            'review' => $review
-        ]);
     }
 
     /**
@@ -138,22 +148,29 @@ class ReviewController extends Controller
      */
     public function destroy($id)
     {
-        $review = Review::findOrFail($id);
+        try {
+            $review = Review::findOrFail($id);
 
-        // Check if the user is authorized to delete this review
-        if (Auth::id() !== $review->user_id) {
+            // Check if the review belongs to the authenticated user
+            if ($review->user_id != Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You are not authorized to delete this review.'
+                ], 403);
+            }
+
+            // Delete the review (this will also delete all associated replies due to the cascade)
+            $review->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Review deleted successfully!'
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'You are not authorized to delete this review'
-            ], 403);
+                'message' => 'Error deleting review: ' . $e->getMessage()
+            ]);
         }
-
-        // Delete the review (this will also delete all associated replies due to the cascade)
-        $review->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Review deleted successfully'
-        ]);
     }
 }

@@ -6,6 +6,37 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
+    /* View More Button Styling */
+    #view-more-btn {
+        transition: all 0.3s ease;
+        padding: 10px 25px;
+        border-radius: 30px;
+        box-shadow: 0 4px 15px rgba(52, 144, 220, 0.15);
+    }
+
+    #view-more-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(52, 144, 220, 0.25);
+    }
+
+    #view-more-btn i {
+        transition: transform 0.3s ease;
+    }
+
+    #view-more-btn:hover i {
+        transform: translateY(3px);
+    }
+
+    /* Pulsating animation for View More button */
+    @keyframes pulse-border {
+        0% { box-shadow: 0 0 0 0 rgba(52, 144, 220, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(52, 144, 220, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(52, 144, 220, 0); }
+    }
+
+    .btn-animated {
+        animation: pulse-border 2s infinite;
+    }
     /* Enhanced Theme Colors */
     :root {
         --primary-color: #3490dc;
@@ -821,8 +852,41 @@
 
     /* Enhanced reviews section */
     .reviews-section {
-        margin-top: 3rem;
+        margin-top: 5rem;
         position: relative;
+        border-top: 1px solid #eee;
+        padding-top: 3rem;
+    }
+
+    .reviews-section:before {
+        content: '';
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 60px;
+        background-color: #fff;
+        border: 1px solid #eee;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+        box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    }
+
+    .reviews-section:after {
+        content: '\f005';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        position: absolute;
+        top: -18px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #ffc107;
+        font-size: 24px;
+        z-index: 2;
     }
 
     .reviews-header {
@@ -1731,6 +1795,246 @@
     .dark .custom-modal .btn-light:hover {
         background: #2d3748;
     }
+
+    /* Keep only the necessary styles for the review system */
+
+    /* Basic styling for the review section */
+    .review-section {
+        margin-top: 40px;
+        padding: 20px 0;
+    }
+
+    /* Simple rating stars with no background */
+    .rating-stars {
+        font-size: 1.8rem;
+        color: #ffc107;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .rating-stars i {
+        margin: 0 5px;
+        transition: transform 0.2s;
+    }
+
+    .rating-stars i:hover {
+        transform: scale(1.2);
+    }
+
+    /* Rating meaning text */
+    .rating-meaning {
+        text-align: center;
+        font-size: 1rem;
+        margin-bottom: 20px;
+        min-height: 24px;
+        color: #555;
+    }
+
+    /* Simple review form */
+    .review-form {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .review-input {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 1rem;
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .review-input:focus {
+        outline: none;
+        border-color: #3490dc;
+        box-shadow: 0 0 0 2px rgba(52, 144, 220, 0.25);
+    }
+
+    .submit-btn {
+        background: #3490dc;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+        background: #2779bd;
+        transform: translateY(-2px);
+    }
+
+        /* Enhanced review list */
+    .reviews-list {
+        margin-top: 40px;
+    }
+
+    .review-item {
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border-left: 4px solid #3490dc;
+        background-color: #f9f9f9;
+        transition: transform 0.2s ease;
+    }
+
+    .review-item:hover {
+        transform: translateY(-3px);
+    }
+
+    .review-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .reviewer-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .reviewer-name {
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: #333;
+    }
+
+    .review-date {
+        color: #777;
+        font-size: 0.9rem;
+    }
+
+    .review-stars-display {
+        color: #ffc107;
+        margin: 15px 0;
+        font-size: 1.2rem;
+    }
+
+    .review-stars-display i {
+        margin-right: 3px;
+    }
+
+    .review-stars-display span {
+        color: #555;
+        font-weight: 500;
+        margin-left: 10px;
+        vertical-align: middle;
+    }
+
+    .review-text {
+        margin-top: 15px;
+        line-height: 1.6;
+        font-size: 1.05rem;
+        color: #444;
+        padding: 5px 0;
+    }
+
+    /* Simple div with 2 partitions */
+    .review-container {
+        border: 1px solid #eee;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 20px 0;
+    }
+
+    .review-container-top {
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+        text-align: center;
+    }
+
+    .review-container-bottom {
+        padding: 20px;
+    }
+
+    /* Login reminder */
+    .login-reminder {
+        text-align: center;
+        margin: 30px 0;
+    }
+
+    .login-link {
+        color: #3490dc;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .login-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Review Section Title */
+    .review-section-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #333;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #eee;
+        position: relative;
+    }
+
+    .review-section-title:after {
+        content: '';
+        position: absolute;
+        width: 80px;
+        height: 3px;
+        background-color: #3490dc;
+        bottom: -2px;
+        left: 0;
+    }
+
+    /* Review Count */
+    .reviews-count {
+        display: flex;
+        align-items: baseline;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+
+    .review-count-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #3490dc;
+        margin-right: 10px;
+    }
+
+    .review-count-text {
+        font-size: 1.2rem;
+        color: #666;
+    }
+
+    /* For mobile responsiveness */
+    @media (max-width: 768px) {
+        .rating-stars {
+            font-size: 1.5rem;
+        }
+
+        .review-section-title {
+            font-size: 1.5rem;
+        }
+
+        .review-count-number {
+            font-size: 1.6rem;
+        }
+
+        .review-count-text {
+            font-size: 1rem;
+        }
+
+        .review-item {
+            padding: 15px;
+        }
+    }
 </style>
 @endsection
 
@@ -1787,7 +2091,13 @@
                     </div>
                     <div class="meta-item fade-in-delay-2">
                         <i class="fas fa-star"></i>
-                        <span>4.5 (150 reviews)</span>
+                        <span>
+                            @php
+                                $reviewsCount = $ground->reviews->count();
+                                $avgRating = $reviewsCount > 0 ? round($ground->reviews->avg('rating'), 1) : 0;
+                            @endphp
+                            {{ $avgRating }} ({{ $reviewsCount }} {{ Str::plural('review', $reviewsCount) }})
+                        </span>
                     </div>
                     <div class="meta-item fade-in-delay-3">
                         <i class="fas fa-rupee-sign"></i>
@@ -1978,155 +2288,108 @@
                 </div>
             </div>
 
-            <!-- Reviews Section -->
-            <div class="reviews-section" data-aos="fade-up">
-                <div class="reviews-header">
-                    <div class="d-flex align-items-center justify-content-between mb-4">
-                        <h3 class="reviews-title">
-                            <i class="fas fa-comments text-primary mr-2"></i>
-                            Reviews <span class="reviews-count">({{ count($ground->reviews) }})</span>
-                        </h3>
+            <!-- Enhanced Reviews Section -->
+            <div class="reviews-section mt-5 pt-4" data-aos="fade-up">
+                <h2 class="mb-4 review-section-title">
+                    <i class="fas fa-star text-warning mr-2"></i>
+                    Customer Reviews
+                </h2>
 
-                        @auth
-                            @php
-                                $userHasReviewed = $ground->reviews->where('user_id', Auth::id())->first();
-                            @endphp
+                @auth
+                    @php
+                        $userHasReviewed = $ground->reviews->where('user_id', Auth::id())->first();
+                    @endphp
 
-                            @if(!$userHasReviewed)
-                                <button class="btn btn-primary btn-animated write-review-btn" id="writeReviewBtn">
-                                    <i class="fas fa-star mr-2"></i> Write a Review
-                                </button>
-                            @endif
-                        @else
-                            <a href="{{ route('login') }}?redirect={{ url()->current() }}" class="btn btn-outline-primary login-to-review">
-                                <i class="fas fa-sign-in-alt mr-2"></i> Login to Review
-                            </a>
-                        @endauth
+                    @if(!$userHasReviewed)
+                        <div class="review-container">
+                            <div class="review-container-top">
+                                <h4 class="mb-3">Rate this ground</h4>
+                                <div class="rating-stars">
+                                    <i class="far fa-star" data-rating="1"></i>
+                                    <i class="far fa-star" data-rating="2"></i>
+                                    <i class="far fa-star" data-rating="3"></i>
+                                    <i class="far fa-star" data-rating="4"></i>
+                                    <i class="far fa-star" data-rating="5"></i>
+                                </div>
+                                <div class="rating-meaning">Select stars to rate</div>
+                            </div>
+
+                            <div class="review-container-bottom">
+                                <form id="reviewForm" class="review-form">
+                                    <input type="hidden" name="ground_id" value="{{ $ground->id }}">
+                                    <input type="hidden" name="rating" id="rating_input" value="">
+
+                                    <textarea class="review-input" name="comment" placeholder="Share your experience with this ground..." required></textarea>
+
+                                    <button type="button" id="submitReview" class="submit-btn">Submit Review</button>
+                                </form>
+                            </div>
+                        </div>
+                    @else
+                        <div class="review-container">
+                            <div class="review-container-top">
+                                <h4 class="mb-3">Edit your rating</h4>
+                                <div class="rating-stars edit-mode">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <i class="{{ $i <= $userHasReviewed->rating ? 'fas' : 'far' }} fa-star" data-rating="{{ $i }}"></i>
+                                    @endfor
+                                </div>
+                                <div class="rating-meaning">
+                                    {{ ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][$userHasReviewed->rating] }}
+                                </div>
+                            </div>
+
+                            <div class="review-container-bottom">
+                                <form id="reviewForm" class="review-form">
+                                    <input type="hidden" name="ground_id" value="{{ $ground->id }}">
+                                    <input type="hidden" name="rating" id="rating_input" value="{{ $userHasReviewed->rating }}">
+                                    <input type="hidden" id="review_id" value="{{ $userHasReviewed->id }}">
+
+                                    <textarea class="review-input" name="comment" required>{{ $userHasReviewed->comment }}</textarea>
+
+                                    <div class="d-flex justify-content-between">
+                                        <button type="button" id="submitReview" class="submit-btn">Update Review</button>
+                                        <button type="button" id="deleteReview" class="btn btn-outline-danger">Delete</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    @endif
+                @else
+                    <div class="login-reminder">
+                        <p>Please <a href="{{ route('login') }}?redirect={{ url()->current() }}" class="login-link">login</a> to leave a review</p>
+                    </div>
+                @endauth
+
+                <!-- Existing Reviews -->
+                <div class="reviews-list">
+                    <div class="reviews-count mb-4">
+                        <span class="review-count-number">{{ count($ground->reviews) }}</span>
+                        <span class="review-count-text">{{ count($ground->reviews) == 1 ? 'Review' : 'Reviews' }}</span>
                     </div>
 
-                    @auth
-                        @if($userHasReviewed)
-                            <div class="alert alert-info mb-4 user-reviewed-alert">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-info-circle mr-3 fa-lg"></i>
-                                    <div>
-                                        <strong>You've reviewed this ground</strong>
-                                        <p class="mb-0">You can edit your review below.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                    @else
-                        <div class="alert alert-warning mb-4 login-alert">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-sign-in-alt mr-3 fa-lg"></i>
-                                <div>
-                                    <strong>Want to share your experience?</strong>
-                                    <p class="mb-0">Please <a href="{{ route('login') }}?redirect={{ url()->current() }}" class="alert-link">login</a> to leave a review.</p>
-                                </div>
-                            </div>
-                        </div>
-                    @endauth
-                </div>
-
-                <!-- Review List -->
-                <div id="reviewsList">
                     @if($ground->reviews->count() > 0)
-                        @foreach($ground->reviews as $review)
-                            <div class="review-item" data-review-id="{{ $review->id }}">
-                                <div class="review-header">
-                                    <div class="reviewer-info">
-                                        <div class="reviewer-avatar">
-                                            <i class="fas fa-user-circle fa-2x"></i>
-                                        </div>
-                                        <div>
-                                            <div class="reviewer-name">{{ $review->user->name ?? 'Anonymous' }}</div>
-                                            <div class="review-date"><i class="far fa-calendar-alt mr-1"></i> {{ $review->created_at->format('M d, Y') }}</div>
-                                        </div>
-                                    </div>
-                                    @if(Auth::check() && Auth::id() == $review->user_id)
-                                        <div class="review-actions">
-                                            <button class="btn btn-sm btn-outline-primary edit-review-btn" data-review-id="{{ $review->id }}">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger delete-review-btn" data-review-id="{{ $review->id }}">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    @endif
-                                </div>
-                                <div class="review-stars">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        @if($i <= $review->rating)
-                                            <i class="fas fa-star"></i>
-                                        @else
-                                            <i class="far fa-star"></i>
-                                        @endif
-                                    @endfor
-                                    <span class="rating-text ml-2">{{ ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][$review->rating] }}</span>
-                                </div>
-                                <div class="review-text">{{ $review->comment }}</div>
-
-                                <!-- Reply Section -->
-                                <div class="review-replies mt-3">
-                                    @if($review->replies->count() > 0)
-                                        <div class="replies-container">
-                                            @foreach($review->replies as $reply)
-                                                <div class="reply-item" data-reply-id="{{ $reply->id }}">
-                                                    <div class="reply-header">
-                                                        <div class="replier-info">
-                                                            <span class="replier-badge"><i class="fas fa-reply-all mr-1"></i></span>
-                                                            <span class="replier-name">{{ $reply->user->name ?? 'Anonymous' }}</span>
-                                                            <span class="reply-date">{{ $reply->created_at->format('M d, Y') }}</span>
-                                                        </div>
-                                                        @if(Auth::check() && Auth::id() == $reply->user_id)
-                                                            <div class="reply-actions">
-                                                                <button class="btn btn-sm btn-link edit-reply-btn" data-reply-id="{{ $reply->id }}">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-sm btn-link text-danger delete-reply-btn" data-reply-id="{{ $reply->id }}">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </button>
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                    <div class="reply-text">{{ $reply->comment }}</div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @endif
-
-                                    @auth
-                                        <button class="btn btn-sm btn-outline-secondary reply-btn mt-2" data-review-id="{{ $review->id }}">
-                                            <i class="fas fa-reply"></i> Reply
-                                        </button>
-                                    @endauth
-                                </div>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="no-reviews-container">
-                            <div class="no-reviews-icon">
-                                <i class="far fa-comments fa-3x text-primary mb-3"></i>
-                            </div>
-                            <h4 class="no-reviews-title">No Reviews Yet</h4>
-                            <p class="no-reviews-text">Be the first to share your experience at this ground!</p>
-                            @auth
-                                <button class="btn btn-primary btn-animated mt-2" id="writeReviewBtnEmpty">
-                                    <i class="fas fa-star mr-2"></i> Write a Review
-                                </button>
-                            @else
-                                <a href="{{ route('login') }}?redirect={{ url()->current() }}" class="btn btn-outline-primary mt-2">
-                                    <i class="fas fa-sign-in-alt mr-2"></i> Login to Review
-                                </a>
-                            @endauth
+                        <div id="reviews-container">
+                            <!-- Reviews will be loaded here by JavaScript -->
                         </div>
+
+                                <div style="height: 10px;"></div>
+        <div class="text-center mb-4" id="view-more-container" style="display: none; padding-top: 20px;">
+            <button id="view-more-btn" class="btn btn-outline-primary btn-animated">
+                View More <i class="fas fa-chevron-down ml-1"></i>
+            </button>
+            <div class="mt-2 text-muted small">
+                <span id="reviews-shown-count">3</span> of <span id="total-reviews-count">0</span> reviews shown
+            </div>
+        </div>
+                    @else
+                        <p class="text-center text-muted">No reviews yet. Be the first to review!</p>
                     @endif
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-4">
+        {{-- <div class="col-lg-4">
             <!-- Location Map -->
             <div class="ground-info mb-4" data-aos="fade-left">
                 <h4 class="mb-3">Location</h4>
@@ -2183,7 +2446,7 @@
                         <div class="stat-circle mb-2">
                             <i class="fas fa-star"></i>
                         </div>
-                        <h5 class="stat-number">4.5</h5>
+                        <h5 class="stat-number">{{ $avgRating }}</h5>
                         <div class="stat-label">Rating</div>
                     </div>
                     <div class="col-4">
@@ -2195,7 +2458,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 </div>
 
@@ -2913,673 +3176,840 @@
         });
     </script>
 
-<!-- Review Modal -->
-<div class="modal fade custom-modal" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-gradient-primary text-white">
-                <h5 class="modal-title" id="reviewModalLabel">
-                    <i class="fas fa-star-half-alt mr-2"></i> Write a Review
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body pb-0">
-                <form id="reviewForm">
-                    <input type="hidden" id="review_id" name="review_id">
-                    <input type="hidden" name="ground_id" value="{{ $ground->id }}">
-
-                    <div class="form-group text-center mb-4">
-                        <label class="d-block mb-3">How would you rate your experience?</label>
-                        <div class="rating-input">
-                            <i class="far fa-star" data-rating="1"></i>
-                            <i class="far fa-star" data-rating="2"></i>
-                            <i class="far fa-star" data-rating="3"></i>
-                            <i class="far fa-star" data-rating="4"></i>
-                            <i class="far fa-star" data-rating="5"></i>
-                        </div>
-                        <input type="hidden" name="rating" id="rating_input" required>
-                        <div class="rating-text mt-2 text-muted small">Select a rating</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="review_comment" class="font-weight-bold">
-                            <i class="fas fa-comment-alt mr-1"></i> Share your experience
-                        </label>
-                        <textarea class="form-control" id="review_comment" name="comment" rows="4"
-                            placeholder="Tell others what you thought about this ground..." required></textarea>
-                        <div class="small text-muted mt-1">
-                            Your review helps others learn about this ground
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-light" data-dismiss="modal">
-                    <i class="fas fa-times mr-1"></i> Cancel
-                </button>
-                <button type="button" class="btn btn-primary btn-animated" id="submitReview">
-                    <i class="fas fa-paper-plane mr-1"></i> Submit Review
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Reply Modal -->
-<div class="modal fade custom-modal" id="replyModal" tabindex="-1" role="dialog" aria-labelledby="replyModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-gradient-primary text-white">
-                <h5 class="modal-title" id="replyModalLabel">
-                    <i class="fas fa-reply mr-2"></i> Reply to Review
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body pb-0">
-                <form id="replyForm">
-                    <input type="hidden" id="reply_id" name="reply_id">
-                    <input type="hidden" id="review_id_for_reply" name="review_id">
-
-                    <div class="form-group">
-                        <label for="reply_comment" class="font-weight-bold">
-                            <i class="fas fa-comment mr-1"></i> Your Response
-                        </label>
-                        <textarea class="form-control" id="reply_comment" name="comment" rows="3"
-                            placeholder="Share your thoughts about this review..." required></textarea>
-                        <div class="small text-muted mt-1">
-                            Be respectful and constructive in your response
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-light" data-dismiss="modal">
-                    <i class="fas fa-times mr-1"></i> Cancel
-                </button>
-                <button type="button" class="btn btn-primary btn-animated" id="submitReply">
-                    <i class="fas fa-paper-plane mr-1"></i> Submit Reply
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade custom-modal" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-gradient-danger text-white">
-                <h5 class="modal-title" id="deleteConfirmModalLabel">
-                    <i class="fas fa-exclamation-triangle mr-2"></i> Confirm Delete
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body text-center py-4">
-                <div class="mb-4">
-                    <i class="fas fa-trash-alt fa-3x text-danger mb-3" style="opacity: 0.7;"></i>
-                    <p class="lead mb-0">Are you sure you want to delete this?</p>
-                    <p class="text-muted">This action cannot be undone.</p>
-                </div>
-                <input type="hidden" id="delete_type">
-                <input type="hidden" id="delete_id">
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-light" data-dismiss="modal">
-                    <i class="fas fa-times mr-1"></i> Cancel
-                </button>
-                <button type="button" class="btn btn-danger" id="confirmDelete">
-                    <i class="fas fa-trash-alt mr-1"></i> Delete
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Review functionality -->
+<!-- Add simple JavaScript for the review functionality -->
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // CSRF token setup for AJAX requests
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the CSRF token
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        // Enhanced rating stars interaction
-        const ratingStars = document.querySelectorAll('.rating-input i');
-        let selectedRating = 0;
-        const ratingText = document.querySelector('.rating-text');
-        const ratingTexts = [
-            'Select a rating',
-            'Poor - Not recommended',
-            'Fair - Below average',
-            'Good - Average experience',
-            'Very good - Recommended',
-            'Excellent - Outstanding!'
-        ];
+        // Check if user is authenticated
+        const isAuthenticated = {{ Auth::check() ? 'true' : 'false' }};
 
-        ratingStars.forEach(star => {
-            star.addEventListener('mouseover', function() {
-                const rating = parseInt(this.getAttribute('data-rating'));
-                updateStars(rating, 'hover');
+        // Track current state of reviews
+        let allReviews = [];
+        let currentPage = 1;
+        const reviewsPerPage = 3;
+        const moreReviewsPerClick = 2;
 
-                // Update rating text on hover
-                if (ratingText) {
-                    ratingText.textContent = ratingTexts[rating];
-                    ratingText.style.color = getRatingColor(rating);
-                }
-            });
+        // Helper function to fetch and update reviews without page reload
+        function fetchUpdatedReviews() {
+            // Show loading state in reviews list
+            const reviewsContainer = document.getElementById('reviews-container');
+            const viewMoreContainer = document.getElementById('view-more-container');
+            const reviewsList = document.querySelector('.reviews-list');
 
-            star.addEventListener('mouseout', function() {
-                updateStars(selectedRating, 'selected');
-
-                // Reset text to selected rating or default
-                if (ratingText) {
-                    ratingText.textContent = selectedRating > 0 ?
-                        ratingTexts[selectedRating] : ratingTexts[0];
-                    ratingText.style.color = selectedRating > 0 ?
-                        getRatingColor(selectedRating) : '';
-                }
-            });
-
-            star.addEventListener('click', function() {
-                selectedRating = parseInt(this.getAttribute('data-rating'));
-                document.getElementById('rating_input').value = selectedRating;
-                updateStars(selectedRating, 'selected');
-
-                // Confirm selection with animation
-                const stars = document.querySelectorAll('.rating-input i');
-                stars.forEach(s => {
-                    s.style.animation = 'none';
-                    s.offsetHeight; // Trigger reflow
-                });
-
-                // Pulse animation for selected stars
-                for (let i = 0; i < selectedRating; i++) {
-                    stars[i].style.animation = `pulse 0.3s ${i * 0.05}s`;
-                }
-
-                // Update text for selected rating
-                if (ratingText) {
-                    ratingText.textContent = ratingTexts[selectedRating];
-                    ratingText.style.color = getRatingColor(selectedRating);
-                    ratingText.style.fontWeight = 'bold';
-                }
-            });
-        });
-
-        function updateStars(rating, mode) {
-            ratingStars.forEach((star, index) => {
-                const starRating = index + 1;
-                star.classList.remove('active-hover');
-
-                if (mode === 'hover') {
-                    if (starRating <= rating) {
-                        star.classList.remove('far');
-                        star.classList.add('fas', 'active-hover');
-                    } else {
-                        star.classList.remove('fas');
-                        star.classList.add('far');
-                    }
-                } else if (mode === 'selected') {
-                    if (starRating <= rating) {
-                        star.classList.remove('far');
-                        star.classList.add('fas');
-                    } else {
-                        star.classList.remove('fas');
-                        star.classList.add('far');
-                    }
-                }
-            });
-        }
-
-        function getRatingColor(rating) {
-            const colors = [
-                '', // No color for 0
-                '#dc3545', // Red for 1
-                '#fd7e14', // Orange for 2
-                '#ffc107', // Yellow for 3
-                '#28a745', // Green for 4
-                '#20c997'  // Teal for 5
-            ];
-            return colors[rating];
-        }
-
-        // Add pulse animation to CSS
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes pulse {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.5); }
-                100% { transform: scale(1); }
+            if (reviewsContainer) {
+                reviewsContainer.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Loading reviews...</div>';
             }
-        `;
-        document.head.appendChild(style);
 
-        // Write Review Buttons (both in header and empty state)
-        const writeReviewBtn = document.getElementById('writeReviewBtn');
-        const writeReviewBtnEmpty = document.getElementById('writeReviewBtnEmpty');
+            if (viewMoreContainer) {
+                viewMoreContainer.style.display = 'none';
+            }
 
-        if (writeReviewBtn) {
-            writeReviewBtn.addEventListener('click', function() {
-                resetReviewForm();
-                const reviewModal = $('#reviewModal');
-                reviewModal.modal('show');
+            // Reset current page
+            currentPage = 1;
 
-                // Add animation class
-                setTimeout(() => {
-                    document.querySelector('.rating-input').classList.add('pulse-animation');
-                    setTimeout(() => {
-                        document.querySelector('.rating-input').classList.remove('pulse-animation');
-                    }, 1000);
-                }, 300);
-            });
-        }
+            // Fetch updated reviews
+            fetch(`/get-ground-reviews/{{ $ground->id }}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && reviewsList) {
+                    // Store all reviews
+                    allReviews = data.reviews;
 
-        if (writeReviewBtnEmpty) {
-            writeReviewBtnEmpty.addEventListener('click', function() {
-                resetReviewForm();
-                const reviewModal = $('#reviewModal');
-                reviewModal.modal('show');
+                                        // Update reviews count
+                    const reviewCount = allReviews.length;
+                    const reviewsCountElement = document.querySelector('.reviews-count');
 
-                // Add animation class
-                setTimeout(() => {
-                    document.querySelector('.rating-input').classList.add('pulse-animation');
-                    setTimeout(() => {
-                        document.querySelector('.rating-input').classList.remove('pulse-animation');
-                    }, 1000);
-                }, 300);
-            });
-        }
+                    if (reviewsCountElement) {
+                        reviewsCountElement.innerHTML = `
+                            <span class="review-count-number">${reviewCount}</span>
+                            <span class="review-count-text">${reviewCount == 1 ? 'Review' : 'Reviews'}</span>
+                        `;
+                    }
 
-        // Edit Review Buttons
-        document.querySelectorAll('.edit-review-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const reviewId = this.getAttribute('data-review-id');
+                    // Update total reviews count in the view more section
+                    document.getElementById('total-reviews-count').textContent = reviewCount;
 
-                // Show loading state in the button
-                const originalBtnHtml = this.innerHTML;
-                this.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Loading...`;
-                this.disabled = true;
+                    // Add reviews or no reviews message
+                    if (reviewCount > 0) {
+                        // Clear container
+                        reviewsContainer.innerHTML = '';
 
-                // Get review data via AJAX
-                fetch(`/get-review/${reviewId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Reset button state
-                        this.innerHTML = originalBtnHtml;
-                        this.disabled = false;
+                                                // Show initial batch of reviews
+                        displayReviews(allReviews.slice(0, reviewsPerPage));
 
-                        if (data.success) {
-                            const review = data.review;
+                        // Update reviews shown count
+                        document.getElementById('reviews-shown-count').textContent = Math.min(reviewsPerPage, reviewCount);
 
-                            // Populate form
-                            document.getElementById('review_id').value = review.id;
-                            document.getElementById('review_comment').value = review.comment;
-                            document.getElementById('rating_input').value = review.rating;
-                            selectedRating = review.rating;
-                            updateStars(review.rating, 'selected');
-
-                            // Update rating text
-                            if (ratingText) {
-                                ratingText.textContent = ratingTexts[review.rating];
-                                ratingText.style.color = getRatingColor(review.rating);
-                                ratingText.style.fontWeight = 'bold';
-                            }
-
-                            // Change modal title and button text
-                            document.getElementById('reviewModalLabel').innerHTML =
-                                `<i class="fas fa-edit mr-2"></i> Edit Your Review`;
-                            document.getElementById('submitReview').innerHTML =
-                                `<i class="fas fa-save mr-1"></i> Update Review`;
-
-                            // Show modal with animation
-                            const reviewModal = $('#reviewModal');
-                            reviewModal.modal('show');
-
-                            // Add special animation class to highlight that we're editing
-                            setTimeout(() => {
-                                document.querySelector('.rating-input').classList.add('edit-mode');
-                            }, 300);
+                        // Show view more button if there are more reviews
+                        if (reviewCount > reviewsPerPage) {
+                            viewMoreContainer.style.display = 'block';
                         } else {
-                            showNotification('error', data.message || 'Failed to load review');
+                            viewMoreContainer.style.display = 'none';
                         }
-                    })
-                    .catch(error => {
-                        // Reset button state on error
-                        this.innerHTML = originalBtnHtml;
-                        this.disabled = false;
 
-                        console.error('Error loading review:', error);
-                        showNotification('error', 'Failed to load review. Please try again.');
-                    });
+                        // Calculate average rating
+                        const totalRating = allReviews.reduce((sum, review) => sum + review.rating, 0);
+                        const avgRating = reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : 0;
+
+                        // Update the rating in the ground meta section
+                        const ratingMetaItem = document.querySelector('.meta-item.fade-in-delay-2 span');
+                        if (ratingMetaItem) {
+                            ratingMetaItem.textContent = `${avgRating} (${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'})`;
+                        }
+                    } else {
+                        reviewsContainer.innerHTML = '<p class="text-center text-muted">No reviews yet. Be the first to review!</p>';
+                        viewMoreContainer.style.display = 'none';
+
+                        // Update the rating in the ground meta section to show 0
+                        const ratingMetaItem = document.querySelector('.meta-item.fade-in-delay-2 span');
+                        if (ratingMetaItem) {
+                            ratingMetaItem.textContent = `0 (0 reviews)`;
+                        }
+                    }
+
+                    // If there's a review form, update it based on current user's review status
+                    if (data.userReview) {
+                        updateReviewForm(data.userReview);
+                    } else {
+                        resetReviewForm();
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching reviews:', error);
+                if (reviewsContainer) {
+                    reviewsContainer.innerHTML = '<div class="alert alert-danger">Error loading reviews. Please refresh the page.</div>';
+                }
             });
+        }
+
+                // Function to display a batch of reviews
+        function displayReviews(reviews) {
+            const reviewsContainer = document.getElementById('reviews-container');
+
+            if (!reviewsContainer) return;
+
+            reviews.forEach((review, index) => {
+                const reviewElement = createReviewElement(review);
+
+                // Add fade-in animation class with staggered delay
+                reviewElement.style.opacity = '0';
+                reviewElement.style.transform = 'translateY(20px)';
+                reviewElement.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+
+                reviewsContainer.appendChild(reviewElement);
+
+                // Trigger animation after a slight delay (staggered effect)
+                setTimeout(() => {
+                    reviewElement.style.opacity = '1';
+                    reviewElement.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+        }
+
+                // Handle view more button click
+        document.getElementById('view-more-btn')?.addEventListener('click', function() {
+            // Calculate which reviews to show next
+            const startIndex = currentPage * reviewsPerPage;
+            const endIndex = startIndex + moreReviewsPerClick;
+            const nextReviews = allReviews.slice(startIndex, endIndex);
+
+            // Display the next batch of reviews
+            displayReviews(nextReviews);
+
+            // Update current page
+            currentPage++;
+
+            // Update reviews shown count
+            const reviewsShownCount = Math.min(currentPage * reviewsPerPage + (currentPage - 1) * (moreReviewsPerClick - reviewsPerPage), allReviews.length);
+            document.getElementById('reviews-shown-count').textContent = reviewsShownCount;
+
+            // Hide view more button if no more reviews
+            if (endIndex >= allReviews.length) {
+                document.getElementById('view-more-container').style.display = 'none';
+            }
+
+            // Show loading animation on button
+            const viewMoreBtn = document.getElementById('view-more-btn');
+            const originalText = viewMoreBtn.innerHTML;
+
+            viewMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+
+            // Restore button text after a short delay (for better UX)
+            setTimeout(() => {
+                viewMoreBtn.innerHTML = originalText;
+            }, 500);
+
+            // Scroll to the newly loaded reviews
+            const lastReviewBeforeLoad = document.querySelectorAll('.review-item')[startIndex - 1];
+            if (lastReviewBeforeLoad) {
+                setTimeout(() => {
+                    lastReviewBeforeLoad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
         });
 
-        // Submit Review
-        document.getElementById('submitReview').addEventListener('click', function() {
+        // Helper function to update the review form for editing
+        function updateReviewForm(userReview) {
             const form = document.getElementById('reviewForm');
-            const formData = new FormData(form);
-            const reviewId = document.getElementById('review_id').value;
+            if (!form) return;
 
-            // Validate form
-            if (!formData.get('rating') || !formData.get('comment').trim()) {
-                showNotification('error', 'Please provide both rating and comment');
-                return;
+            // Set the review ID for editing
+            let reviewIdInput = document.getElementById('review_id');
+            if (!reviewIdInput) {
+                reviewIdInput = document.createElement('input');
+                reviewIdInput.type = 'hidden';
+                reviewIdInput.id = 'review_id';
+                form.appendChild(reviewIdInput);
+            }
+            reviewIdInput.value = userReview.id;
+
+            // Update rating display
+            document.getElementById('rating_input').value = userReview.rating;
+            const ratingStars = document.querySelectorAll('.rating-stars i');
+            ratingStars.forEach((star, index) => {
+                if (index < userReview.rating) {
+                    star.classList.remove('far');
+                    star.classList.add('fas');
+                } else {
+                    star.classList.remove('fas');
+                    star.classList.add('far');
+                }
+            });
+
+            // Update rating meaning
+            const ratingMeaning = document.querySelector('.rating-meaning');
+            if (ratingMeaning) {
+                const ratingTexts = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+                ratingMeaning.textContent = ratingTexts[userReview.rating];
             }
 
-            // Determine if this is a new review or an edit
-            const endpoint = reviewId ? `/update-review/${reviewId}` : '/store-review';
-            const method = reviewId ? 'PUT' : 'POST';
-
-            // Submit form
-            fetch(endpoint, {
-                method: method,
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Hide modal
-                    $('#reviewModal').modal('hide');
-
-                    // Show success message
-                    showNotification('success', data.message || 'Review submitted successfully');
-
-                    // Reload page to show updated reviews
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    showNotification('error', data.message || 'Failed to submit review');
-                }
-            })
-            .catch(error => {
-                console.error('Error submitting review:', error);
-                showNotification('error', 'Failed to submit review. Please try again.');
-            });
-        });
-
-        // Reply to Review
-        document.querySelectorAll('.reply-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const reviewId = this.getAttribute('data-review-id');
-                document.getElementById('review_id_for_reply').value = reviewId;
-                document.getElementById('reply_id').value = '';
-                document.getElementById('reply_comment').value = '';
-                document.getElementById('replyModalLabel').textContent = 'Reply to Review';
-                $('#replyModal').modal('show');
-            });
-        });
-
-        // Submit Reply
-        document.getElementById('submitReply').addEventListener('click', function() {
-            const form = document.getElementById('replyForm');
-            const formData = new FormData(form);
-            const replyId = document.getElementById('reply_id').value;
-
-            // Validate form
-            if (!formData.get('comment').trim()) {
-                showNotification('error', 'Please provide a comment');
-                return;
+            // Update comment textarea
+            const commentTextarea = form.querySelector('textarea[name="comment"]');
+            if (commentTextarea) {
+                commentTextarea.value = userReview.comment;
             }
 
-            // Determine if this is a new reply or an edit
-            const endpoint = replyId ? `/update-reply/${replyId}` : '/store-reply';
-            const method = replyId ? 'PUT' : 'POST';
-
-            // Submit form
-            fetch(endpoint, {
-                method: method,
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Hide modal
-                    $('#replyModal').modal('hide');
-
-                    // Show success message
-                    showNotification('success', data.message || 'Reply submitted successfully');
-
-                    // Reload page to show updated replies
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    showNotification('error', data.message || 'Failed to submit reply');
-                }
-            })
-            .catch(error => {
-                console.error('Error submitting reply:', error);
-                showNotification('error', 'Failed to submit reply. Please try again.');
-            });
-        });
-
-        // Edit Reply
-        document.querySelectorAll('.edit-reply-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const replyId = this.getAttribute('data-reply-id');
-
-                // Show loading state in the button
-                const originalBtnHtml = this.innerHTML;
-                this.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
-                this.disabled = true;
-
-                // Get reply data via AJAX
-                fetch(`/get-reply/${replyId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Reset button state
-                        this.innerHTML = originalBtnHtml;
-                        this.disabled = false;
-
-                        if (data.success) {
-                            const reply = data.reply;
-
-                            // Populate form
-                            document.getElementById('reply_id').value = reply.id;
-                            document.getElementById('review_id_for_reply').value = reply.review_id;
-                            document.getElementById('reply_comment').value = reply.comment;
-
-                            // Change modal title and submit button
-                            document.getElementById('replyModalLabel').innerHTML =
-                                `<i class="fas fa-edit mr-2"></i> Edit Your Reply`;
-                            document.getElementById('submitReply').innerHTML =
-                                `<i class="fas fa-save mr-1"></i> Update Reply`;
-
-                            // Show modal with visual cue
-                            const replyModal = $('#replyModal');
-                            replyModal.modal('show');
-
-                            // Highlight the textarea to indicate editing mode
-                            const textarea = document.getElementById('reply_comment');
-                            textarea.style.boxShadow = '0 0 0 3px rgba(52, 144, 220, 0.3)';
-                            setTimeout(() => {
-                                textarea.style.boxShadow = '';
-                            }, 1000);
-
-                            // Set focus to textarea
-                            setTimeout(() => {
-                                textarea.focus();
-                                // Position cursor at the end
-                                textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-                            }, 400);
-                        } else {
-                            showNotification('error', data.message || 'Failed to load reply');
-                        }
-                    })
-                    .catch(error => {
-                        // Reset button state on error
-                        this.innerHTML = originalBtnHtml;
-                        this.disabled = false;
-
-                        console.error('Error loading reply:', error);
-                        showNotification('error', 'Failed to load reply. Please try again.');
-                    });
-            });
-        });
-
-        // Delete Review
-        document.querySelectorAll('.delete-review-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const reviewId = this.getAttribute('data-review-id');
-                document.getElementById('delete_type').value = 'review';
-                document.getElementById('delete_id').value = reviewId;
-                document.getElementById('deleteConfirmModalLabel').textContent = 'Delete Review';
-                document.querySelector('#deleteConfirmModal .modal-body p').textContent =
-                    'Are you sure you want to delete this review? This will also delete all replies to this review.';
-                $('#deleteConfirmModal').modal('show');
-            });
-        });
-
-        // Delete Reply
-        document.querySelectorAll('.delete-reply-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const replyId = this.getAttribute('data-reply-id');
-                document.getElementById('delete_type').value = 'reply';
-                document.getElementById('delete_id').value = replyId;
-                document.getElementById('deleteConfirmModalLabel').textContent = 'Delete Reply';
-                document.querySelector('#deleteConfirmModal .modal-body p').textContent =
-                    'Are you sure you want to delete this reply?';
-                $('#deleteConfirmModal').modal('show');
-            });
-        });
-
-        // Confirm Delete
-        document.getElementById('confirmDelete').addEventListener('click', function() {
-            const deleteType = document.getElementById('delete_type').value;
-            const deleteId = document.getElementById('delete_id').value;
-
-            // Determine endpoint based on type
-            const endpoint = deleteType === 'review' ?
-                `/delete-review/${deleteId}` : `/delete-reply/${deleteId}`;
-
-            // Send delete request
-            fetch(endpoint, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Hide modal
-                    $('#deleteConfirmModal').modal('hide');
-
-                    // Show success message
-                    showNotification('success', data.message || 'Deleted successfully');
-
-                    // Reload page to update UI
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    showNotification('error', data.message || 'Failed to delete');
-                }
-            })
-            .catch(error => {
-                console.error('Error deleting:', error);
-                showNotification('error', 'Failed to delete. Please try again.');
-            });
-        });
-
-        // Helper Functions
-        function resetReviewForm() {
-            // Reset form fields
-            document.getElementById('review_id').value = '';
-            document.getElementById('review_comment').value = '';
-            document.getElementById('rating_input').value = '';
-            selectedRating = 0;
-            updateStars(0, 'selected');
-
-            // Reset UI elements
-            document.getElementById('reviewModalLabel').innerHTML = '<i class="fas fa-star-half-alt mr-2"></i> Write a Review';
-            document.getElementById('submitReview').innerHTML = '<i class="fas fa-paper-plane mr-1"></i> Submit Review';
-
-            // Reset rating text
-            if (ratingText) {
-                ratingText.textContent = 'Select a rating';
-                ratingText.style.color = '';
-                ratingText.style.fontWeight = '';
+            // Update submit button text
+            const submitButton = document.getElementById('submitReview');
+            if (submitButton) {
+                submitButton.textContent = 'Update Review';
             }
 
-            // Remove any special animation classes
-            document.querySelector('.rating-input').classList.remove('edit-mode');
-
-            // Reset any animations on stars
-            document.querySelectorAll('.rating-input i').forEach(star => {
-                star.style.animation = 'none';
-            });
+            // Show delete button if it exists
+            const deleteButton = document.getElementById('deleteReview');
+            if (deleteButton) {
+                deleteButton.style.display = 'inline-block';
+            }
         }
 
-        function showNotification(type, message) {
-            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-            const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+        // Helper function to reset the review form for new review
+        function resetReviewForm() {
+            const form = document.getElementById('reviewForm');
+            if (!form) return;
 
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert ${alertClass} notification-alert`;
-            alertDiv.style.position = 'fixed';
-            alertDiv.style.top = '20px';
-            alertDiv.style.right = '20px';
-            alertDiv.style.zIndex = '9999';
-            alertDiv.style.minWidth = '300px';
-            alertDiv.style.padding = '15px 20px';
-            alertDiv.style.borderRadius = '5px';
-            alertDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-            alertDiv.style.transform = 'translateX(400px)';
-            alertDiv.style.transition = 'transform 0.3s ease';
+            // Remove review ID input
+            const reviewIdInput = document.getElementById('review_id');
+            if (reviewIdInput) {
+                reviewIdInput.remove();
+            }
 
-            alertDiv.innerHTML = `
-                <div style="display: flex; align-items: center;">
-                    <i class="fas ${iconClass}" style="margin-right: 10px;"></i>
-                    <span>${message}</span>
-                    <button type="button" class="close ml-auto" style="margin-left: auto;">
-                        <span>&times;</span>
-                    </button>
+            // Reset rating display
+            document.getElementById('rating_input').value = '';
+            const ratingStars = document.querySelectorAll('.rating-stars i');
+            ratingStars.forEach(star => {
+                star.classList.remove('fas');
+                star.classList.add('far');
+            });
+
+            // Reset rating meaning
+            const ratingMeaning = document.querySelector('.rating-meaning');
+            if (ratingMeaning) {
+                ratingMeaning.textContent = 'Select stars to rate';
+            }
+
+            // Clear comment textarea
+            const commentTextarea = form.querySelector('textarea[name="comment"]');
+            if (commentTextarea) {
+                commentTextarea.value = '';
+            }
+
+            // Update submit button text
+            const submitButton = document.getElementById('submitReview');
+            if (submitButton) {
+                submitButton.textContent = 'Submit Review';
+            }
+
+            // Hide delete button if it exists
+            const deleteButton = document.getElementById('deleteReview');
+            if (deleteButton) {
+                deleteButton.style.display = 'none';
+            }
+        }
+
+        // Helper function to create review element
+        function createReviewElement(review) {
+            const reviewItem = document.createElement('div');
+            reviewItem.className = 'review-item';
+
+            // Generate star HTML
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= review.rating) {
+                    starsHtml += '<i class="fas fa-star"></i>';
+                } else {
+                    starsHtml += '<i class="far fa-star"></i>';
+                }
+            }
+
+            // Format date
+            const reviewDate = new Date(review.created_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            // Determine rating text
+            const ratingTexts = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+            const ratingText = ratingTexts[review.rating] || '';
+
+            reviewItem.innerHTML = `
+                <div class="reviewer-info">
+                    <div class="reviewer-name">
+                        <i class="fas fa-user-circle mr-2"></i>
+                        ${review.user ? review.user.name : 'Anonymous'}
+                    </div>
+                    <div class="review-date">
+                        <i class="far fa-calendar-alt mr-1"></i>
+                        ${reviewDate}
+                    </div>
+                </div>
+                <div class="review-stars-display">
+                    ${starsHtml}
+                    <span>${ratingText}</span>
+                </div>
+                <div class="review-text">
+                    <i class="fas fa-quote-left text-muted mr-2" style="opacity: 0.3; font-size: 0.9rem;"></i>
+                    ${review.comment}
+                    <i class="fas fa-quote-right text-muted ml-2" style="opacity: 0.3; font-size: 0.9rem;"></i>
+                </div>
+                ${review.replies && review.replies.length > 0 ? `
+                    <div class="review-replies mt-3">
+                        <h6 class="mb-2"><i class="fas fa-reply mr-1"></i> Replies</h6>
+                        <div class="replies-container">
+                            ${review.replies.map(reply => `
+                                <div class="reply-item">
+                                    <div class="reply-header">
+                                        <div class="replier-info">
+                                            <i class="fas fa-user-circle mr-1"></i>
+                                            <span class="replier-name">${reply.user ? reply.user.name : 'Anonymous'}</span>
+                                            ${reply.user && reply.user.is_admin ? '<span class="replier-badge">Admin</span>' :
+                                              reply.user && reply.user.is_ground_owner ? '<span class="replier-badge">Ground Owner</span>' : ''}
+                                        </div>
+                                        <div class="reply-date">
+                                            ${new Date(reply.created_at).toLocaleDateString('en-US', {
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric'
+                                            })}
+                                        </div>
+                                    </div>
+                                    <div class="reply-text">
+                                        ${reply.comment}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+                ${isAuthenticated ? `
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-outline-primary reply-btn" data-review-id="${review.id}">
+                            <i class="fas fa-reply mr-1"></i> Reply
+                        </button>
+                    </div>
+                ` : ''}
+            `;
+
+            // Add event listener for reply button if authenticated
+            if (isAuthenticated) {
+                const replyBtn = reviewItem.querySelector('.reply-btn');
+                if (replyBtn) {
+                    replyBtn.addEventListener('click', function() {
+                        showReplyModal(review.id);
+                    });
+                }
+            }
+
+            return reviewItem;
+        }
+
+        // Helper function to show toast messages
+        function showToast(type, message) {
+            // Remove any existing toasts
+            const existingToasts = document.querySelectorAll('.custom-toast');
+            existingToasts.forEach(toast => toast.remove());
+
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `custom-toast ${type}`;
+            toast.style.position = 'fixed';
+            toast.style.top = '20px';
+            toast.style.right = '20px';
+            toast.style.padding = '15px 25px';
+            toast.style.borderRadius = '8px';
+            toast.style.minWidth = '300px';
+            toast.style.zIndex = '9999';
+            toast.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+            toast.style.transform = 'translateX(400px)';
+            toast.style.transition = 'transform 0.3s ease';
+
+            // Set toast color based on type
+            if (type === 'success') {
+                toast.style.backgroundColor = '#28a745';
+                toast.style.color = 'white';
+            } else if (type === 'error') {
+                toast.style.backgroundColor = '#dc3545';
+                toast.style.color = 'white';
+            } else {
+                toast.style.backgroundColor = '#17a2b8';
+                toast.style.color = 'white';
+            }
+
+            // Create toast content
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}" style="margin-right: 10px;"></i>
+                        <span>${message}</span>
+                    </div>
+                    <span style="cursor: pointer; margin-left: 15px;" onclick="this.parentNode.parentNode.remove();">×</span>
                 </div>
             `;
 
-            document.body.appendChild(alertDiv);
+            // Add toast to the document
+            document.body.appendChild(toast);
 
-            // Show the notification
+            // Show toast with animation
             setTimeout(() => {
-                alertDiv.style.transform = 'translateX(0)';
-            }, 10);
+                toast.style.transform = 'translateX(0)';
+            }, 100);
 
-            // Close button functionality
-            const closeBtn = alertDiv.querySelector('.close');
-            closeBtn.addEventListener('click', () => {
-                alertDiv.style.transform = 'translateX(400px)';
+            // Auto-hide toast after 5 seconds
+            setTimeout(() => {
+                toast.style.transform = 'translateX(400px)';
                 setTimeout(() => {
-                    alertDiv.remove();
+                    toast.remove();
                 }, 300);
-            });
-
-            // Auto-dismiss after 5 seconds
-            setTimeout(() => {
-                if (alertDiv.parentNode) {
-                    alertDiv.style.transform = 'translateX(400px)';
-                    setTimeout(() => {
-                        if (alertDiv.parentNode) {
-                            alertDiv.remove();
-                        }
-                    }, 300);
-                }
             }, 5000);
         }
+
+        // Setup star rating functionality
+        const ratingStars = document.querySelectorAll('.rating-stars i');
+        const ratingInput = document.getElementById('rating_input');
+        const ratingMeaning = document.querySelector('.rating-meaning');
+        const ratingTexts = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+
+        // Initialize selected rating
+        let selectedRating = ratingInput ? parseInt(ratingInput.value) || 0 : 0;
+
+        // Add event listeners to stars
+        ratingStars.forEach(star => {
+            // Handle mouseover
+            star.addEventListener('mouseover', function() {
+                const rating = parseInt(this.getAttribute('data-rating'));
+
+                // Update stars visual
+                ratingStars.forEach((s, index) => {
+                    if (index < rating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+
+                // Update rating meaning
+                if (ratingMeaning) {
+                    ratingMeaning.textContent = ratingTexts[rating];
+                }
+            });
+
+            // Handle mouseout
+            star.addEventListener('mouseout', function() {
+                // Restore selected rating
+                ratingStars.forEach((s, index) => {
+                    if (index < selectedRating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+
+                // Restore rating meaning
+                if (ratingMeaning) {
+                    ratingMeaning.textContent = selectedRating > 0 ? ratingTexts[selectedRating] : 'Select stars to rate';
+                }
+            });
+
+            // Handle click
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.getAttribute('data-rating'));
+
+                // Update hidden input
+                if (ratingInput) {
+                    ratingInput.value = selectedRating;
+                }
+
+                // Update stars visual
+                ratingStars.forEach((s, index) => {
+                    if (index < selectedRating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+
+                // Update rating meaning
+                if (ratingMeaning) {
+                    ratingMeaning.textContent = ratingTexts[selectedRating];
+                }
+            });
+        });
+
+        // Handle review submit
+        const submitReviewButton = document.getElementById('submitReview');
+        if (submitReviewButton) {
+            submitReviewButton.addEventListener('click', function() {
+                const form = document.getElementById('reviewForm');
+                const formData = new FormData(form);
+                const reviewId = document.getElementById('review_id')?.value;
+
+                // Validate form
+                if (!formData.get('rating')) {
+                    showToast('error', 'Please select a rating');
+                    return;
+                }
+
+                if (!formData.get('comment').trim()) {
+                    showToast('error', 'Please enter your review');
+                    return;
+                }
+
+                // Determine endpoint (create or update)
+                const endpoint = reviewId ? `/update-review/${reviewId}` : '/store-review';
+                const method = reviewId ? 'PUT' : 'POST';
+
+                // Show loading state
+                submitReviewButton.textContent = 'Submitting...';
+                submitReviewButton.disabled = true;
+
+                // Submit review
+                fetch(endpoint, {
+                    method: method,
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams(formData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Success! Fetch updated reviews without page reload
+                        fetchUpdatedReviews();
+
+                        // Show success toast
+                        showToast('success', reviewId ? 'Review updated successfully!' : 'Review submitted successfully!');
+
+                        if (!reviewId) {
+                            // For new review: Reset form
+                            form.querySelector('textarea').value = '';
+                            selectedRating = 0;
+
+                            // Reset stars display
+                            ratingStars.forEach((s) => {
+                                s.classList.remove('fas');
+                                s.classList.add('far');
+                            });
+
+                            if (ratingMeaning) {
+                                ratingMeaning.textContent = 'Select stars to rate';
+                            }
+
+                            if (data.review && data.review.id) {
+                                // Add the review ID to the form for future edits
+                                let reviewIdInput = document.getElementById('review_id');
+                                if (!reviewIdInput) {
+                                    reviewIdInput = document.createElement('input');
+                                    reviewIdInput.type = 'hidden';
+                                    reviewIdInput.id = 'review_id';
+                                    form.appendChild(reviewIdInput);
+                                }
+                                reviewIdInput.value = data.review.id;
+
+                                // Change the submit button text
+                                submitReviewButton.textContent = 'Update Review';
+
+                                // Show delete button if not already visible
+                                let deleteButton = document.getElementById('deleteReview');
+                                if (deleteButton) {
+                                    deleteButton.style.display = 'inline-block';
+                                }
+                            }
+                        }
+
+                        // Reset button state
+                        submitReviewButton.disabled = false;
+                        submitReviewButton.textContent = reviewId ? 'Update Review' : 'Submit Review';
+                    } else {
+                        showToast('error', data.message || 'Error submitting review');
+                        submitReviewButton.textContent = reviewId ? 'Update Review' : 'Submit Review';
+                        submitReviewButton.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'An error occurred. Please try again.');
+                    submitReviewButton.textContent = reviewId ? 'Update Review' : 'Submit Review';
+                    submitReviewButton.disabled = false;
+                });
+            });
+        }
+
+        // Handle review delete
+        const deleteReviewButton = document.getElementById('deleteReview');
+        if (deleteReviewButton) {
+            deleteReviewButton.addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete your review?')) {
+                    const reviewId = document.getElementById('review_id').value;
+                    const form = document.getElementById('reviewForm');
+
+                    // Show loading state
+                    deleteReviewButton.textContent = 'Deleting...';
+                    deleteReviewButton.disabled = true;
+
+                    // Delete review
+                    fetch(`/delete-review/${reviewId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Success! Fetch updated reviews without page reload
+                            fetchUpdatedReviews();
+
+                            // Show success toast
+                            showToast('success', 'Review deleted successfully!');
+
+                            // Reset the form to create new review mode
+                            form.querySelector('textarea').value = '';
+                            selectedRating = 0;
+
+                            // Reset stars display
+                            ratingStars.forEach((s) => {
+                                s.classList.remove('fas');
+                                s.classList.add('far');
+                            });
+
+                            if (ratingMeaning) {
+                                ratingMeaning.textContent = 'Select stars to rate';
+                            }
+
+                            // Remove review_id input
+                            const reviewIdInput = document.getElementById('review_id');
+                            if (reviewIdInput) {
+                                reviewIdInput.remove();
+                            }
+
+                            // Change submit button back to Submit Review
+                            const submitReviewButton = document.getElementById('submitReview');
+                            if (submitReviewButton) {
+                                submitReviewButton.textContent = 'Submit Review';
+                            }
+
+                            deleteReviewButton.textContent = 'Delete';
+                            deleteReviewButton.disabled = false;
+
+                            // Hide delete button
+                            deleteReviewButton.style.display = 'none';
+                        } else {
+                            showToast('error', data.message || 'Error deleting review');
+                            deleteReviewButton.textContent = 'Delete';
+                            deleteReviewButton.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('error', 'An error occurred. Please try again.');
+                        deleteReviewButton.textContent = 'Delete';
+                        deleteReviewButton.disabled = false;
+                    });
+                }
+            });
+        }
+
+        // Function to show reply modal
+        function showReplyModal(reviewId) {
+            // Check if modal already exists
+            let replyModal = document.getElementById('replyModal');
+            if (!replyModal) {
+                // Create modal
+                replyModal = document.createElement('div');
+                replyModal.className = 'modal fade custom-modal';
+                replyModal.id = 'replyModal';
+                replyModal.setAttribute('tabindex', '-1');
+                replyModal.setAttribute('role', 'dialog');
+                replyModal.setAttribute('aria-labelledby', 'replyModalLabel');
+                replyModal.setAttribute('aria-hidden', 'true');
+
+                replyModal.innerHTML = `
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-gradient-primary text-white">
+                                <h5 class="modal-title" id="replyModalLabel">
+                                    <i class="fas fa-reply mr-2"></i> Reply to Review
+                                </h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="replyForm">
+                                    <input type="hidden" name="review_id" id="reply_review_id">
+                                    <div class="form-group">
+                                        <label for="replyComment">Your Reply</label>
+                                        <textarea class="form-control" id="replyComment" name="comment" rows="4" placeholder="Write your reply here..."></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="submitReply">
+                                    <i class="fas fa-paper-plane mr-1"></i> Submit Reply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(replyModal);
+
+                // Initialize Bootstrap modal
+                $(replyModal).modal({
+                    backdrop: 'static',
+                    keyboard: false,
+                    show: false
+                });
+
+                // Add event listener for submit button
+                document.getElementById('submitReply').addEventListener('click', function() {
+                    submitReply();
+                });
+            }
+
+            // Set review ID
+            document.getElementById('reply_review_id').value = reviewId;
+
+            // Show modal
+            $(replyModal).modal('show');
+        }
+
+        // Function to submit reply
+        function submitReply() {
+            const replyForm = document.getElementById('replyForm');
+            const formData = new FormData(replyForm);
+            const submitButton = document.getElementById('submitReply');
+
+            // Validate form
+            if (!formData.get('comment').trim()) {
+                showToast('error', 'Please enter your reply');
+                return;
+            }
+
+            // Show loading state
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Submitting...';
+            submitButton.disabled = true;
+
+            // Submit reply
+            fetch('/store-reply', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Success! Fetch updated reviews without page reload
+                    fetchUpdatedReviews();
+
+                    // Show success toast
+                    showToast('success', 'Reply submitted successfully!');
+
+                    // Close modal
+                    $('#replyModal').modal('hide');
+
+                    // Reset form
+                    replyForm.reset();
+                } else {
+                    showToast('error', data.message || 'Error submitting reply');
+                }
+
+                // Reset button state
+                submitButton.innerHTML = '<i class="fas fa-paper-plane mr-1"></i> Submit Reply';
+                submitButton.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'An error occurred. Please try again.');
+
+                // Reset button state
+                submitButton.innerHTML = '<i class="fas fa-paper-plane mr-1"></i> Submit Reply';
+                submitButton.disabled = false;
+            });
+        }
+
+        // Initialize by fetching reviews when page loads
+        fetchUpdatedReviews();
     });
 </script>
 @endsection
+

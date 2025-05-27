@@ -141,3 +141,7 @@ Route::post('/payment-callback', [BookingController::class, 'handlePaymentCallba
 
 // Debug route - remove in production
 Route::get('/debug/bookings', [App\Http\Controllers\User\UserController::class, 'debug_bookings'])->name('debug.bookings');
+
+// Add the new route for fetching reviews (accessible without auth)
+Route::get('/get-ground-reviews/{groundId}', [\App\Http\Controllers\Api\ReviewController::class, 'getGroundReviews'])
+    ->name('get-ground-reviews')->withoutMiddleware(['auth']);
