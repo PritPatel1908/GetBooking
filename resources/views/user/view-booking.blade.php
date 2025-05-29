@@ -423,7 +423,7 @@
                                         @foreach($booking->details as $detail)
                                             @if(isset($detail->slot) && $detail->slot)
                                                 <span class="slot-tag">
-                                                    <i class="far fa-clock"></i> {{ $detail->slot->slot_name }}
+                                                    <i class="far fa-clock"></i> {{ $detail->slot->time_range }}
                                                 </span>
                                             @endif
                                         @endforeach

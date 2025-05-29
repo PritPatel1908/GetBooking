@@ -19,6 +19,8 @@ class GroundSlot extends Model
     protected $fillable = [
         'ground_id',
         'slot_name',
+        'start_time',
+        'end_time',
         'slot_type',
         'slot_status',
     ];
@@ -32,6 +34,8 @@ class GroundSlot extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'ground_id' => 'int',
+        'start_time' => 'datetime:H:i',
+        'end_time' => 'datetime:H:i',
     ];
 
     /**
@@ -48,5 +52,19 @@ class GroundSlot extends Model
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class, 'slot_id');
+    }
+
+    /**
+     * Get formatted slot time range
+     *
+     * @return string
+     */
+    public function getTimeRangeAttribute(): string
+    {
+        if ($this->start_time && $this->end_time) {
+            return date('H:i', strtotime($this->start_time)) . ' - ' . date('H:i', strtotime($this->end_time));
+        }
+
+        return $this->slot_name;
     }
 }

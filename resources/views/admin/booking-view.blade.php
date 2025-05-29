@@ -121,7 +121,7 @@
                             </div>
                             <div>
                                 <h4 class="text-sm font-medium text-gray-500">Payment Date</h4>
-                                <p class="mt-1 text-lg font-medium text-gray-900">{{ $booking->payment->created_at ? $booking->payment->created_at->format('d M Y H:i') : 'Not available' }}</p>
+                                <p class="mt-1 text-lg font-medium text-gray-900">{{ isset($booking->payment) && $booking->payment->created_at ? $booking->payment->created_at->format('d M Y H:i') : 'Not available' }}</p>
                             </div>
                         </div>
                     </div>
@@ -151,7 +151,7 @@
                             </div>
                             <div>
                                 <h4 class="text-sm font-medium text-gray-500">Member Since</h4>
-                                <p class="mt-1 text-lg font-medium text-gray-900">{{ $booking->user->created_at->format('d M Y') }}</p>
+                                <p class="mt-1 text-lg font-medium text-gray-900">{{ isset($booking->user) && $booking->user->created_at ? $booking->user->created_at->format('d M Y') : 'Not available' }}</p>
                             </div>
                         </div>
                     </div>
@@ -226,5 +226,38 @@
 @section('scripts')
     <script src="{{ asset('assets/admin/js/page-handler.js') }}"></script>
     <script src="{{ asset('assets/admin/js/booking-handler.js') }}"></script>
+
+    <script>
+        // Connect edit button on booking view page with the modal's editBooking function
+        document.addEventListener('DOMContentLoaded', function() {
+            const editBookingBtn = document.querySelector('.edit-booking-btn');
+
+            if (editBookingBtn) {
+                // Remove the inline onclick attribute if it exists to prevent duplicate calls
+                editBookingBtn.removeAttribute('onclick');
+
+                editBookingBtn.addEventListener('click', function() {
+                    const bookingId = this.getAttribute('data-booking-id');
+
+                    // Only call editBooking if it hasn't been triggered already
+                    if (typeof window.editBooking === 'function' && !window.editBookingInProgress) {
+                        window.editBookingInProgress = true;
+                        window.editBooking(bookingId);
+
+                        // Reset the flag after a short delay
+                        setTimeout(function() {
+                            window.editBookingInProgress = false;
+                        }, 500);
+                    } else if (window.editBookingInProgress) {
+                        console.log('Edit booking already in progress, ignoring duplicate click');
+                    } else {
+                        // Fallback if the function isn't available
+                        console.error('editBooking function not found');
+                        alert('Could not open booking editor. Please try again.');
+                    }
+                });
+            }
+        });
+    </script>
 @endsection
 

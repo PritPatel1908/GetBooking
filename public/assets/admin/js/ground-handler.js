@@ -759,45 +759,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Populate slots if available
             if (ground.slots && ground.slots.length > 0) {
-                const slotsContainer = document.getElementById('slots-container');
-                if (slotsContainer) {
-                    // Remove the default first slot input that comes with resetDynamicFields()
-                    const firstSlot = slotsContainer.querySelector('.slot-input-group');
-                    if (firstSlot) {
-                        slotsContainer.removeChild(firstSlot);
-                    }
-
-                    // Add each slot
-                    ground.slots.forEach((slot, index) => {
-                        // Create slot input group
-                        const slotGroup = document.createElement('div');
-                        slotGroup.className = 'slot-input-group flex items-center space-x-2 mb-2';
-
-                        slotGroup.innerHTML = `
-                            <input type="text" name="slot_name[]" value="${slot.slot_name}"
-                                placeholder="Slot Name" class="flex-grow rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <select name="slot_type[]" class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
-                                <option value="morning" ${slot.slot_type === 'morning' ? 'selected' : ''}>Morning</option>
-                                <option value="afternoon" ${slot.slot_type === 'afternoon' ? 'selected' : ''}>Afternoon</option>
-                                <option value="evening" ${slot.slot_type === 'evening' ? 'selected' : ''}>Evening</option>
-                                <option value="night" ${slot.slot_type === 'night' ? 'selected' : ''}>Night</option>
-                            </select>
-                            <button type="button" class="remove-slot-btn px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        `;
-
-                        slotsContainer.appendChild(slotGroup);
-
-                        // Add event listener to the remove button
-                        const removeBtn = slotGroup.querySelector('.remove-slot-btn');
-                        if (removeBtn) {
-                            removeBtn.addEventListener('click', function() {
-                                slotGroup.remove();
-                            });
-                        }
-                    });
-                }
+                // Use our new function to populate slots
+                window.populateGroundSlots(ground.slots);
             }
 
             // Populate features if available

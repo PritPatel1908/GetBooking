@@ -145,6 +145,37 @@ document.addEventListener('DOMContentLoaded', function() {
         form.querySelector('select[name="payment_status"]').value = booking.payment_status || 'pending';
         form.querySelector('textarea[name="notes"]').value = booking.notes || '';
 
+        // Get slot IDs from booking details
+        fetch(`/admin/bookings/${booking.id}/edit`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Get ground ID and slot IDs
+                const groundId = data.ground_id;
+                const slotIds = data.slot_ids;
+
+                // Load slots for ground
+                if (groundId) {
+                    // Trigger ground selection to load slots
+                    form.querySelector('select[name="ground_id"]').dispatchEvent(new Event('change'));
+
+                    // Set hidden slot IDs field
+                    const hiddenSlotIds = form.querySelector('#hidden-slot-ids');
+                    if (hiddenSlotIds) {
+                        hiddenSlotIds.value = slotIds.join(',');
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading slot details:', error);
+        });
+
         // Show modal with animation
         if (window.showBookingModal) {
             window.showBookingModal();
@@ -214,8 +245,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function editBooking(bookingId) {
+        console.log('booking-handler.js editBooking called with ID:', bookingId);
+
+        // Check if we're on a booking view page or if the global function should be used
+        if (typeof window.editBooking === 'function') {
+            console.log('Using global editBooking function');
+            window.editBooking(bookingId);
+            return;
+        }
+
+        console.log('Using local editBooking implementation');
+
+        // Regular edit functionality for bookings list page
         // Show loading state
         const editBtn = document.querySelector(`.edit-booking-btn[data-booking-id="${bookingId}"]`);
+        if (!editBtn) {
+            console.error('Edit button not found for booking ID:', bookingId);
+            window.showToast('Error finding edit button. Please refresh and try again.', 'error');
+            return;
+        }
+
         const originalContent = editBtn.innerHTML;
         editBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         editBtn.disabled = true;

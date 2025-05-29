@@ -99,15 +99,68 @@
                     </div>
                 </div>
 
+                <!-- Client Grounds -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden animate-fade-in">
+                    <div class="flex items-center justify-between p-4 border-b">
+                        <h3 class="text-lg font-semibold flex items-center">
+                            <i class="fas fa-map text-indigo-500 mr-2"></i>
+                            Client Grounds
+                        </h3>
+                        <div>
+                            <a href="{{ route('admin.grounds') }}" class="text-sm text-indigo-600 hover:text-indigo-800">View All Grounds</a>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        @if(isset($grounds) && count($grounds) > 0)
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @foreach($grounds as $ground)
+                                    <div class="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                                        <div class="h-32 bg-gray-200 relative">
+                                            @if($ground->images->count() > 0)
+                                                <img src="{{ asset($ground->images->first()->image_path) }}" alt="{{ $ground->name }}" class="w-full h-full object-cover">
+                                            @else
+                                                <div class="flex items-center justify-center h-full bg-gray-100 text-gray-400">
+                                                    <i class="fas fa-image fa-2x"></i>
+                                                </div>
+                                            @endif
+                                            <div class="absolute top-2 right-2">
+                                                <span class="px-2 py-1 text-xs rounded-full {{ $ground->status == 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }} font-medium">
+                                                    {{ ucfirst($ground->status) }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="p-3">
+                                            <h4 class="font-semibold text-gray-800">{{ $ground->name }}</h4>
+                                            <p class="text-sm text-gray-500 mb-2">{{ $ground->location }}</p>
+                                            <div class="flex justify-between items-center">
+                                                <span class="text-sm font-medium text-indigo-600">₹{{ $ground->price_per_hour }}/hr</span>
+                                                <a href="{{ route('admin.grounds.show', $ground->id) }}" class="text-sm text-indigo-600 hover:text-indigo-800">View Details</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-map-marker-alt text-gray-300 text-4xl mb-3"></i>
+                                <p>No grounds found for this client.</p>
+                                <a href="{{ route('admin.grounds') }}" class="mt-3 px-4 py-2 inline-block bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 focus:outline-none">
+                                    <i class="fas fa-plus mr-2"></i> Add a Ground
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
                 <!-- Booking History -->
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden animate-fade-in">
                     <div class="flex items-center justify-between p-4 border-b">
                         <h3 class="text-lg font-semibold flex items-center">
                             <i class="fas fa-calendar-check text-indigo-500 mr-2"></i>
-                            Booking History
+                            Ground Booking History
                         </h3>
                         <div>
-                            <a href="#" class="text-sm text-indigo-600 hover:text-indigo-800">View All</a>
+                            <a href="{{ route('admin.bookings') }}" class="text-sm text-indigo-600 hover:text-indigo-800">View All</a>
                         </div>
                     </div>
                     <div class="p-4">
@@ -118,7 +171,7 @@
                                         <tr>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ground</th>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -128,37 +181,43 @@
                                         @foreach($bookings as $booking)
                                             <tr class="hover:bg-gray-50 transition-colors">
                                                 <td class="px-4 py-3 whitespace-nowrap">
-                                                    <div class="text-sm font-medium text-gray-900">#{{ $booking->id }}</div>
+                                                    <div class="text-sm font-medium text-gray-900">#{{ $booking->booking_sku }}</div>
                                                 </td>
                                                 <td class="px-4 py-3 whitespace-nowrap">
-                                                    <div class="text-sm text-gray-900">{{ $booking->booking_date }}</div>
+                                                    <div class="text-sm text-gray-900">{{ $booking->booking_date->format('d M Y') }}</div>
                                                     <div class="text-xs text-gray-500">{{ $booking->booking_time }}</div>
                                                 </td>
                                                 <td class="px-4 py-3 whitespace-nowrap">
-                                                    <div class="text-sm text-gray-900">{{ $booking->service_name }}</div>
+                                                    <div class="text-sm text-gray-900">
+                                                        @if($booking->details->isNotEmpty() && $booking->details->first()->ground)
+                                                            {{ $booking->details->first()->ground->name }}
+                                                        @else
+                                                            Unknown Ground
+                                                        @endif
+                                                    </div>
                                                 </td>
                                                 <td class="px-4 py-3 whitespace-nowrap">
                                                     @php
                                                         $statusClass = 'bg-gray-100 text-gray-800';
-                                                        if($booking->status == 'completed') {
+                                                        if($booking->booking_status == 'completed') {
                                                             $statusClass = 'bg-green-100 text-green-800';
-                                                        } elseif($booking->status == 'cancelled') {
+                                                        } elseif($booking->booking_status == 'cancelled') {
                                                             $statusClass = 'bg-red-100 text-red-800';
-                                                        } elseif($booking->status == 'pending') {
+                                                        } elseif($booking->booking_status == 'pending') {
                                                             $statusClass = 'bg-yellow-100 text-yellow-800';
-                                                        } elseif($booking->status == 'confirmed') {
+                                                        } elseif($booking->booking_status == 'confirmed') {
                                                             $statusClass = 'bg-blue-100 text-blue-800';
                                                         }
                                                     @endphp
                                                     <span class="px-2 py-1 text-xs rounded-full {{ $statusClass }} font-medium">
-                                                        {{ ucfirst($booking->status) }}
+                                                        {{ ucfirst($booking->booking_status) }}
                                                     </span>
                                                 </td>
                                                 <td class="px-4 py-3 whitespace-nowrap">
                                                     <div class="text-sm font-medium text-gray-900">₹{{ $booking->amount }}</div>
                                                 </td>
                                                 <td class="px-4 py-3 whitespace-nowrap">
-                                                    <a href="#" class="text-indigo-600 hover:text-indigo-900 transition-colors" title="View Booking">
+                                                    <a href="{{ route('admin.bookings.show', $booking->id) }}" class="text-indigo-600 hover:text-indigo-900 transition-colors" title="View Booking">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                 </td>
@@ -170,10 +229,10 @@
                         @else
                             <div class="text-center py-8 text-gray-500">
                                 <i class="fas fa-calendar-times text-gray-300 text-4xl mb-3"></i>
-                                <p>No bookings found for this client.</p>
-                                <button class="mt-3 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 focus:outline-none">
+                                <p>No bookings found for this client's grounds.</p>
+                                <a href="{{ route('admin.bookings') }}" class="mt-3 px-4 py-2 inline-block bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 focus:outline-none">
                                     <i class="fas fa-plus mr-2"></i> Create a New Booking
-                                </button>
+                                </a>
                             </div>
                         @endif
                     </div>
@@ -243,7 +302,7 @@
                                         <div class="min-w-0 flex-1">
                                             <div>
                                                 <div class="text-sm text-gray-700">
-                                                    Last booking was <span class="font-medium">{{ $lastBooking->status }}</span>
+                                                    Last booking was <span class="font-medium">{{ $lastBooking->booking_status }}</span>
                                                 </div>
                                                 <p class="mt-0.5 text-sm text-gray-500">
                                                     {{ $lastBooking->created_at->format('d M Y, h:i A') }}

@@ -105,14 +105,13 @@ class BookingController extends Controller
             } else {
                 // Use slots from database
                 foreach ($groundSlots as $slot) {
-                    // Calculate the actual duration based on slot_name (format: "HH:MM-HH:MM")
-                    $slotTime = explode('-', $slot->slot_name);
+                    // Calculate the actual duration based on start_time and end_time
                     $hours = 2; // Default
 
-                    if (count($slotTime) == 2) {
+                    if ($slot->start_time && $slot->end_time) {
                         try {
-                            $startTime = Carbon::parse($slotTime[0]);
-                            $endTime = Carbon::parse($slotTime[1]);
+                            $startTime = Carbon::parse($slot->start_time);
+                            $endTime = Carbon::parse($slot->end_time);
 
                             // Handle slots that cross midnight
                             if ($endTime < $startTime) {
@@ -124,11 +123,30 @@ class BookingController extends Controller
                         } catch (\Exception $e) {
                             // If time parsing fails, use default
                         }
+                    } else {
+                        // Fallback to old method with slot_name
+                        $slotTime = explode('-', $slot->slot_name);
+                        if (count($slotTime) == 2) {
+                            try {
+                                $startTime = Carbon::parse($slotTime[0]);
+                                $endTime = Carbon::parse($slotTime[1]);
+
+                                // Handle slots that cross midnight
+                                if ($endTime < $startTime) {
+                                    $endTime->addDay();
+                                }
+
+                                $hours = $endTime->diffInHours($startTime);
+                                $hours = max(1, abs($hours)); // Ensure positive and at least 1 hour
+                            } catch (\Exception $e) {
+                                // If time parsing fails, use default
+                            }
+                        }
                     }
 
                     $slots[] = [
                         'id' => $slot->id,
-                        'time' => $slot->slot_name, // Assuming slot_name is in format "HH:MM-HH:MM"
+                        'time' => $slot->time_range, // Use the accessor
                         'price' => round($ground->price_per_hour * $hours),
                         'hours' => $hours,
                         'available' => !in_array($slot->id, $bookedSlotIds) && $slot->slot_status === 'active'

@@ -2213,11 +2213,10 @@
                         // Use slots from database
                         $slots = [];
                         foreach($groundSlots as $slot) {
-                            // Calculate hours from slot time range (assuming format "HH:MM-HH:MM")
-                            $times = explode('-', $slot->slot_name);
-                            if(count($times) == 2) {
-                                $start = \Carbon\Carbon::parse($times[0]);
-                                $end = \Carbon\Carbon::parse($times[1]);
+                            // Calculate hours from time range using start_time and end_time
+                            if($slot->start_time && $slot->end_time) {
+                                $start = \Carbon\Carbon::parse($slot->start_time);
+                                $end = \Carbon\Carbon::parse($slot->end_time);
 
                                 // Handle slots that cross midnight
                                 if($end < $start) {
@@ -2230,12 +2229,30 @@
                                 // Round to nearest 0.5 for better display
                                 $hours = round($hours * 2) / 2;
                             } else {
-                                $hours = $interval; // Default if can't parse
+                                // Fallback to old method if start_time/end_time not available
+                                $times = explode('-', $slot->slot_name);
+                                if(count($times) == 2) {
+                                    $start = \Carbon\Carbon::parse($times[0]);
+                                    $end = \Carbon\Carbon::parse($times[1]);
+
+                                    // Handle slots that cross midnight
+                                    if($end < $start) {
+                                        $end->addDay();
+                                    }
+
+                                    $hours = $end->diffInMinutes($start) / 60;
+                                    // Ensure we always have a positive duration
+                                    $hours = abs($hours);
+                                    // Round to nearest 0.5 for better display
+                                    $hours = round($hours * 2) / 2;
+                                } else {
+                                    $hours = $interval; // Default if can't parse
+                                }
                             }
 
                             $slots[] = [
                                 'id' => $slot->id,
-                                'time' => $slot->slot_name, // Assuming slot_name is in format "HH:MM-HH:MM"
+                                'time' => $slot->time_range, // Use the accessor instead of slot_name
                                 'price' => round($ground->price_per_hour * $hours), // Calculate based on actual hours
                                 'hours' => $hours,
                                 'available' => !in_array($slot->id, $bookedSlotIds) && $slot->slot_status === 'active'

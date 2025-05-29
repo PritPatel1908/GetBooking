@@ -249,14 +249,13 @@ class UserController extends Controller
                 Log::info("Using slots from database");
                 // Use slots from database
                 foreach ($ground->slots as $slot) {
-                    // Calculate the actual duration based on slot_name (format: "HH:MM-HH:MM")
-                    $slotTime = explode('-', $slot->slot_name);
+                    // Calculate the actual duration based on start_time and end_time
                     $duration = 2; // Default duration if we can't calculate
 
-                    if (count($slotTime) == 2) {
+                    if ($slot->start_time && $slot->end_time) {
                         try {
-                            $startTime = \Carbon\Carbon::parse($slotTime[0]);
-                            $endTime = \Carbon\Carbon::parse($slotTime[1]);
+                            $startTime = \Carbon\Carbon::parse($slot->start_time);
+                            $endTime = \Carbon\Carbon::parse($slot->end_time);
 
                             // Handle slots that cross midnight
                             if ($endTime < $startTime) {
@@ -274,16 +273,41 @@ class UserController extends Controller
                             // If there's an error parsing the time, use default
                             Log::warning("Error calculating slot duration: " . $e->getMessage());
                         }
+                    } else {
+                        // Fallback to old method with slot_name
+                        $slotTime = explode('-', $slot->slot_name);
+                        if (count($slotTime) == 2) {
+                            try {
+                                $startTime = \Carbon\Carbon::parse($slotTime[0]);
+                                $endTime = \Carbon\Carbon::parse($slotTime[1]);
+
+                                // Handle slots that cross midnight
+                                if ($endTime < $startTime) {
+                                    $endTime->addDay();
+                                }
+
+                                $duration = $endTime->diffInHours($startTime);
+
+                                // Ensure we always have a positive duration
+                                $duration = abs($duration);
+
+                                // If duration is 0 (maybe less than an hour), set minimum to 1
+                                $duration = max(1, $duration);
+                            } catch (\Exception $e) {
+                                // If there's an error parsing the time, use default
+                                Log::warning("Error calculating slot duration: " . $e->getMessage());
+                            }
+                        }
                     }
 
                     $isAvailable = !in_array($slot->id, $bookedSlotIds) && $slot->slot_status === 'active';
 
-                    Log::info("Slot {$slot->id} ({$slot->slot_name}): available = " . ($isAvailable ? 'true' : 'false') .
+                    Log::info("Slot {$slot->id} ({$slot->time_range}): available = " . ($isAvailable ? 'true' : 'false') .
                         ", status = {$slot->slot_status}");
 
                     $slots[] = [
                         'id' => $slot->id,
-                        'time' => $slot->slot_name,
+                        'time' => $slot->time_range,
                         'price' => round($ground->price_per_hour * $duration), // Price based on actual duration
                         'hours' => $duration,
                         'available' => $isAvailable

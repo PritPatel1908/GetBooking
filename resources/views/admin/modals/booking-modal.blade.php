@@ -174,8 +174,12 @@
                                     </div>
                                     <select name="payment_status" id="payment_status" class="w-full rounded-lg border border-gray-300 pl-10 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white appearance-none">
                                         <option value="pending">Pending</option>
+                                        <option value="initiated">Initiated</option>
+                                        <option value="processing">Processing</option>
                                         <option value="completed">Completed</option>
                                         <option value="failed">Failed</option>
+                                        <option value="cancelled">Cancelled</option>
+                                        <option value="refunded">Refunded</option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
@@ -232,10 +236,16 @@ $(document).ready(function() {
         var groundId = $(this).val();
         console.log('Ground selected:', groundId);
 
+        // Check if this is edit mode (has booking ID)
+        var isEditMode = $('#booking_id').val() ? true : false;
+        console.log('Is edit mode:', isEditMode);
+
         // Clear slot selection first
         $('#slots-grid').empty();
-        $('#hidden-slot-ids').val('');
-        $('#amount').val('0.00');
+
+        // Keep the hidden slot IDs when changing ground in edit mode
+        var existingSlotIds = $('#hidden-slot-ids').val();
+        console.log('Existing slot IDs:', existingSlotIds);
 
         // Exit if no ground selected
         if (!groundId) {
@@ -245,6 +255,7 @@ $(document).ready(function() {
 
         // Get the current date (or from the date field if it's set)
         var selectedDate = $('#booking_date').val() || moment().format('YYYY-MM-DD');
+        console.log('Selected date:', selectedDate);
 
         // If no date was selected, set today's date
         if (!$('#booking_date').val()) {
@@ -259,7 +270,8 @@ $(document).ready(function() {
             url: '/admin/grounds/' + groundId + '/available-slots',
             type: 'GET',
             data: {
-                date: selectedDate
+                date: selectedDate,
+                booking_id: $('#booking_id').val() // Pass booking ID for edit mode
             },
             success: function(response) {
                 console.log('Available slots response:', response);
@@ -274,17 +286,49 @@ $(document).ready(function() {
 
                 // Check if we have slots
                 if (response.status === 'success' && response.slots && response.slots.length > 0) {
+                    // Get existing selected slots from hidden field
+                    var selectedSlotIds = existingSlotIds ? existingSlotIds.split(',') : [];
+
+                    // If this is an edit and we're changing ground, don't keep old selections
+                    if (isEditMode && selectedSlotIds.length > 0) {
+                        console.log('Edit mode with existing slots - checking if we need to reset');
+
+                        // Check if the selected slots belong to the current ground
+                        // This is a complex operation that would need a backend check
+                        // For now, we'll keep the selections as they are
+                    }
+
                     // Add each slot as a clickable button
                     $.each(response.slots, function(i, slot) {
+                        // Check if this slot was previously selected
+                        var isSelected = selectedSlotIds.includes(slot.id.toString());
+                        var slotClass = 'slot-item p-2 border border-gray-200 rounded-md cursor-pointer transition-colors text-center';
+
+                        if (isSelected) {
+                            slotClass += ' selected bg-indigo-100 border-indigo-300';
+                        } else {
+                            slotClass += ' bg-white hover:bg-gray-50';
+                        }
+
                         $('#slots-grid').append(
                             $('<div></div>')
-                                .addClass('slot-item p-2 border border-gray-200 rounded-md bg-white hover:bg-gray-50 cursor-pointer transition-colors text-center')
+                                .addClass(slotClass)
                                 .attr('data-slot-id', slot.id)
                                 .attr('data-slot-name', slot.slot_name)
                                 .attr('data-slot-type', slot.slot_type)
                                 .html('<span class="font-medium">' + slot.slot_name + '</span><br><span class="text-xs text-gray-500">' + slot.slot_type + '</span>')
                         );
                     });
+
+                    // Calculate amount based on selected slots
+                    if (selectedSlotIds.length > 0) {
+                        var duration = $('#duration').val() || 1;
+                        var price = response.ground.price_per_hour || 0;
+                        var amount = duration * price * selectedSlotIds.length;
+                        $('#amount').val(amount.toFixed(2));
+                    } else {
+                        $('#amount').val('0.00');
+                    }
 
                     console.log('Loaded ' + response.slots.length + ' available slots');
                 } else {
@@ -303,19 +347,29 @@ $(document).ready(function() {
     $('#booking_date').on('change', function() {
         var selectedDate = $(this).val();
         var groundId = $('#ground_id').val();
+        console.log('Date changed to:', selectedDate, 'for ground:', groundId);
+
+        // Check if this is edit mode (has booking ID)
+        var isEditMode = $('#booking_id').val() ? true : false;
+        var bookingId = $('#booking_id').val();
+        console.log('Is edit mode:', isEditMode, 'Booking ID:', bookingId);
 
         // Only reload slots if we have a ground selected
         if (groundId) {
+            // Save current slot selections
+            var existingSlotIds = $('#hidden-slot-ids').val();
+            console.log('Existing slot IDs before date change:', existingSlotIds);
+
             // Clear current slots and show loading
             $('#slots-grid').html('<div class="text-center text-gray-500 col-span-full py-2">Loading slots...</div>');
-            $('#hidden-slot-ids').val('');
 
             // Fetch available slots for the new date
             $.ajax({
                 url: '/admin/grounds/' + groundId + '/available-slots',
                 type: 'GET',
                 data: {
-                    date: selectedDate
+                    date: selectedDate,
+                    booking_id: bookingId // Pass booking ID for edit mode
                 },
                 success: function(response) {
                     console.log('Date change - available slots:', response);
@@ -325,24 +379,58 @@ $(document).ready(function() {
 
                     // Check if we have slots
                     if (response.status === 'success' && response.slots && response.slots.length > 0) {
+                        // Get existing selected slots from hidden field
+                        var selectedSlotIds = existingSlotIds ? existingSlotIds.split(',') : [];
+                        console.log('Selected slot IDs after date change:', selectedSlotIds);
+
+                        // If this is an edit and we're changing date, decide whether to keep selections
+                        if (isEditMode && selectedSlotIds.length > 0) {
+                            console.log('Edit mode date change - keeping existing selections if available');
+                        }
+
                         // Add each slot as a clickable button
                         $.each(response.slots, function(i, slot) {
+                            // Check if this slot was previously selected
+                            var isSelected = selectedSlotIds.includes(slot.id.toString());
+                            var slotClass = 'slot-item p-2 border border-gray-200 rounded-md cursor-pointer transition-colors text-center';
+
+                            if (isSelected) {
+                                slotClass += ' selected bg-indigo-100 border-indigo-300';
+                                console.log('Date change: Slot', slot.id, 'is selected');
+                            } else {
+                                slotClass += ' bg-white hover:bg-gray-50';
+                            }
+
                             $('#slots-grid').append(
                                 $('<div></div>')
-                                    .addClass('slot-item p-2 border border-gray-200 rounded-md bg-white hover:bg-gray-50 cursor-pointer transition-colors text-center')
+                                    .addClass(slotClass)
                                     .attr('data-slot-id', slot.id)
                                     .attr('data-slot-name', slot.slot_name)
                                     .attr('data-slot-type', slot.slot_type)
                                     .html('<span class="font-medium">' + slot.slot_name + '</span><br><span class="text-xs text-gray-500">' + slot.slot_type + '</span>')
                             );
                         });
+
+                        // Calculate amount based on selected slots
+                        if (selectedSlotIds.length > 0) {
+                            var duration = $('#duration').val() || 1;
+                            var price = response.ground.price_per_hour || 0;
+                            var amount = duration * price * selectedSlotIds.length;
+                            $('#amount').val(amount.toFixed(2));
+                            console.log('Date change: Calculated amount:', amount.toFixed(2));
+                        } else {
+                            $('#amount').val('0.00');
+                        }
+
+                        console.log('Date change: Loaded', response.slots.length, 'slots with',
+                                    $('.slot-item.selected').length, 'selected');
                     } else {
                         // No slots available
                         $('#slots-grid').html('<div class="text-center text-gray-500 col-span-full py-2">No available slots for this date</div>');
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error('Error loading slots for new date:', error);
+                    console.error('Error loading slots for new date:', error, xhr.responseText);
                     $('#slots-grid').html('<div class="text-center text-gray-500 col-span-full py-2">Error loading slots</div>');
                 }
             });
@@ -354,7 +442,16 @@ $(document).ready(function() {
 
     // Slot selection event (click on grid items)
     $(document).on('click', '.slot-item', function() {
+        var slotId = $(this).data('slot-id');
+        var slotName = $(this).data('slot-name');
+
+        console.log('Slot clicked:', slotId, slotName);
+
+        // Toggle selection
         $(this).toggleClass('selected bg-indigo-100 border-indigo-300');
+        var isSelected = $(this).hasClass('selected');
+
+        console.log('Slot', slotId, isSelected ? 'selected' : 'deselected');
 
         // Update hidden input with all selected slot IDs
         var selectedSlotIds = [];
@@ -363,17 +460,19 @@ $(document).ready(function() {
         });
 
         $('#hidden-slot-ids').val(selectedSlotIds.join(','));
-        console.log('Selected slots:', selectedSlotIds);
+        console.log('Updated selected slots:', selectedSlotIds);
 
         // Update amount
-        if (selectedSlotIds.length > 0) {
-            var duration = $('#duration').val() || 1;
-            var price = $('#booking-form').data('price') || 0;
-            var amount = duration * price * selectedSlotIds.length;
+        var duration = $('#duration').val() || 1;
+        var price = $('#booking-form').data('price') || 0;
 
+        if (selectedSlotIds.length > 0) {
+            var amount = duration * price * selectedSlotIds.length;
             $('#amount').val(amount.toFixed(2));
+            console.log('Updated amount to:', amount.toFixed(2), 'based on', selectedSlotIds.length, 'slots');
         } else {
             $('#amount').val('0.00');
+            console.log('Reset amount to 0.00 (no slots selected)');
         }
     });
 
@@ -394,14 +493,39 @@ $(document).ready(function() {
     $('#booking-form').on('submit', function(e) {
         e.preventDefault();
 
-        // Process selected slots into form data
+        console.log('Form submitted, processing data...');
+
+        // Validate required fields
+        var missingFields = [];
+
+        if (!$('#user_id').val()) missingFields.push('Customer');
+        if (!$('#ground_id').val()) missingFields.push('Ground');
+        if (!$('#booking_date').val()) missingFields.push('Booking Date');
+        if (!$('#booking_time').val()) missingFields.push('Booking Time');
+        if (!$('#duration').val()) missingFields.push('Duration');
+
+        // Check if slots are selected
         var selectedSlotIds = $('#hidden-slot-ids').val();
+        if (!selectedSlotIds) {
+            missingFields.push('Slots (at least one must be selected)');
+        }
+
+        // If validation fails, show error and return
+        if (missingFields.length > 0) {
+            showToast('Please fill in the following required fields: ' + missingFields.join(', '), 'error');
+            console.error('Validation failed. Missing fields:', missingFields);
+            return;
+        }
+
+        // Process selected slots into form data
         if (selectedSlotIds) {
             // Clear any existing slot_ids[] inputs first
             $('input[name="slot_ids[]"]').remove();
 
             // Add each selected slot ID as a hidden form element
             var slotIds = selectedSlotIds.split(',').filter(Boolean);
+            console.log('Processing selected slots:', slotIds);
+
             $.each(slotIds, function(i, slotId) {
                 $('#booking-form').append(
                     $('<input>')
@@ -410,11 +534,29 @@ $(document).ready(function() {
                         .val(slotId)
                 );
             });
+
+            console.log('Added', slotIds.length, 'slot ID fields to the form');
+        } else {
+            console.warn('No slots selected!');
+            showToast('Please select at least one slot', 'error');
+            return;
         }
 
         var formData = $(this).serialize();
         var url = $(this).attr('action');
         var method = $('#form_method').val() || 'POST';
+
+        console.log('Submitting booking:', {
+            url: url,
+            method: method,
+            slots: slotIds || []
+        });
+
+        // Show loading state
+        var submitBtn = $('button[type="submit"]', this);
+        var originalBtnText = submitBtn.html();
+        submitBtn.html('<i class="fas fa-spinner fa-spin mr-2"></i> Saving...');
+        submitBtn.prop('disabled', true);
 
         $.ajax({
             url: url,
@@ -423,8 +565,12 @@ $(document).ready(function() {
             success: function(response) {
                 console.log('Form response:', response);
 
+                // Reset button
+                submitBtn.html(originalBtnText);
+                submitBtn.prop('disabled', false);
+
                 if (response.status === 'success') {
-                    alert('Booking saved successfully!');
+                    showToast('Booking saved successfully!', 'success');
                     $('#booking-modal').hide();
 
                     if (response.redirect) {
@@ -433,12 +579,17 @@ $(document).ready(function() {
                         window.location.reload();
                     }
                 } else {
-                    alert('Error: ' + (response.message || 'Unknown error'));
+                    showToast('Error: ' + (response.message || 'Unknown error'), 'error');
                 }
             },
             error: function(xhr) {
                 console.error('Error saving booking:', xhr.responseText);
-                alert('Error saving booking. Please try again.');
+
+                // Reset button
+                submitBtn.html(originalBtnText);
+                submitBtn.prop('disabled', false);
+
+                showToast('Error saving booking. Please try again.', 'error');
             }
         });
     });
@@ -449,42 +600,75 @@ $(document).ready(function() {
     });
 });
 
-// Global functions for edit and add
+// Function to edit a booking
 function editBooking(id) {
+    console.log('Global editBooking called with ID:', id);
+
+    // Prevent multiple simultaneous calls
+    if (window.editBookingInProgress) {
+        console.log('Edit booking already in progress, ignoring duplicate call');
+        return;
+    }
+
+    window.editBookingInProgress = true;
+
+    // Show loading state in modal
+    $('#modal-title span').text('Loading Booking...');
+    if ($('#booking-initial').length) {
+        $('#booking-initial').html('<i class="fas fa-spinner fa-spin"></i>');
+    }
+
+    // Show modal immediately to indicate loading
+    $('#booking-modal').show();
+
     // Reset form
     $('#booking-form')[0].reset();
 
-    // Clear slot selections
-    $('#slots-grid').empty();
-    $('#hidden-slot-ids').val('');
-
     // Update form for edit mode
-    $('#modal-title span').text('Edit Booking');
     $('#booking_id').val(id);
     $('#form_method').val('PUT');
     $('#booking-form').attr('action', '/admin/bookings/' + id);
 
-    // Show loading message in slots grid
-    $('#slots-grid').html('<div class="text-center text-gray-500 col-span-full py-2">Loading...</div>');
-
-    // Load booking data
+    // Fetch booking data
     $.ajax({
         url: '/admin/bookings/' + id + '/edit',
         type: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            'X-Requested-With': 'XMLHttpRequest'
+        },
         success: function(response) {
-            if (response.status === 'success') {
-                var booking = response.booking;
-                var groundId = response.ground_id;
-                var slotIds = response.slot_ids;
+            console.log('Edit booking response:', response);
 
-                console.log('Editing booking:', booking);
-                console.log('Ground ID:', groundId);
-                console.log('Selected slot IDs:', slotIds);
+            if (response.status === 'success') {
+                const booking = response.booking;
+                const groundId = response.ground_id;
+                const slotIds = response.slot_ids || [];
+
+                console.log('Editing booking details:', booking);
+
+                // Update modal title
+                $('#modal-title span').text('Edit Booking');
+
+                // Format the booking date for the date input (YYYY-MM-DD)
+                let formattedDate = booking.booking_date;
+                if (booking.booking_date && booking.booking_date.includes('T')) {
+                    formattedDate = booking.booking_date.split('T')[0];
+                }
 
                 // Fill basic form fields
                 $('#user_id').val(booking.user_id);
-                $('#booking_date').val(booking.booking_date);
-                $('#booking_time').val(booking.booking_time);
+                $('#booking_date').val(formattedDate);
+
+                // Format the booking time if needed
+                if (booking.booking_time && booking.booking_time.includes(' - ')) {
+                    // If it's in format "03:00 - 05:00", just use the start time
+                    const startTime = booking.booking_time.split(' - ')[0];
+                    $('#booking_time').val(startTime);
+                } else {
+                    $('#booking_time').val(booking.booking_time);
+                }
+
                 $('#duration').val(booking.duration);
                 $('#amount').val(booking.amount);
                 $('#booking_status').val(booking.booking_status);
@@ -492,68 +676,147 @@ function editBooking(id) {
                 $('#notes').val(booking.notes || '');
 
                 // Set ground ID
+                console.log('Setting ground_id select to:', groundId);
                 $('#ground_id').val(groundId);
 
-                // Get available slots for this date, including this booking's slots
-                $.ajax({
-                    url: '/admin/grounds/' + groundId + '/available-slots',
-                    type: 'GET',
-                    data: {
-                        date: booking.booking_date,
-                        booking_id: id // Important: Pass booking ID to exclude its slots from "booked" check
-                    },
-                    success: function(slotsResponse) {
-                        console.log('Available slots for editing:', slotsResponse);
+                // Store slot IDs for later use
+                console.log('Setting hidden slot IDs:', slotIds);
+                $('#hidden-slot-ids').val(slotIds.join(','));
 
-                        // Clear the grid
-                        $('#slots-grid').empty();
-
-                        if (slotsResponse.status === 'success' && slotsResponse.slots && slotsResponse.slots.length > 0) {
-                            // Save the ground price for calculations
-                            if (slotsResponse.ground && slotsResponse.ground.price_per_hour) {
-                                $('#booking-form').data('price', slotsResponse.ground.price_per_hour);
-                            }
-
-                            // Add each slot as a clickable button
-                            $.each(slotsResponse.slots, function(i, slot) {
-                                var isSelected = slotIds.includes(slot.id.toString()) || slotIds.includes(slot.id);
-
-                                $('#slots-grid').append(
-                                    $('<div></div>')
-                                        .addClass('slot-item p-2 border border-gray-200 rounded-md cursor-pointer transition-colors text-center')
-                                        .addClass(isSelected ? 'selected bg-indigo-100 border-indigo-300' : 'bg-white hover:bg-gray-50')
-                                        .attr('data-slot-id', slot.id)
-                                        .attr('data-slot-name', slot.slot_name)
-                                        .attr('data-slot-type', slot.slot_type)
-                                        .html('<span class="font-medium">' + slot.slot_name + '</span><br><span class="text-xs text-gray-500">' + slot.slot_type + '</span>')
-                                );
-                            });
-
-                            // Set the hidden slots field
-                            $('#hidden-slot-ids').val(slotIds.join(','));
-                            console.log('Set selected slots:', slotIds);
-                        } else {
-                            $('#slots-grid').html('<div class="text-center text-gray-500 col-span-full py-2">No available slots</div>');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error loading slots for editing:', error);
-                        $('#slots-grid').html('<div class="text-center text-gray-500 col-span-full py-2">Error loading slots</div>');
-                    }
-                });
+                // Load slots directly instead of relying on change event
+                setTimeout(function() {
+                    loadSlotsForBooking(groundId, booking.booking_date, id, slotIds);
+                }, 100);
             } else {
                 console.error('Error loading booking:', response.message || 'Unknown error');
-                alert('Error loading booking. Please try again.');
+                showToast('Error loading booking data', 'error');
+                $('#slots-grid').html('<div class="text-center text-red-500 col-span-full py-2">Error loading slot data</div>');
+                $('#modal-title span').text('Error Loading Booking');
+                if ($('#booking-initial').length) {
+                    $('#booking-initial').text('!');
+                }
+                resetEditState();
             }
         },
         error: function(xhr, status, error) {
-            console.error('Error loading booking:', error);
-            alert('Error loading booking data. Please try again.');
+            console.error('AJAX error loading booking:', error, xhr.responseText);
+            showToast('Error loading booking data', 'error');
+            $('#slots-grid').html('<div class="text-center text-red-500 col-span-full py-2">Error loading slot data</div>');
+            $('#modal-title span').text('Error Loading Booking');
+            if ($('#booking-initial').length) {
+                $('#booking-initial').text('!');
+            }
+            resetEditState();
         }
     });
+}
 
-    // Show modal
-    $('#booking-modal').show();
+// Add a resetEditState function
+function resetEditState() {
+    window.editBookingInProgress = false;
+    console.log('Reset edit booking state');
+}
+
+// Function to load slots for a booking directly without relying on change event
+function loadSlotsForBooking(groundId, bookingDate, bookingId, selectedSlotIds) {
+    if (!groundId || !bookingDate) {
+        console.error('Missing required data for loading slots:', { groundId, bookingDate });
+        $('#slots-grid').html('<div class="text-center text-red-500 col-span-full py-2">Missing ground or date data</div>');
+        resetEditState();
+        return;
+    }
+
+    // Format the date if it's in ISO format
+    let formattedDate = bookingDate;
+    if (bookingDate && bookingDate.includes('T')) {
+        formattedDate = bookingDate.split('T')[0];
+    }
+
+    console.log('Loading slots directly for booking:', {
+        bookingId: bookingId,
+        groundId: groundId,
+        date: formattedDate,
+        selectedSlots: selectedSlotIds
+    });
+
+    // Show loading message
+    $('#slots-grid').html('<div class="text-center text-gray-500 col-span-full py-2">Loading slots...</div>');
+
+    // Fetch available slots
+    $.ajax({
+        url: '/admin/grounds/' + groundId + '/available-slots',
+        type: 'GET',
+        data: {
+            date: formattedDate,
+            booking_id: bookingId
+        },
+        success: function(response) {
+            console.log('Slots loaded directly:', response);
+
+            // Reset edit state flag
+            resetEditState();
+
+            // Clear the grid
+            $('#slots-grid').empty();
+
+            // Get the price per hour for calculations
+            if (response.ground && response.ground.price_per_hour) {
+                $('#booking-form').data('price', response.ground.price_per_hour);
+                console.log('Set price per hour:', response.ground.price_per_hour);
+            }
+
+            // Check if we have slots
+            if (response.status === 'success' && response.slots && response.slots.length > 0) {
+                console.log('Processing', response.slots.length, 'slots with', selectedSlotIds.length, 'selected');
+
+                // Add each slot as a clickable button
+                $.each(response.slots, function(i, slot) {
+                    // Check if this slot was previously selected
+                    var isSelected = selectedSlotIds.includes(slot.id.toString()) || selectedSlotIds.includes(slot.id);
+                    var slotClass = 'slot-item p-2 border border-gray-200 rounded-md cursor-pointer transition-colors text-center';
+
+                    if (isSelected) {
+                        slotClass += ' selected bg-indigo-100 border-indigo-300';
+                        console.log('Slot', slot.id, '(', slot.slot_name, ') is selected');
+                    } else {
+                        slotClass += ' bg-white hover:bg-gray-50';
+                    }
+
+                    $('#slots-grid').append(
+                        $('<div></div>')
+                            .addClass(slotClass)
+                            .attr('data-slot-id', slot.id)
+                            .attr('data-slot-name', slot.slot_name)
+                            .attr('data-slot-type', slot.slot_type)
+                            .html('<span class="font-medium">' + slot.slot_name + '</span><br><span class="text-xs text-gray-500">' + slot.slot_type + '</span>')
+                    );
+                });
+
+                // Set the hidden slots field again
+                $('#hidden-slot-ids').val(selectedSlotIds.join(','));
+
+                // Calculate amount based on selected slots
+                if (selectedSlotIds.length > 0) {
+                    var duration = $('#duration').val() || 1;
+                    var price = response.ground.price_per_hour || 0;
+                    var amount = duration * price * selectedSlotIds.length;
+                    $('#amount').val(amount.toFixed(2));
+                    console.log('Calculated amount:', amount.toFixed(2), 'based on', selectedSlotIds.length, 'slots');
+                }
+
+                console.log('Loaded ' + response.slots.length + ' slots, selected: ' + selectedSlotIds.length);
+            } else {
+                // No slots available
+                console.warn('No slots available for date', formattedDate);
+                $('#slots-grid').html('<div class="text-center text-gray-500 col-span-full py-2">No available slots for this date</div>');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX error loading slots:', error, xhr.responseText);
+            $('#slots-grid').html('<div class="text-center text-red-500 col-span-full py-2">Error loading slots</div>');
+            resetEditState();
+        }
+    });
 }
 
 function addBooking() {
@@ -580,4 +843,49 @@ function addBooking() {
 // Make functions global
 window.editBooking = editBooking;
 window.addBooking = addBooking;
+
+// Helper function to show toast notifications
+function showToast(message, type = 'success') {
+    // Try to use the page-handler.js showToast function first
+    if (typeof window.showToast === 'function') {
+        window.showToast(message, type);
+        return;
+    }
+
+    // Fallback to the toast in booking-view.blade.php
+    const toast = document.getElementById('toast-notification');
+    if (toast) {
+        const toastMessage = document.getElementById('toast-message');
+        const toastIcon = document.getElementById('toast-icon');
+
+        // Set message
+        if (toastMessage) toastMessage.textContent = message;
+
+        // Set icon and colors based on type
+        if (toastIcon) {
+            if (type === 'success') {
+                toastIcon.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg';
+                toastIcon.innerHTML = '<svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/></svg>';
+            } else if (type === 'error') {
+                toastIcon.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg';
+                toastIcon.innerHTML = '<svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.5 11.5a1 1 0 0 1-2 0v-4a1 1 0 0 1 2 0Zm-3.5-1a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>';
+            }
+        }
+
+        // Show toast
+        toast.classList.remove('translate-x-full');
+        toast.classList.add('translate-x-0');
+
+        // Auto hide after 5 seconds
+        setTimeout(function() {
+            toast.classList.remove('translate-x-0');
+            toast.classList.add('translate-x-full');
+        }, 5000);
+
+        return;
+    }
+
+    // Last resort fallback
+    alert(message);
+}
 </script>

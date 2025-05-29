@@ -123,8 +123,14 @@
                             class="fas fa-bookmark"></i> Book
                         Now</a>
                     <div class="card-meta">
-                        <span><i class="fas fa-star"></i> {{ $ground->rating }} ({{ $ground->review_count }}
-                            reviews)</span>
+                        <span>
+                            <i class="fas fa-star"></i>
+                            @php
+                                $reviewCount = $ground->reviews->count();
+                                $averageRating = $reviewCount > 0 ? number_format($ground->reviews->avg('rating'), 1) : 0;
+                            @endphp
+                            {{ $averageRating }} ({{ $reviewCount }} reviews)
+                        </span>
                         <span><i class="fas fa-rupee-sign"></i> {{ $ground->price_per_hour }}/hr</span>
                     </div>
                 </div>

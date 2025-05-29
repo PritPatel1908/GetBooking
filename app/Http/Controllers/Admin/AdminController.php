@@ -263,21 +263,24 @@ class AdminController extends Controller
     {
         $client = Client::findOrFail($id);
 
-        // Get bookings if you have a Booking model with a relationship to Client
-        // Uncomment and adjust when you have a Booking model
-        /*
-        $bookings = $client->bookings()
+        // Get grounds owned by this client
+        $grounds = Ground::where('client_id', $client->id)
+            ->with(['images'])
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Get bookings for this client's grounds
+        $bookings = Booking::whereHas('details', function ($query) use ($grounds) {
+            $query->whereIn('ground_id', $grounds->pluck('id')->toArray());
+        })
+            ->with(['details.ground', 'details.slot', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
         $lastBooking = $bookings->first();
-        */
 
-        // For demonstration purposes
-        $bookings = [];
-        $lastBooking = null;
-
-        return view('admin.client-view', compact('client', 'bookings', 'lastBooking'));
+        return view('admin.client-view', compact('client', 'bookings', 'lastBooking', 'grounds'));
     }
 
     // Add this method to return just the pagination HTML
@@ -408,6 +411,8 @@ class AdminController extends Controller
             'feature_name.*' => 'nullable|string|max:255',
             'feature_type.*' => 'nullable|string|in:facility,equipment,service',
             'slot_name.*' => 'nullable|string|max:255',
+            'start_time.*' => 'nullable|date_format:H:i',
+            'end_time.*' => 'nullable|date_format:H:i',
             'slot_type.*' => 'nullable|string|in:morning,afternoon,evening,night',
         ]);
 
@@ -549,10 +554,20 @@ class AdminController extends Controller
             }
 
             foreach ($request->slot_name as $key => $slotName) {
-                if (!empty($slotName)) {
+                if (!empty($slotName) || (!empty($request->start_time[$key]) && !empty($request->end_time[$key]))) {
+                    // Generate slot name if not provided but start_time and end_time are
+                    if (empty($slotName) && !empty($request->start_time[$key]) && !empty($request->end_time[$key])) {
+                        $slotName = date('H:i', strtotime($request->start_time[$key])) . ' - ' . date('H:i', strtotime($request->end_time[$key]));
+                    } else if (!empty($request->start_time[$key]) && !empty($request->end_time[$key])) {
+                        // Still update the name if both start_time and end_time are provided
+                        $slotName = date('H:i', strtotime($request->start_time[$key])) . ' - ' . date('H:i', strtotime($request->end_time[$key]));
+                    }
+
                     \App\Models\GroundSlot::create([
                         'ground_id' => $ground->id,
                         'slot_name' => $slotName,
+                        'start_time' => !empty($request->start_time[$key]) ? $request->start_time[$key] : null,
+                        'end_time' => !empty($request->end_time[$key]) ? $request->end_time[$key] : null,
                         'slot_type' => $request->slot_type[$key] ?? 'morning',
                         'slot_status' => 'active'
                     ]);
@@ -600,6 +615,8 @@ class AdminController extends Controller
                 return [
                     'id' => $slot->id,
                     'slot_name' => $slot->slot_name,
+                    'start_time' => $slot->start_time ? date('H:i', strtotime($slot->start_time)) : null,
+                    'end_time' => $slot->end_time ? date('H:i', strtotime($slot->end_time)) : null,
                     'slot_type' => $slot->slot_type,
                     'slot_status' => $slot->slot_status
                 ];
@@ -672,6 +689,8 @@ class AdminController extends Controller
                 return [
                     'id' => $slot->id,
                     'slot_name' => $slot->slot_name,
+                    'start_time' => $slot->start_time ? date('H:i', strtotime($slot->start_time)) : null,
+                    'end_time' => $slot->end_time ? date('H:i', strtotime($slot->end_time)) : null,
                     'slot_type' => $slot->slot_type,
                     'slot_status' => $slot->slot_status
                 ];
@@ -744,6 +763,8 @@ class AdminController extends Controller
             return [
                 'id' => $slot->id,
                 'slot_name' => $slot->slot_name,
+                'start_time' => $slot->start_time ? date('H:i', strtotime($slot->start_time)) : null,
+                'end_time' => $slot->end_time ? date('H:i', strtotime($slot->end_time)) : null,
                 'slot_type' => $slot->slot_type,
                 'slot_status' => $slot->slot_status
             ];
@@ -848,6 +869,8 @@ class AdminController extends Controller
                     return [
                         'id' => $slot->id,
                         'slot_name' => $slot->slot_name,
+                        'start_time' => $slot->start_time ? date('H:i', strtotime($slot->start_time)) : null,
+                        'end_time' => $slot->end_time ? date('H:i', strtotime($slot->end_time)) : null,
                         'slot_type' => $slot->slot_type,
                         'slot_status' => $slot->slot_status
                     ];
@@ -1026,8 +1049,10 @@ class AdminController extends Controller
     {
         $booking = \App\Models\Booking::with(['user', 'ground', 'payment'])
             ->findOrFail($id);
+        $users = User::where('user_type', '!=', 'admin')->get();
+        $grounds = Ground::all();
 
-        return view('admin.booking-view', compact('booking'));
+        return view('admin.booking-view', compact('booking', 'users', 'grounds'));
     }
 
     /**
@@ -1046,7 +1071,7 @@ class AdminController extends Controller
             'duration' => 'required|numeric|min:1|max:24',
             'amount' => 'required|numeric|min:0',
             'booking_status' => 'required|in:pending,confirmed,completed,cancelled',
-            'payment_status' => 'required|in:pending,completed,failed',
+            'payment_status' => 'required|in:pending,initiated,processing,completed,failed,cancelled,refunded',
             'notes' => 'nullable|string',
         ]);
 
@@ -1113,6 +1138,7 @@ class AdminController extends Controller
             'duration' => 'required|numeric|min:1',
             'amount' => 'required|numeric|min:0',
             'booking_status' => 'required|in:pending,confirmed,completed,cancelled',
+            'payment_status' => 'required|in:pending,initiated,processing,completed,failed,cancelled,refunded',
             'notes' => 'nullable|string'
         ]);
 
@@ -1144,10 +1170,11 @@ class AdminController extends Controller
                 $bookingDetail->save();
             }
 
-            // Update payment amount
+            // Update payment amount and status
             if ($booking->payment) {
                 $booking->payment->update([
-                    'amount' => $request->amount
+                    'amount' => $request->amount,
+                    'payment_status' => $request->payment_status
                 ]);
             }
 

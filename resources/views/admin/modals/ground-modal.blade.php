@@ -330,7 +330,7 @@
                     </div>
 
                     <!-- Additional Sections -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 gap-6">
                         <!-- Ground Features Section -->
                         <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:border-indigo-200 transition-colors duration-300">
                             <div class="flex justify-between items-center mb-4 border-b pb-2">
@@ -370,16 +370,25 @@
                                 </button>
                             </div>
                             <div id="slots-container">
-                                <div class="slot-input-group grid grid-cols-2 gap-2 mb-2">
+                                <div class="slot-input-group grid grid-cols-4 gap-2 mb-2">
                                     <input type="text" name="slot_name[]" placeholder="Slot Name"
-                                        class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
-                                    <select name="slot_type[]"
-                                        class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
-                                        <option value="morning">Morning</option>
-                                        <option value="afternoon">Afternoon</option>
-                                        <option value="evening">Evening</option>
-                                        <option value="night">Night</option>
-                                    </select>
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                                    <input type="time" name="start_time[]" placeholder="Start Time"
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                                    <input type="time" name="end_time[]" placeholder="End Time"
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                                    <div class="flex">
+                                        <select name="slot_type[]"
+                                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                                            <option value="morning">Morning</option>
+                                            <option value="afternoon">Afternoon</option>
+                                            <option value="evening">Evening</option>
+                                            <option value="night">Night</option>
+                                        </select>
+                                        <button type="button" class="remove-btn ml-2 text-red-500 hover:text-red-700">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -492,6 +501,30 @@
             });
         }
 
+        // Function to update slot name based on start and end time
+        function setupTimeRangeListener(container) {
+            const startTimeInput = container.querySelector('input[name="start_time[]"]');
+            const endTimeInput = container.querySelector('input[name="end_time[]"]');
+            const slotNameInput = container.querySelector('input[name="slot_name[]"]');
+
+            if (startTimeInput && endTimeInput && slotNameInput) {
+                const updateSlotName = () => {
+                    if (startTimeInput.value && endTimeInput.value) {
+                        slotNameInput.value = startTimeInput.value + ' - ' + endTimeInput.value;
+                    }
+                };
+
+                startTimeInput.addEventListener('change', updateSlotName);
+                endTimeInput.addEventListener('change', updateSlotName);
+            }
+        }
+
+        // Set up time range listeners for initial slot
+        const initialSlots = document.querySelectorAll('.slot-input-group');
+        initialSlots.forEach(slot => {
+            setupTimeRangeListener(slot);
+        });
+
         // Add Slot button
         const addSlotBtn = document.getElementById('add-slot-btn');
         if (addSlotBtn) {
@@ -500,13 +533,15 @@
                 e.stopPropagation();
                 const container = document.getElementById('slots-container');
                 const newInputGroup = document.createElement('div');
-                newInputGroup.classList.add('slot-input-group', 'grid', 'grid-cols-2', 'gap-2', 'mb-2');
+                newInputGroup.classList.add('slot-input-group', 'grid', 'grid-cols-4', 'gap-2', 'mb-2');
 
                 newInputGroup.innerHTML = `
-                    <div class="flex">
-                        <input type="text" name="slot_name[]" placeholder="Slot Name"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
-                    </div>
+                    <input type="text" name="slot_name[]" placeholder="Slot Name"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                    <input type="time" name="start_time[]" placeholder="Start Time"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                    <input type="time" name="end_time[]" placeholder="End Time"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
                     <div class="flex">
                         <select name="slot_type[]"
                             class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
@@ -522,6 +557,9 @@
                 `;
 
                 container.appendChild(newInputGroup);
+
+                // Set up time range listener for the new slot
+                setupTimeRangeListener(newInputGroup);
 
                 // Add event listener to remove button
                 newInputGroup.querySelector('.remove-btn').addEventListener('click', function(e) {
@@ -542,6 +580,90 @@
         // Function to show the modal
         window.showGroundModal = function() {
             document.getElementById('ground-modal').classList.remove('hidden');
+        };
+
+        // Function to populate the slot fields when editing a ground
+        window.populateGroundSlots = function(slots) {
+            const container = document.getElementById('slots-container');
+            // Clear existing slots
+            container.innerHTML = '';
+
+            if (slots && slots.length > 0) {
+                slots.forEach(slot => {
+                    const slotDiv = document.createElement('div');
+                    slotDiv.classList.add('slot-input-group', 'grid', 'grid-cols-4', 'gap-2', 'mb-2');
+
+                    slotDiv.innerHTML = `
+                        <input type="text" name="slot_name[]" placeholder="Slot Name" value="${slot.slot_name || ''}"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                        <input type="time" name="start_time[]" placeholder="Start Time" value="${slot.start_time || ''}"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                        <input type="time" name="end_time[]" placeholder="End Time" value="${slot.end_time || ''}"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                        <div class="flex">
+                            <select name="slot_type[]"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                                <option value="morning" ${slot.slot_type === 'morning' ? 'selected' : ''}>Morning</option>
+                                <option value="afternoon" ${slot.slot_type === 'afternoon' ? 'selected' : ''}>Afternoon</option>
+                                <option value="evening" ${slot.slot_type === 'evening' ? 'selected' : ''}>Evening</option>
+                                <option value="night" ${slot.slot_type === 'night' ? 'selected' : ''}>Night</option>
+                            </select>
+                            <button type="button" class="remove-btn ml-2 text-red-500 hover:text-red-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+
+                    container.appendChild(slotDiv);
+
+                    // Setup time range listeners
+                    setupTimeRangeListener(slotDiv);
+
+                    // Add event listener to remove button
+                    slotDiv.querySelector('.remove-btn').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        container.removeChild(slotDiv);
+                    });
+                });
+            } else {
+                // Add at least one empty slot input group
+                const emptySlot = document.createElement('div');
+                emptySlot.classList.add('slot-input-group', 'grid', 'grid-cols-4', 'gap-2', 'mb-2');
+
+                emptySlot.innerHTML = `
+                    <input type="text" name="slot_name[]" placeholder="Slot Name"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                    <input type="time" name="start_time[]" placeholder="Start Time"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                    <input type="time" name="end_time[]" placeholder="End Time"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                    <div class="flex">
+                        <select name="slot_type[]"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                            <option value="morning">Morning</option>
+                            <option value="afternoon">Afternoon</option>
+                            <option value="evening">Evening</option>
+                            <option value="night">Night</option>
+                        </select>
+                        <button type="button" class="remove-btn ml-2 text-red-500 hover:text-red-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(emptySlot);
+
+                // Setup time range listeners
+                setupTimeRangeListener(emptySlot);
+
+                // Add event listener to remove button
+                emptySlot.querySelector('.remove-btn').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    container.removeChild(emptySlot);
+                });
+            }
         };
     });
 </script>
