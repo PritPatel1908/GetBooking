@@ -1,17 +1,17 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\ReviewReplyController;
+use App\Http\Controllers\User\GroundController;
 use App\Http\Controllers\User\BookingController;
 use App\Http\Controllers\User\PaymentController;
-use App\Http\Controllers\User\GroundController;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\WelcomeController;
-use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\ReviewReplyController;
 
 /*
 |--------------------------------------------------------------------------

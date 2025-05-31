@@ -25,17 +25,17 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Create a client record for ground ownership
-        Client::create([
-            'name' => 'Test Client',
-            'email' => 'client@example.com',
-            'phone' => '1234567890',
-            'address' => '123 Test Street',
-            'user_id' => 1
-        ]);
+        // Client::create([
+        //     'name' => 'Test Client',
+        //     'email' => 'client@example.com',
+        //     'phone' => '1234567890',
+        //     'address' => '123 Test Street',
+        //     'user_id' => 1
+        // ]);
 
         // Run ground seeder
-        $this->call([
-            GroundSeeder::class,
-        ]);
+        // $this->call([
+        //     GroundSeeder::class,
+        // ]);
     }
 }

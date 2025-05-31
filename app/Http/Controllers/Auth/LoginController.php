@@ -133,6 +133,7 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('welcome');
+        // Add JavaScript to clear any success message from sessionStorage
+        return redirect()->route('welcome')->with('clearSuccessMessage', true);
     }
 }

@@ -66,6 +66,14 @@
                     <i class="fas fa-user-cog mr-2"></i>
                     <span>Users</span>
                 </a>
+                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700 hover:pl-6 sidebar-item">
+                    <i class="fas fa-sign-out-alt mr-2"></i>
+                    <span>Logout</span>
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                    @csrf
+                </form>
             </nav>
 
             <div class="px-4 mt-12">
@@ -185,7 +193,8 @@
                 }
 
                 // Add data-label attributes for mobile view based on headers
-                const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+                const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent
+                    .trim());
                 const rows = table.querySelectorAll('tbody tr');
 
                 rows.forEach(row => {
@@ -195,7 +204,8 @@
                             cell.setAttribute('data-label', headers[index]);
 
                             // Identify special cells
-                            if (cell.querySelector('img') && cell.textContent.includes('client') ||
+                            if (cell.querySelector('img') && cell.textContent.includes(
+                                    'client') ||
                                 cell.querySelector('.flex') && cell.querySelector('img')) {
                                 cell.classList.add('client-cell');
                                 cell.classList.add('no-label');
@@ -223,16 +233,21 @@
                             // Status badges
                             const statusSpan = cell.querySelector('span.rounded-full');
                             if (statusSpan) {
-                                const statusText = statusSpan.textContent.trim().toLowerCase();
+                                const statusText = statusSpan.textContent.trim()
+                                    .toLowerCase();
                                 statusSpan.classList.add('status-badge');
 
-                                if (statusText.includes('confirmed') || statusText.includes('active') ||
-                                    statusText.includes('completed') || statusText.includes('success')) {
+                                if (statusText.includes('confirmed') || statusText.includes(
+                                        'active') ||
+                                    statusText.includes('completed') || statusText.includes(
+                                        'success')) {
                                     statusSpan.classList.add('success');
-                                } else if (statusText.includes('pending') || statusText.includes('waiting')) {
+                                } else if (statusText.includes('pending') || statusText
+                                    .includes('waiting')) {
                                     statusSpan.classList.add('warning');
-                                } else if (statusText.includes('cancelled') || statusText.includes('failed') ||
-                                          statusText.includes('rejected')) {
+                                } else if (statusText.includes('cancelled') || statusText
+                                    .includes('failed') ||
+                                    statusText.includes('rejected')) {
                                     statusSpan.classList.add('danger');
                                 } else {
                                     statusSpan.classList.add('info');
@@ -244,7 +259,8 @@
 
                 // Create table scroll container if not already wrapped
                 const parent = table.parentElement;
-                if (!parent.classList.contains('overflow-x-auto') && !parent.classList.contains('table-scroll-container')) {
+                if (!parent.classList.contains('overflow-x-auto') && !parent.classList.contains(
+                        'table-scroll-container')) {
                     const wrapper = document.createElement('div');
                     wrapper.className = 'overflow-x-auto table-scroll-container relative';
                     table.parentNode.insertBefore(wrapper, table);
@@ -297,7 +313,8 @@
 
             // Better touch experience for mobile
             if ('ontouchstart' in document.documentElement) {
-                const clickableElements = document.querySelectorAll('button, a, input[type="checkbox"], input[type="radio"]');
+                const clickableElements = document.querySelectorAll(
+                    'button, a, input[type="checkbox"], input[type="radio"]');
                 clickableElements.forEach(el => {
                     el.classList.add('touch-target');
                 });
@@ -340,7 +357,8 @@
                     // Remove sort classes from all headers
                     sortableHeaders.forEach(h => {
                         h.classList.remove('sort-asc', 'sort-desc');
-                        h.querySelector('.sort-icon').innerHTML = '<i class="fas fa-sort"></i>';
+                        h.querySelector('.sort-icon').innerHTML =
+                            '<i class="fas fa-sort"></i>';
                     });
 
                     // Set new sort direction
