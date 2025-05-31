@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Client;
 use App\Models\User;
+use App\Models\Client;
+use App\Models\Ground;
+use App\Models\Booking;
+use App\Models\Payment;
+use Illuminate\Http\Request;
+use App\Models\BookingDetail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
-use App\Models\Booking;
-use App\Models\BookingDetail;
-use App\Models\Payment;
-use Illuminate\Support\Facades\DB;
-use App\Models\Ground;
 
 class AdminController extends Controller
 {
@@ -1342,16 +1342,121 @@ class AdminController extends Controller
     public function getGroundDetails($id)
     {
         $ground = Ground::findOrFail($id);
+        return response()->json($ground);
+    }
+
+    /**
+     * Display a listing of payments in the admin panel.
+     */
+    public function admin_payments(Request $request)
+    {
+        $payments = Payment::with(['booking.ground', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        // Check if this is an AJAX request for table reload
+        if ($request->ajax() || $request->has('ajax')) {
+            // Format payment data for JSON response
+            $formattedPayments = $payments->map(function ($payment) {
+                return [
+                    'id' => $payment->id,
+                    'transaction_id' => $payment->transaction_id,
+                    'date' => $payment->date->format('d M Y'),
+                    'amount' => $payment->amount,
+                    'payment_status' => $payment->payment_status,
+                    'payment_method' => $payment->payment_method,
+                    'user_name' => $payment->user->name ?? 'N/A',
+                    'user_email' => $payment->user->email ?? 'N/A',
+                    'booking_sku' => $payment->booking->booking_sku ?? 'N/A',
+                    'ground_name' => $payment->booking->ground->name ?? 'N/A',
+                ];
+            });
+
+            // Return JSON response
+            return response()->json([
+                'payments' => $formattedPayments,
+                'pagination' => [
+                    'total' => $payments->total(),
+                    'per_page' => $payments->perPage(),
+                    'current_page' => $payments->currentPage(),
+                    'last_page' => $payments->lastPage(),
+                    'from' => $payments->firstItem(),
+                    'to' => $payments->lastItem()
+                ]
+            ]);
+        }
+
+        // Regular view response
+        return view('admin.payments', compact('payments'));
+    }
+
+    /**
+     * Display the payment details page.
+     */
+    public function payment_view_page($id)
+    {
+        $payment = Payment::with(['booking.ground', 'user'])
+            ->findOrFail($id);
+
+        return view('admin.payment-view', compact('payment'));
+    }
+
+    /**
+     * Get payment details for AJAX request.
+     */
+    public function payment_view(Request $request, $id)
+    {
+        $payment = Payment::with(['booking.ground', 'user'])
+            ->findOrFail($id);
 
         return response()->json([
             'status' => 'success',
-            'ground' => [
-                'id' => $ground->id,
-                'name' => $ground->name,
-                'price_per_hour' => $ground->price_per_hour,
-                'opening_time' => $ground->opening_time,
-                'closing_time' => $ground->closing_time
-            ]
+            'payment' => $payment
         ]);
+    }
+
+    /**
+     * Update payment status.
+     */
+    public function payment_update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'payment_status' => 'required|in:pending,initiated,processing,completed,failed,cancelled,refunded',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $payment = Payment::findOrFail($id);
+        $payment->payment_status = $request->payment_status;
+        $payment->save();
+
+        // Update booking payment status if applicable
+        if ($payment->booking) {
+            $payment->booking->payment_status = $request->payment_status;
+            $payment->booking->save();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Payment status updated successfully',
+            'payment' => $payment
+        ]);
+    }
+
+    /**
+     * Handle pagination for payments.
+     */
+    public function payments_pagination(Request $request)
+    {
+        $payments = Payment::with(['booking.ground', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('admin.partials.payments-table', compact('payments'))->render();
     }
 }

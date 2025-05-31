@@ -12,6 +12,7 @@ use App\Http\Controllers\ReviewReplyController;
 use App\Http\Controllers\User\GroundController;
 use App\Http\Controllers\User\BookingController;
 use App\Http\Controllers\User\PaymentController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +58,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/clients', [AdminController::class, 'admin_clients'])->name('admin.clients');
     Route::get('/admin/clients/pagination', [AdminController::class, 'clients_pagination'])->name('admin.clients.pagination');
     Route::get('/admin/clients/{id}', [AdminController::class, 'client_view_page'])->name('admin.clients.show');
+
+    // Admin User Management Routes
+    Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users');
+    Route::get('/admin/users/pagination', [AdminUserController::class, 'pagination'])->name('admin.users.pagination');
+    Route::post('/admin/users', [AdminUserController::class, 'store'])->name('admin.users.store');
+    Route::get('/admin/users/{id}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/admin/users/{id}', [AdminUserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/admin/users/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.delete');
+    Route::get('/admin/users/{id}/view', [AdminUserController::class, 'view'])->name('admin.users.view');
+    Route::get('/admin/users/{id}', [AdminUserController::class, 'show'])->name('admin.users.show');
 
     // Admin Ground routes
     Route::get('/admin/grounds', [AdminController::class, 'admin_grounds'])->name('admin.grounds');
@@ -106,6 +117,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/bookings/{id}', [AdminController::class, 'booking_view_page'])->name('admin.bookings.show');
     Route::get('/admin/bookings/{id}/edit', [AdminController::class, 'booking_edit'])->name('admin.bookings.edit');
     Route::get('/admin/bookings/pagination', [AdminController::class, 'bookings_pagination'])->name('admin.bookings.pagination');
+
+    // Admin Payment Routes
+    Route::get('/admin/payments', [AdminController::class, 'admin_payments'])->name('admin.payments');
+    Route::get('/admin/payments/{id}', [AdminController::class, 'payment_view_page'])->name('admin.payments.show');
+    Route::get('/admin/payments/{id}/view', [AdminController::class, 'payment_view'])->name('admin.payments.view');
+    Route::put('/admin/payments/{id}', [AdminController::class, 'payment_update'])->name('admin.payments.update');
+    Route::get('/admin/payments/pagination', [AdminController::class, 'payments_pagination'])->name('admin.payments.pagination');
+    Route::post('/admin/payments/{id}/refund', [App\Http\Controllers\Admin\PaymentController::class, 'processRefund'])->name('admin.payments.refund');
 
     // Ground slots and details for booking modal
     Route::get('/admin/grounds/{id}/available-slots', [AdminController::class, 'getAvailableSlots'])->name('admin.grounds.available-slots');

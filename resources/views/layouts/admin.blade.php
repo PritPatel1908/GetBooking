@@ -52,12 +52,12 @@
                     <span>Grounds</span>
                 </a>
                 <a href="{{ route('admin.bookings') }}"
-                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700 hover:pl-6 sidebar-item">
+                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700 hover:pl-6 sidebar-item {{ request()->is('admin/bookings') ? 'active' : '' }}">
                     <i class="fas fa-calendar-check mr-2"></i>
                     <span>Bookings</span>
                 </a>
-                <a href="payments.html"
-                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700 hover:pl-6 sidebar-item">
+                <a href="{{ route('admin.payments') }}"
+                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700 hover:pl-6 sidebar-item {{ request()->is('admin/payments') ? 'active' : '' }}">
                     <i class="fas fa-money-bill-wave mr-2"></i>
                     <span>Payments</span>
                 </a>
