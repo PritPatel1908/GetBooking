@@ -1,0 +1,506 @@
+/* Responsive Fixes for GetBooking
+   This file contains additional responsive fixes for the GetBooking application
+   to ensure proper display across all devices.
+*/
+
+/* Fix for iOS 100vh issue */
+:root {
+    --vh: 1vh;
+}
+
+/* General responsive improvements */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Table responsiveness */
+table {
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+}
+
+@media (min-width: 768px) {
+    table {
+        display: table;
+    }
+}
+
+/* Form elements responsiveness */
+input,
+select,
+textarea,
+button {
+    max-width: 100%;
+}
+
+/* Fix for modals on mobile */
+.modal-content {
+    width: 95%;
+    max-width: 500px;
+    margin: 10% auto;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* Fix for dropdown menus on touch devices */
+@media (max-width: 767px) {
+    .group:hover .group-hover\:block {
+        display: none;
+    }
+
+    .group.active .group-hover\:block {
+        display: block;
+    }
+
+    /* Improved tap targets for navigation */
+    .nav-links a,
+    .footer-links a,
+    button,
+    .btn,
+    [role="button"] {
+        padding: 12px 8px;
+    }
+
+    /* Better spacing for mobile content */
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    /* Improved card layouts for mobile */
+    .card {
+        margin-bottom: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:active {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    /* Fix for form elements on mobile */
+    form {
+        margin-bottom: 20px;
+    }
+
+    /* Improved spacing between form elements */
+    form .form-group,
+    form .form-control,
+    form .input-group {
+        margin-bottom: 15px;
+    }
+}
+
+/* Fix for iOS input zoom */
+@media screen and (max-width: 767px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="tel"],
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* Fix for long words breaking layouts */
+p, h1, h2, h3, h4, h5, h6, span, a {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
+}
+
+/* Fix for sticky elements on iOS */
+.sticky,
+.fixed {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+/* Fix for flex gap in Safari */
+.gap-fix {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.gap-fix > * {
+    margin: 0.5rem;
+}
+
+/* Fix for images in cards */
+.card img {
+    object-fit: cover;
+    width: 100%;
+}
+
+/* Better tap targets for mobile */
+@media (max-width: 767px) {
+    button,
+    a.btn,
+    input[type="submit"],
+    .nav-links a {
+        min-height: 44px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .footer-links a {
+        display: inline-block;
+        padding: 8px 0;
+    }
+
+    /* Improved mobile typography */
+    body {
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+        line-height: 1.3;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        line-height: 1.35;
+    }
+
+    h3 {
+        font-size: 1.3rem;
+        line-height: 1.4;
+    }
+
+    /* Fix for buttons on mobile */
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-group .btn {
+        margin-bottom: 10px;
+        width: 100%;
+    }
+}
+
+/* Fix for horizontal scrolling issues */
+body {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.container {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Improved focus styles for accessibility */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid #38c172;
+    outline-offset: 2px;
+}
+
+/* Dark mode focus styles */
+.dark a:focus,
+.dark button:focus,
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+    outline-color: #4299e1;
+}
+
+/* Fix for iOS scroll bounce background color */
+html {
+    background-color: #f8fafc;
+}
+
+.dark html {
+    background-color: #1a202c;
+}
+
+/* Fix for iOS momentum scrolling */
+.overflow-y-auto,
+.overflow-y-scroll {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Fix for position sticky support */
+.sticky-top {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Fix for grid layout in older browsers */
+.grid-fallback {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.grid-fallback > * {
+    flex: 1 1 300px;
+    margin: 0.5rem;
+}
+
+/* Improved loading states */
+.loading {
+    position: relative;
+    min-height: 100px;
+}
+
+.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    margin-top: -15px;
+    margin-left: -15px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #38c172;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.dark .loading::after {
+    border-color: rgba(255, 255, 255, 0.1);
+    border-top-color: #4299e1;
+}
+
+/* Better image loading */
+.lazy-image {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.lazy-image.loaded {
+    opacity: 1;
+}
+
+/* Improved mobile navigation drawer */
+.nav-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.nav-drawer.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.nav-drawer-content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80%;
+    max-width: 300px;
+    height: 100%;
+    background-color: white;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.nav-drawer.active .nav-drawer-content {
+    transform: translateX(0);
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    body {
+        font-size: 12pt;
+    }
+
+    a[href]:after {
+        content: " (" attr(href) ")";
+    }
+
+    /* Ensure images are printed properly */
+    img {
+        max-width: 100% !important;
+        page-break-inside: avoid;
+    }
+
+    /* Avoid page breaks inside important elements */
+    h1, h2, h3,
+    .card,
+    .table,
+    .ground-info {
+        page-break-inside: avoid;
+    }
+
+    /* Ensure background colors and images print */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
+/* Fix for mobile landscape mode */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero {
+        min-height: auto;
+        padding: 2rem 0;
+    }
+
+    .hero-content {
+        padding: 1rem 0;
+    }
+
+    .nav-links {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+}
+
+/* Better responsive images */
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Responsive aspect ratio containers */
+.aspect-ratio {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    overflow: hidden;
+}
+
+.aspect-ratio-1x1 {
+    padding-bottom: 100%; /* 1:1 Aspect Ratio */
+}
+
+.aspect-ratio-4x3 {
+    padding-bottom: 75%; /* 4:3 Aspect Ratio */
+}
+
+.aspect-ratio > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Responsive utilities */
+.d-none {
+    display: none !important;
+}
+
+.d-block {
+    display: block !important;
+}
+
+@media (min-width: 576px) {
+    .d-sm-none {
+        display: none !important;
+    }
+
+    .d-sm-block {
+        display: block !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .d-md-none {
+        display: none !important;
+    }
+
+    .d-md-block {
+        display: block !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .d-lg-none {
+        display: none !important;
+    }
+
+    .d-lg-block {
+        display: block !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    .d-xl-none {
+        display: none !important;
+    }
+
+    .d-xl-block {
+        display: block !important;
+    }
+}
+
+/* Skip link for accessibility */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #38c172;
+    color: white;
+    padding: 8px;
+    z-index: 1001;
+    transition: top 0.3s;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* Additional responsive fixes */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* High contrast mode improvements */
+@media (forced-colors: active) {
+    button,
+    .btn,
+    .card,
+    .nav-links a,
+    .footer-links a {
+        border: 1px solid currentColor;
+    }
+}
+
+/* Touch device improvements */
+.touch-device .nav-links a,
+.touch-device .btn,
+.touch-device button,
+.touch-device input[type="submit"] {
+    min-height: 44px;
+}

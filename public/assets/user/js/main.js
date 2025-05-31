@@ -24,15 +24,35 @@ themeToggle.addEventListener('click', () => {
     }
 });
 
-// Mobile Menu Toggle
+// Mobile Menu Toggle - Improved
 const mobileMenu = document.querySelector('.mobile-menu');
 const navLinks = document.querySelector('.nav-links');
 
-mobileMenu.addEventListener('click', () => {
+// Close menu when clicking outside
+document.addEventListener('click', (event) => {
+    const isClickInsideNav = navLinks.contains(event.target);
+    const isClickOnMenuButton = mobileMenu.contains(event.target);
+
+    if (!isClickInsideNav && !isClickOnMenuButton && navLinks.classList.contains('active')) {
+        navLinks.classList.remove('active');
+        mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+    }
+});
+
+mobileMenu.addEventListener('click', (event) => {
+    event.stopPropagation();
     navLinks.classList.toggle('active');
     mobileMenu.innerHTML = navLinks.classList.contains('active')
         ? '<i class="fas fa-times"></i>'
         : '<i class="fas fa-bars"></i>';
+});
+
+// Handle screen resize - close mobile menu when switching to desktop
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 768 && navLinks.classList.contains('active')) {
+        navLinks.classList.remove('active');
+        mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+    }
 });
 
 // Card Animation on Scroll
@@ -189,7 +209,7 @@ if (testimonialSlides.length > 0 && testimonialDots.length > 0) {
     }, 5000);
 }
 
-// Go to top button
+// Go to top button - Improved with smooth behavior
 const goTopButton = document.getElementById('goTop');
 
 function scrollFunction() {
@@ -207,13 +227,29 @@ goTopButton.addEventListener('click', () => {
     });
 });
 
-// Event Listeners
-window.addEventListener('scroll', () => {
+// Debounce function to improve scroll performance
+function debounce(func, wait = 20, immediate = true) {
+    let timeout;
+    return function() {
+        const context = this, args = arguments;
+        const later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        const callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+}
+
+// Event Listeners with debounce for better performance
+window.addEventListener('scroll', debounce(() => {
     scrollFunction();
     animateOnScroll();
     checkCounterVisibility();
     resetCounterAnimation();
-});
+}));
 
 // Initialize animations on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -223,19 +259,33 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add smooth scrolling to all links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
-            e.preventDefault();
+            const href = this.getAttribute('href');
 
-            document.querySelector(this.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth'
-            });
+            // Only apply smooth scroll for page anchors, not for empty "#" links
+            if (href !== "#" && document.querySelector(href)) {
+                e.preventDefault();
 
-            // Close mobile menu if open
-            if (navLinks.classList.contains('active')) {
-                navLinks.classList.remove('active');
-                mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+                document.querySelector(href).scrollIntoView({
+                    behavior: 'smooth'
+                });
+
+                // Close mobile menu if open
+                if (navLinks.classList.contains('active')) {
+                    navLinks.classList.remove('active');
+                    mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+                }
             }
         });
     });
+
+    // Fix for iOS devices where 100vh doesn't account for address bar
+    function setMobileHeight() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+
+    setMobileHeight();
+    window.addEventListener('resize', setMobileHeight);
 });
 
 // Function to fetch ground details and show in modal

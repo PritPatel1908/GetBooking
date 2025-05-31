@@ -36,7 +36,7 @@ Route::middleware('guest')->group(function () {
 // Authenticated routes
 Route::middleware('auth')->group(function () {
     // User routes
-    Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('/home', [UserController::class, 'home'])->name('user.home');
     Route::get('/all_grounds', [UserController::class, 'all_grounds'])->name('user.all_grounds');
     Route::get('/view_ground/{id}', [UserController::class, 'view_ground'])->name('user.view_ground');

@@ -9,9 +9,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mobile Menu Toggle
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const mobileMenu = document.getElementById('mobile-menu');
+    const body = document.body;
 
     mobileMenuButton.addEventListener('click', function() {
         mobileMenu.classList.toggle('hidden');
+
+        // When mobile menu is open, prevent background scrolling
+        if (!mobileMenu.classList.contains('hidden')) {
+            body.style.overflow = 'hidden';
+        } else {
+            body.style.overflow = '';
+        }
     });
 
     // Ground Filter Buttons

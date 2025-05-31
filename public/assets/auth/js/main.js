@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const registerBtn = document.getElementById('registerBtn');
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
+    const cardFront = document.querySelector('.card-front');
+    const cardBack = document.querySelector('.card-back');
 
     // Add password visibility toggles
     addPasswordToggles();
@@ -15,18 +17,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Toggle between login and signup
     showSignupBtn.addEventListener('click', function() {
-        cardWrapper.classList.add('card-flip');
-        // Scroll to top when flipping card on mobile
         if (window.innerWidth <= 576) {
+            // On mobile, don't use flip animation, just swap displays
+            cardFront.style.display = 'none';
+            cardBack.style.display = 'flex';
+            // Scroll to top
             window.scrollTo(0, 0);
+        } else {
+            // On desktop, use the card flip animation
+            cardWrapper.classList.add('card-flip');
         }
     });
 
     showLoginBtn.addEventListener('click', function() {
-        cardWrapper.classList.remove('card-flip');
-        // Scroll to top when flipping card on mobile
         if (window.innerWidth <= 576) {
+            // On mobile, don't use flip animation, just swap displays
+            cardFront.style.display = 'flex';
+            cardBack.style.display = 'none';
+            // Scroll to top
             window.scrollTo(0, 0);
+        } else {
+            // On desktop, use the card flip animation
+            cardWrapper.classList.remove('card-flip');
         }
     });
 
@@ -73,8 +85,27 @@ document.addEventListener('DOMContentLoaded', function() {
     function checkForMobileLayout() {
         if (window.innerWidth <= 576) {
             document.body.classList.add('mobile-view');
+
+            // Disable 3D transforms on mobile
+            cardWrapper.style.transform = 'none';
+
+            // Set display based on which card should be shown
+            if (cardWrapper.classList.contains('card-flip')) {
+                cardFront.style.display = 'none';
+                cardBack.style.display = 'flex';
+            } else {
+                cardFront.style.display = 'flex';
+                cardBack.style.display = 'none';
+            }
         } else {
             document.body.classList.remove('mobile-view');
+
+            // Re-enable 3D transforms on desktop
+            cardWrapper.style.transform = '';
+
+            // Reset display properties
+            cardFront.style.display = '';
+            cardBack.style.display = '';
         }
     }
 
