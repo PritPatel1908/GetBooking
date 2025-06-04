@@ -1,20 +1,20 @@
 <!-- Delete Confirmation Modal -->
-<div id="delete-confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[9999] hidden">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg max-w-md w-full mx-auto shadow-xl" id="delete-modal-content">
-            <div class="p-5 text-center">
-                <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-trash text-red-500 text-xl"></i>
+<div id="delete-confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="bg-white rounded-lg max-w-md mx-auto mt-20 overflow-hidden shadow-xl">
+        <div class="p-6">
+            <div class="text-center">
+                <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-red-100">
+                    <i class="fas fa-trash-alt text-red-500 text-xl"></i>
                 </div>
-                <h3 class="text-xl font-medium text-gray-900 mb-2">Delete Client</h3>
-                <p class="text-gray-500 mb-6">Are you sure you want to delete this client? This action cannot be undone and all associated data will be permanently removed.</p>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Delete Confirmation</h3>
+                <p class="text-gray-500 mb-6">Are you sure you want to delete this item? This action cannot be undone.</p>
 
                 <div class="flex justify-center space-x-3">
-                    <button type="button" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 focus:outline-none cancel-delete-btn" onclick="hideDeleteModal()">
+                    <button id="cancel-delete-modal" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">
                         Cancel
                     </button>
-                    <button type="button" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none confirm-delete-btn" onclick="deleteClientConfirmed()">
-                        <i class="fas fa-trash mr-2"></i> Delete Client
+                    <button id="confirm-delete-modal" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                        Delete
                     </button>
                 </div>
             </div>

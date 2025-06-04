@@ -61,7 +61,7 @@
                     <i class="fas fa-money-bill-wave mr-2"></i>
                     <span>Payments</span>
                 </a>
-                <a href="users.html"
+                <a href="{{ route('admin.users') }}"
                     class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700 hover:pl-6 sidebar-item">
                     <i class="fas fa-user-cog mr-2"></i>
                     <span>Users</span>
