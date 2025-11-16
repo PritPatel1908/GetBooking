@@ -1,0 +1,395 @@
+/* ============================================
+   BookMyShow-Inspired Complete Theme Override
+   Complete UI Redesign - All Pages
+   ============================================ */
+
+/* Global Theme Variables */
+:root {
+    --bms-primary: #F84464;
+    --bms-primary-dark: #E63950;
+    --bms-primary-light: #FF6B8A;
+    --bms-secondary: #FFB02E;
+    --bms-success: #10b981;
+    --bms-danger: #ef4444;
+    --bms-gradient: linear-gradient(135deg, #F84464 0%, #FF6B8A 50%, #FF8FA8 100%);
+    --bms-gradient-alt: linear-gradient(135deg, #E63950 0%, #F84464 100%);
+    --bms-shadow-sm: 0 2px 8px rgba(248, 68, 100, 0.12);
+    --bms-shadow-md: 0 4px 16px rgba(248, 68, 100, 0.18);
+    --bms-shadow-lg: 0 8px 24px rgba(248, 68, 100, 0.24);
+    --bms-shadow-xl: 0 12px 32px rgba(248, 68, 100, 0.3);
+    --bms-shadow-glow: 0 0 30px rgba(248, 68, 100, 0.4), 0 0 60px rgba(248, 68, 100, 0.2);
+}
+
+/* Override all primary colors */
+body {
+    --primary: var(--bms-primary);
+    --primary-dark: var(--bms-primary-dark);
+    --primary-light: var(--bms-primary-light);
+    --primary-gradient: var(--bms-gradient);
+    --shadow-md: var(--bms-shadow-md);
+    --shadow-lg: var(--bms-shadow-lg);
+    --shadow-xl: var(--bms-shadow-xl);
+}
+
+/* ============================================
+   Global Component Redesigns
+   ============================================ */
+
+/* All Buttons - BookMyShow Style */
+button, .btn, input[type="submit"], input[type="button"],
+.book-now-btn, .btn-animated, .btn-gradient, .action-btn-modern,
+.filter-btn-primary, .book-btn-modern {
+    background: var(--bms-gradient) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 0.875rem 2rem !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    cursor: pointer !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 4px 12px rgba(248, 68, 100, 0.3) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+button::before, .btn::before, .book-now-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+    z-index: 1;
+}
+
+button:hover::before, .btn:hover::before, .book-now-btn:hover::before {
+    left: 100%;
+}
+
+button:hover, .btn:hover, .book-now-btn:hover,
+.action-btn-modern:hover, .filter-btn-primary:hover, .book-btn-modern:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 24px rgba(248, 68, 100, 0.45) !important;
+    background: var(--bms-gradient-alt) !important;
+}
+
+button:active, .btn:active {
+    transform: translateY(-1px) !important;
+}
+
+/* All Cards - Enhanced BookMyShow Style */
+.card, .ground-card-modern, .booking-card-modern, .stat-card-modern,
+.booking-card, .payment-card, .filter-section-modern {
+    background: #ffffff !important;
+    border-radius: 20px !important;
+    box-shadow: var(--bms-shadow-md) !important;
+    border: 1px solid rgba(248, 68, 100, 0.1) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+.card:hover, .ground-card-modern:hover, .booking-card-modern:hover,
+.stat-card-modern:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    box-shadow: var(--bms-shadow-glow), var(--bms-shadow-xl) !important;
+    border-color: var(--bms-primary) !important;
+}
+
+/* All Headers - BookMyShow Style */
+.page-header-modern, .bookings-page-header, .profile-header-section,
+.hero-section, .ground-info, .booking-section {
+    background: var(--bms-gradient) !important;
+}
+
+/* Input Fields - Modern Style */
+input[type="text"], input[type="email"], input[type="password"], input[type="tel"],
+input[type="date"], input[type="time"], textarea, select,
+.form-input-modern, .form-select-modern, .form-textarea-modern,
+.filter-input-group input, .hero-search input {
+    border: 2px solid rgba(248, 68, 100, 0.15) !important;
+    border-radius: 12px !important;
+    padding: 0.875rem 1.25rem !important;
+    font-size: 0.9375rem !important;
+    transition: all 0.3s ease !important;
+    background: #ffffff !important;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none !important;
+    border-color: var(--bms-primary) !important;
+    box-shadow: 0 0 0 4px rgba(248, 68, 100, 0.1) !important;
+}
+
+/* Navigation Links */
+.nav-link, .sidebar-nav a {
+    color: var(--text-secondary) !important;
+    transition: all 0.3s ease !important;
+}
+
+.nav-link:hover, .sidebar-nav a:hover {
+    color: var(--bms-primary) !important;
+    background: rgba(248, 68, 100, 0.08) !important;
+}
+
+.nav-link.active, .sidebar-nav a.active {
+    color: var(--bms-primary) !important;
+    background: rgba(248, 68, 100, 0.12) !important;
+    font-weight: 600 !important;
+}
+
+/* Status Badges */
+.status-badge, .booking-status-badge-modern, .status-confirmed,
+.status-pending, .status-cancelled, .status-completed {
+    border-radius: 20px !important;
+    padding: 0.5rem 1rem !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+}
+
+.status-confirmed {
+    background: #d1fae5 !important;
+    color: #065f46 !important;
+}
+
+.status-pending {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+}
+
+.status-cancelled {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+}
+
+.status-completed {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+}
+
+/* Price Display */
+.ground-card-price, .booking-total-price, .stat-card-value,
+.price-amount {
+    background: var(--bms-gradient) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+/* Time Slot Buttons */
+.slot-btn, .time-slot, .date-option {
+    border: 2px solid rgba(248, 68, 100, 0.2) !important;
+    border-radius: 12px !important;
+    padding: 0.875rem 1.25rem !important;
+    transition: all 0.3s ease !important;
+    background: #ffffff !important;
+    cursor: pointer !important;
+}
+
+.slot-btn:hover, .time-slot:hover, .date-option:hover {
+    border-color: var(--bms-primary) !important;
+    background: rgba(248, 68, 100, 0.05) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--bms-shadow-sm) !important;
+}
+
+.slot-btn.selected, .time-slot.selected, .date-option.selected {
+    background: var(--bms-gradient) !important;
+    color: white !important;
+    border-color: var(--bms-primary) !important;
+    box-shadow: var(--bms-shadow-md) !important;
+}
+
+/* Image Sliders */
+.ground-image-slider, .ground-card-image-wrapper {
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+.slider-control {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 2px solid rgba(248, 68, 100, 0.2) !important;
+    color: var(--bms-primary) !important;
+    border-radius: 50% !important;
+    transition: all 0.3s ease !important;
+}
+
+.slider-control:hover {
+    background: var(--bms-primary) !important;
+    color: white !important;
+    border-color: var(--bms-primary) !important;
+    transform: scale(1.1) !important;
+}
+
+/* Ratings */
+.rating-stars i, .review-stars i {
+    color: #fbbf24 !important;
+    transition: all 0.2s ease !important;
+}
+
+.rating-stars i:hover {
+    transform: scale(1.2) !important;
+}
+
+/* Tabs */
+.booking-tab-modern, .filter-toggle-btn {
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+}
+
+.booking-tab-modern.active {
+    background: var(--bms-gradient) !important;
+    color: white !important;
+    box-shadow: var(--bms-shadow-md) !important;
+}
+
+/* Modal Overlays */
+.modal, #review-modal, #cancel-modal {
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(8px) !important;
+}
+
+.modal-content, .modal > div {
+    border-radius: 24px !important;
+    box-shadow: var(--bms-shadow-xl) !important;
+    border: 1px solid rgba(248, 68, 100, 0.2) !important;
+}
+
+/* Forms */
+.form-group-modern, .form-group {
+    margin-bottom: 1.5rem !important;
+}
+
+.form-label-modern, .form-label {
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Tables */
+.table, .table-container {
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    box-shadow: var(--bms-shadow-md) !important;
+}
+
+.table thead {
+    background: var(--bms-gradient) !important;
+    color: white !important;
+}
+
+.table tbody tr:hover {
+    background: rgba(248, 68, 100, 0.05) !important;
+}
+
+/* Footer */
+.footer {
+    background: #1f2937 !important;
+    border-top: 3px solid var(--bms-primary) !important;
+}
+
+.footer-section a:hover {
+    color: var(--bms-primary-light) !important;
+}
+
+/* Empty States */
+.empty-state-modern {
+    background: #ffffff !important;
+    border-radius: 24px !important;
+    box-shadow: var(--bms-shadow-lg) !important;
+    border: 2px dashed rgba(248, 68, 100, 0.2) !important;
+}
+
+.empty-state-icon {
+    background: var(--bms-gradient) !important;
+}
+
+/* Loading Spinners */
+.fa-spinner, .spinner {
+    color: var(--bms-primary) !important;
+}
+
+/* Links */
+a:not(.btn):not(.nav-link):not(.dropdown-item) {
+    color: var(--bms-primary) !important;
+    transition: color 0.3s ease !important;
+}
+
+a:not(.btn):not(.nav-link):not(.dropdown-item):hover {
+    color: var(--bms-primary-dark) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bms-gradient);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--bms-primary-dark);
+}
+
+/* Animations */
+@keyframes bmsPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+.bms-pulse {
+    animation: bmsPulse 2s ease-in-out infinite;
+}
+
+@keyframes bmsFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bms-fade-in {
+    animation: bmsFadeIn 0.6s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    button, .btn {
+        padding: 0.75rem 1.5rem !important;
+        font-size: 0.9375rem !important;
+    }
+    
+    .card, .ground-card-modern {
+        border-radius: 16px !important;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .btn, button, .booking-actions {
+        display: none !important;
+    }
+}
+

@@ -1,0 +1,445 @@
+/* Delete modal animations */
+#delete-modal-content {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#delete-modal-content.opacity-100 {
+    opacity: 1 !important;
+}
+
+#delete-modal-content.translate-y-0 {
+    transform: translateY(0) !important;
+}
+
+#delete-modal-content.opacity-0 {
+    opacity: 0 !important;
+}
+
+#delete-modal-content.translate-y-4 {
+    transform: translateY(1rem) !important;
+}
+
+/* Fix for modal display */
+#delete-confirm-modal {
+    display: none;
+}
+
+#delete-confirm-modal.hidden {
+    display: none !important;
+}
+
+#delete-confirm-modal:not(.hidden) {
+    display: block !important;
+}
+
+/* Enhanced responsive styles */
+@media (max-width: 640px) {
+    /* Improve table readability on small screens */
+    table.responsive-table {
+        display: block;
+        width: 100%;
+    }
+
+    .responsive-table th,
+    .responsive-table td {
+        padding: 0.5rem 0.75rem !important;
+    }
+
+    /* Add scroll indicators for tables that scroll horizontally */
+    .table-scroll-container {
+        position: relative;
+    }
+
+    .table-scroll-container::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 30px;
+        background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.8));
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .table-scroll-container.has-overflow::after {
+        opacity: 1;
+    }
+
+    /* Improve form layout on small screens */
+    .responsive-form-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Make buttons more touch-friendly */
+    button, .btn, a.btn {
+        min-height: 42px;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+}
+
+/* Enhanced Responsive Tables Styling */
+.table-responsive-card {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-responsive-card thead {
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.table-responsive-card th {
+    background-color: #f9fafb;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #4b5563;
+}
+
+.table-responsive-card tr {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.table-responsive-card tr:hover {
+    background-color: #f9fafb;
+}
+
+.table-responsive-card th,
+.table-responsive-card td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+}
+
+/* Mobile card view for tables */
+@media (max-width: 640px) {
+    .table-responsive-card.card-view {
+        display: block;
+        width: 100%;
+    }
+
+    .table-responsive-card.card-view thead {
+        display: none; /* Hide table header on mobile */
+    }
+
+    .table-responsive-card.card-view tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .table-responsive-card.card-view tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        background-color: #fff;
+    }
+
+    .table-responsive-card.card-view td {
+        display: flex;
+        text-align: right;
+        border: none;
+        padding: 0.5rem;
+    }
+
+    .table-responsive-card.card-view td::before {
+        content: attr(data-label);
+        float: left;
+        font-weight: bold;
+        margin-right: 1rem;
+        color: #4b5563;
+        text-align: left;
+        flex-basis: 40%;
+    }
+
+    /* Style for specific cells that need special treatment */
+    .table-responsive-card.card-view td.no-label::before {
+        display: none;
+    }
+
+    /* Client cell styling with image */
+    .table-responsive-card.card-view td.client-cell {
+        display: flex;
+        align-items: center;
+        background-color: #f3f4f6;
+        border-radius: 0.375rem 0.375rem 0 0;
+        margin-top: -0.5rem;
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+        padding: 0.75rem;
+        text-align: left;
+    }
+
+    .table-responsive-card.card-view td.client-cell::before {
+        display: none;
+    }
+
+    /* Action buttons styling */
+    .table-responsive-card.card-view td.actions-cell {
+        justify-content: center;
+        padding: 0.75rem;
+        background-color: #f9fafb;
+        margin-bottom: -0.5rem;
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+        border-radius: 0 0 0.375rem 0.375rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .table-responsive-card.card-view td.actions-cell::before {
+        display: none;
+    }
+
+    .table-responsive-card.card-view td.actions-cell .action-button {
+        margin: 0 0.25rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.375rem;
+        background-color: #fff;
+        border: 1px solid #e5e7eb;
+    }
+}
+
+/* Improved status badge styling */
+.status-badge {
+    display: inline-block;
+    padding: 0.25em 0.75em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-badge.success {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+.status-badge.warning {
+    background-color: #fef9c3;
+    color: #ca8a04;
+}
+
+.status-badge.danger {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.status-badge.info {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+@media (max-width: 768px) {
+    /* Better sidebar handling */
+    .sidebar-overlay {
+        background-color: rgba(0,0,0,0.5);
+        backdrop-filter: blur(2px);
+        position: fixed;
+        inset: 0;
+        z-index: 5;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Improve modal responsiveness */
+    .responsive-modal {
+        width: 90% !important;
+        max-width: 90% !important;
+        margin: 1rem auto !important;
+    }
+
+    /* Better spacing for mobile */
+    .mobile-stack > * + * {
+        margin-top: 0.75rem;
+    }
+
+    /* Simplified interfaces for mobile */
+    .mobile-simplified .mobile-hidden {
+        display: none !important;
+    }
+
+    /* Improve table loading state */
+    .table-loading-overlay {
+        position: absolute;
+        inset: 0;
+        background-color: rgba(255, 255, 255, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+    }
+
+    .table-loading-spinner {
+        width: 2.5rem;
+        height: 2.5rem;
+        border: 3px solid #e5e7eb;
+        border-top-color: #4f46e5;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets */
+    .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Improve checkbox/radio touch area */
+    input[type="checkbox"],
+    input[type="radio"] {
+        min-width: 20px;
+        min-height: 20px;
+    }
+
+    /* Add space between touch elements */
+    .touch-space > * + * {
+        margin-left: 12px;
+    }
+
+    /* Better touch experience for table rows */
+    .table-responsive-card.card-view tr {
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .table-responsive-card.card-view tr:active {
+        transform: scale(0.98);
+        box-shadow: 0 0 0 rgba(0,0,0,0);
+    }
+}
+
+/* Helper to prevent text overflow in tables */
+.truncate-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+@media (max-width: 640px) {
+    .truncate-text {
+        max-width: 150px;
+    }
+}
+
+/* Responsive utilities */
+.flex-col-reverse-mobile {
+    flex-direction: column-reverse;
+}
+
+@media (min-width: 640px) {
+    .flex-col-reverse-mobile {
+        flex-direction: row;
+    }
+}
+
+/* Table cell alignments */
+.cell-center {
+    text-align: center;
+}
+
+.cell-right {
+    text-align: right;
+}
+
+/* Data loading skeleton styles */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.skeleton-text {
+    height: 1rem;
+    width: 100%;
+    border-radius: 0.25rem;
+    margin: 0.25rem 0;
+}
+
+.skeleton-circle {
+    height: 2.5rem;
+    width: 2.5rem;
+    border-radius: 9999px;
+}
+
+/* Table pagination styles */
+.table-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background-color: #f9fafb;
+    border-radius: 0.375rem;
+}
+
+@media (max-width: 640px) {
+    .table-pagination {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+/* Improved table sorting */
+.sort-icon {
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-left: 0.25rem;
+    transition: transform 0.2s;
+}
+
+.sort-icon.sort-asc {
+    transform: rotate(0deg);
+}
+
+.sort-icon.sort-desc {
+    transform: rotate(180deg);
+}
+
+th.sortable {
+    cursor: pointer;
+}
+
+th.sortable:hover {
+    background-color: #f3f4f6;
+}
+
+/* Animation for row actions */
+@keyframes fadeInAction {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.row-actions {
+    opacity: 1;
+    transition: opacity 0.2s;
+}
+
+tr:hover .row-actions {
+    opacity: 1;
+    animation: fadeInAction 0.3s forwards;
+}
